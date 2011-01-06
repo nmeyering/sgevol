@@ -56,6 +56,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <fcppt/io/cerr.hpp>
 #include <fcppt/math/vector/basic_impl.hpp>
 #include <fcppt/text.hpp>
+#include <fcppt/container/grid/object.hpp>
+#include <fcppt/math/vector/length.hpp>
 #include <boost/mpl/vector/vector10.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
@@ -344,41 +346,66 @@ class texture3d
 public:
 	explicit
 	texture3d(
-		fcppt::filesystem::path const &directory,
-		fcppt::string const &prefix,
-		std::size_t const slice_size,
-		std::size_t const slices);
+		std::size_t const dimension);
 
 	sge::image3d::view::const_object const
 	view() const;
 private:
-	// Ein raw_vector initialisiert seine Elemente nicht mit 0 am Anfang (spart
-	// Performance)
-	typedef
-	fcppt::container::raw_vector<unsigned char> 
-	byte_vector;
+  typedef
+  fcppt::container::grid::object<
+    float,
+    3
+  >
+  grid_3d;
 
-	byte_vector bytes_;
-	std::size_t slice_size_,slices_;
+	grid_3d grid_;
+	std::size_t dimension_;
 };
 
 texture3d::texture3d(
-	fcppt::filesystem::path const &directory,
-	fcppt::string const &prefix,
-	std::size_t const _slice_size,
-	std::size_t const _slices)
+	std::size_t const _dimension
+	)
 :
-	bytes_(
-		static_cast<byte_vector::size_type>(
-			_slices * _slice_size * _slice_size)),
-	slice_size_(
-		_slice_size),
-	slices_(
-		_slices)
+  grid_(
+    grid_3d::dim(
+      _dimension,
+      _dimension,
+      _dimension
+      )),
+  dimension_(
+    _dimension
+    )
 {
-	byte_vector::iterator current_byte = 
-		bytes_.begin();
 
+  // Grid füllen mit Quatsch
+  for (int x = 0; x < dimension_; ++x)
+  {
+    for (int y = 0; y < dimension_; ++y)
+    {
+      for (int z = 0; z < dimension_; ++z)
+      {
+        float r =
+          fcppt::math::vector::length(
+            sge::renderer::vector3(
+            x - 128,
+            y - 128,
+            z - 128
+            )
+          );
+        unsigned char value = 0x10;
+        if ( r - 64 < 0 )
+          value = 0xFF;
+        grid_[
+          grid_3d::dim(
+            x,
+            y,
+            z)
+        ] = value;
+      }
+    }
+  }
+  std::cout << counter << "\n";
+  /*
 	// Liste der Dateien "datei1, datei2, datei3, ..." durchgehen, alle öffnen, Content zum Array hinzufügen
 	for (std::size_t current_slice = 1; current_slice <= _slices; ++current_slice)
 	{
@@ -414,6 +441,7 @@ texture3d::texture3d(
 				static_cast<byte_vector::value_type>(
 					static_cast<double>(file_content[current_texel+1] << 8 | file_content[current_texel])/65536.0 * 255.0);
 	}
+  */
 }
 
 sge::image3d::view::const_object const
@@ -425,13 +453,11 @@ texture3d::view() const
 	return 
 		sge::image3d::view::make_const(
 			reinterpret_cast<sge::image::const_raw_pointer>(
-				bytes_.data()),
-       
+				grid_.data()),
 			sge::image3d::dim(
-        //bytes.dimension()???
-				slice_size_,
-				slice_size_,
-				slices_),
+        dimension_,
+        dimension_,
+        dimension_),
 			sge::image::color::format::gray8,
 			sge::image3d::view::optional_pitch());
 }
@@ -459,7 +485,7 @@ try
     ("prefix", boost::program_options::value<fcppt::string>(), "Slice prefix (see above)")
     ("slice-count", boost::program_options::value<std::size_t>(), "How many slices are there")
     ("slice-size", boost::program_options::value<std::size_t>(), "How big is one slice")
-    ("screen-size", boost::program_options::value<sge::renderer::screen_size>()->default_value(sge::renderer::screen_size(1024,768)), "Screen resolution, format: (x,y)");
+    ("screen-size", boost::program_options::value<sge::renderer::screen_size>()->default_value(sge::renderer::screen_size(640,480)), "Screen resolution, format: (x,y)");
 
 	boost::program_options::variables_map vm;
 	boost::program_options::store(
@@ -525,11 +551,16 @@ try
 	sge::renderer::device_ptr const rend(
 		sys.renderer());
 
+  /*
 	testcase::texture3d mytex(
 		vm["directory"].as<fcppt::string>(),
 		vm["prefix"].as<fcppt::string>(),
 		vm["slice-size"].as<std::size_t>(),
 		vm["slice-count"].as<std::size_t>());
+  */
+  testcase::texture3d mytex(  
+    static_cast<std::size_t>( 256 )
+    );
 
 	// Unser Shader mit der tollen Klasse sge::shader
 	sge::shader::object shader(
@@ -558,6 +589,13 @@ try
 			(sge::shader::variable(
 				// Name der Variable
 				"mvp",
+				// Typ (uniform oder const_ für Konstanten)
+				sge::shader::variable_type::uniform,
+				// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
+				sge::renderer::matrix4()))
+			(sge::shader::variable(
+				// Name der Variable
+				"mv",
 				// Typ (uniform oder const_ für Konstanten)
 				sge::shader::variable_type::uniform,
 				// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
@@ -653,12 +691,12 @@ try
 					10)),
 			// movementspeed
 			static_cast<sge::renderer::scalar>(
-				0.2),
+				1.0),
 			// mousespeed
 			static_cast<sge::renderer::scalar>(
-				200.0),
+				100.0),
 			// position
-			sge::renderer::vector3::null(),
+			sge::renderer::vector3( 1, 2.5, 5 ),
 			// Maus und Keyboard
 			*sys.keyboard_collector(),
 			*sys.mouse_collector()));
@@ -694,15 +732,14 @@ try
 		shader.set_uniform(
 			"mvp",
 			cam.mvp());
+
     shader.set_uniform(
       "camera",
       cam.gizmo().position());
 
-		/*
 		shader.set_uniform(
 			"mv",
 			cam.world());
-		*/
 	}
 }
 catch(sge::exception const &e)
