@@ -95,6 +95,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/time/timer.hpp>
 #include <sge/time/second.hpp>
+
+#include <sge/image3d/rgba8.hpp>
+#include <sge/image/color/rgba8.hpp>
+#include <sge/image/color/init.hpp>
+#include <sge/image/store.hpp>
+#include <mizuiro/image/view.hpp>
+#include <fcppt/math/dim/basic_impl.hpp>
+#include <sge/image3d/view/to_const.hpp>
+#include <sge/image3d/view/object.hpp>
+#include <sge/image3d/view/const_object.hpp>
+
 #include <fcppt/math/deg_to_rad.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/container/raw_vector.hpp>
@@ -351,97 +362,47 @@ public:
 	sge::image3d::view::const_object const
 	view() const;
 private:
-  typedef
-  fcppt::container::grid::object<
-    float,
-    3
-  >
-  grid_3d;
 
-	grid_3d grid_;
-	std::size_t dimension_;
+	typedef sge::image3d::rgba8 store;
+	typedef store::view_type v;
+
+	store store_;
+	v view_;
+
+	v::dim_type::value_type dimension_;
 };
 
 texture3d::texture3d(
-	std::size_t const _dimension
+	v::dim_type::value_type const _dimension
 	)
 :
-  grid_(
-    grid_3d::dim(
-      _dimension,
-      _dimension,
-      _dimension
-      )),
+	store_(
+		store::dim_type(
+			_dimension,
+			_dimension,
+			_dimension)),
   dimension_(
     _dimension
-    )
+    ),
+	view_(
+		store_.view())
 {
 
   // Grid füllen mit Quatsch
   for (int x = 0; x < dimension_; ++x)
-  {
     for (int y = 0; y < dimension_; ++y)
-    {
       for (int z = 0; z < dimension_; ++z)
       {
-        float r =
-          fcppt::math::vector::length(
-            sge::renderer::vector3(
-            x - 128,
-            y - 128,
-            z - 128
-            )
-          );
-        unsigned char value = 0x10;
-        if ( r - 64 < 0 )
-          value = 0xFF;
-        grid_[
-          grid_3d::dim(
-            x,
-            y,
-            z)
-        ] = value;
+				double value = 0.05;
+				if( x > dimension_ / 2 )
+					value = 0.25;
+				view_[ v::dim_type(x,y,z) ] = 
+					sge::image::color::rgba8(
+						(sge::image::color::init::red %= 0.5)
+						(sge::image::color::init::green %= 1.0)
+						(sge::image::color::init::blue %= 1.0)
+						(sge::image::color::init::alpha %= value));
       }
-    }
-  }
-  std::cout << counter << "\n";
-  /*
-	// Liste der Dateien "datei1, datei2, datei3, ..." durchgehen, alle öffnen, Content zum Array hinzufügen
-	for (std::size_t current_slice = 1; current_slice <= _slices; ++current_slice)
-	{
-		// Dateinamen zusammenklauben
-		fcppt::filesystem::path const p = 
-			directory / (prefix + FCPPT_TEXT(".") + boost::lexical_cast<fcppt::string>(current_slice));
-
-		// cifstream ist dazu da, Bytes auszulesen, nicht Zeichen.
-		fcppt::io::cifstream file(
-			p);
-
-		if (!file.is_open())
-			throw 
-				fcppt::exception(
-					FCPPT_TEXT("Couldn't open file ")+
-					p.string());
-
-		// Das ist nur eine fancy Art und Weise, den kompletten Inhalt einer Datei
-		// zu 'nem String zu machen (hab ich auch nur c&pt)
-		std::string const file_content(
-			(std::istreambuf_iterator<char>(
-				file)),
-			std::istreambuf_iterator<char>());
-
-		// Wir setzen mal lieber eine gerade Anzahl Bytes voraus, sonst stimmt was
-		// mit der Datei nicht.
-		FCPPT_ASSERT(
-			file_content.size() % 2u == 0);
-
-		// short aus zwei Bytes zusammensetzen
-		for (std::string::size_type current_texel = 0; current_texel < file_content.size(); current_texel += 2)
-			*current_byte++ = 
-				static_cast<byte_vector::value_type>(
-					static_cast<double>(file_content[current_texel+1] << 8 | file_content[current_texel])/65536.0 * 255.0);
-	}
-  */
 }
 
 sge::image3d::view::const_object const
@@ -451,15 +412,7 @@ texture3d::view() const
 	// mizuiro::view. Das braucht der Renderer, um eine Textur draus zu
 	// generieren. Sollte alles selbsterklärend sein (ausnahmsweise)
 	return 
-		sge::image3d::view::make_const(
-			reinterpret_cast<sge::image::const_raw_pointer>(
-				grid_.data()),
-			sge::image3d::dim(
-        dimension_,
-        dimension_,
-        dimension_),
-			sge::image::color::format::gray8,
-			sge::image3d::view::optional_pitch());
+		sge::image3d::view::to_const( view_ );
 }
 }
 
@@ -485,7 +438,7 @@ try
     ("prefix", boost::program_options::value<fcppt::string>(), "Slice prefix (see above)")
     ("slice-count", boost::program_options::value<std::size_t>(), "How many slices are there")
     ("slice-size", boost::program_options::value<std::size_t>(), "How big is one slice")
-    ("screen-size", boost::program_options::value<sge::renderer::screen_size>()->default_value(sge::renderer::screen_size(640,480)), "Screen resolution, format: (x,y)");
+    ("screen-size", boost::program_options::value<sge::renderer::screen_size>()->default_value(sge::renderer::screen_size(1024,768)), "Screen resolution, format: (x,y)");
 
 	boost::program_options::variables_map vm;
 	boost::program_options::store(
@@ -539,11 +492,11 @@ try
 			)
 		)
 		(
-			// Copypaste
-			sge::systems::input(
-				sge::systems::input_helper_field(
-					sge::systems::input_helper::keyboard_collector) | sge::systems::input_helper::mouse_collector
-			)
+      sge::systems::input(
+        sge::systems::input_helper_field(
+          sge::systems::input_helper::keyboard_collector) | sge::systems::input_helper::mouse_collector,
+        sge::systems::cursor_grab::off
+      )
 		)
 	);
 
@@ -621,11 +574,11 @@ try
 					sge::renderer::filter::linear,
 					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
 					// man die unbedingt wieder auslesen will
-					sge::renderer::resource_flags::none),
+					sge::renderer::resource_flags::none)
 				// Man muss bei 3D-Texturen noch angeben, dass die 3 Dimensionen hat.
 				// Das kann er aus dem obigen create_volume_texture leider nicht
 				// ableiten (ein TODO für Freundlich?)
-				3)));
+				)));
 
 	sge::renderer::vertex_buffer_ptr const vb = 
 		testcase::create_cube(

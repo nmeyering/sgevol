@@ -5,11 +5,11 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
+uniform float stepsize = 0.02;
+
 void
 main()
 {
-  float gray = 1.0;
-  float stepsize = 0.10;
   vec4 value;
   vec4 dst = vec4(0,0,0,0);
   vec3 position = position_interp;
@@ -22,7 +22,8 @@ main()
     
     vec4 src = value;
 
-    dst = (1.0 - dst.a) * src * 0.05 + dst;
+    //dst = (1.0 - dst.a) * src + dst;
+		dst = dst + 0.02 * value;
     
     position = position + direction * stepsize;
 
@@ -36,4 +37,5 @@ main()
   }
 	frag_color = dst;
 
+	//frag_color = vec4( position_interp, 0.5 );
 }
