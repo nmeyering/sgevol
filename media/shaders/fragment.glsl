@@ -37,5 +37,6 @@ main()
   }
 	frag_color = dst;
 
-	//frag_color = vec4( position_interp, 0.5 );
+  //frag_color = vec4( position_interp, 0.5 );
+  //frag_color = vec4(1.0,1.0,1.0,1.0);
 }

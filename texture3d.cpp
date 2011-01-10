@@ -241,24 +241,14 @@ create_cube(
   // unten 2
   (*vb_it++).set<vf::position>(
     position_vector(
-      -1,-1,-1));
+      1,-1,1));
   (*vb_it++).set<vf::position>(
     position_vector(
       1,-1,-1));
   (*vb_it++).set<vf::position>(
     position_vector(
-      1,-1,1));
+      -1,-1,-1));
   // oben 1
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,1));
-  // oben 2
   (*vb_it++).set<vf::position>(
     position_vector(
       -1,1,-1));
@@ -268,17 +258,17 @@ create_cube(
   (*vb_it++).set<vf::position>(
     position_vector(
       1,1,1));
-  // links 1
+  // oben 2
   (*vb_it++).set<vf::position>(
     position_vector(
-      -1,-1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,1));
+      1,1,1));
   (*vb_it++).set<vf::position>(
     position_vector(
       -1,1,1));
-  // links 2
+  (*vb_it++).set<vf::position>(
+    position_vector(
+      -1,1,-1));
+  // links 1
   (*vb_it++).set<vf::position>(
     position_vector(
       -1,-1,-1));
@@ -288,6 +278,16 @@ create_cube(
   (*vb_it++).set<vf::position>(
     position_vector(
       -1,1,1));
+  // links 2
+  (*vb_it++).set<vf::position>(
+    position_vector(
+      -1,1,1));
+  (*vb_it++).set<vf::position>(
+    position_vector(
+      -1,-1,1));
+  (*vb_it++).set<vf::position>(
+    position_vector(
+      -1,-1,-1));
   // rechts 1
   (*vb_it++).set<vf::position>(
     position_vector(
@@ -301,13 +301,13 @@ create_cube(
   // rechts 2
   (*vb_it++).set<vf::position>(
     position_vector(
-      1,-1,-1));
+      1,1,1));
   (*vb_it++).set<vf::position>(
     position_vector(
       1,1,-1));
   (*vb_it++).set<vf::position>(
     position_vector(
-      1,1,1));
+      1,-1,-1));
   // vorne 1
   (*vb_it++).set<vf::position>(
     position_vector(
@@ -321,24 +321,14 @@ create_cube(
   // vorne 2
   (*vb_it++).set<vf::position>(
     position_vector(
-      -1,-1,1));
+      1,1,1));
   (*vb_it++).set<vf::position>(
     position_vector(
       1,-1,1));
   (*vb_it++).set<vf::position>(
     position_vector(
-      1,1,1));
+      -1,-1,1));
   // hinten 1
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,-1));
-  // hinten 2
   (*vb_it++).set<vf::position>(
     position_vector(
       -1,-1,-1));
@@ -348,6 +338,16 @@ create_cube(
   (*vb_it++).set<vf::position>(
     position_vector(
       1,1,-1));
+  // hinten 2
+  (*vb_it++).set<vf::position>(
+    position_vector(
+      1,1,-1));
+  (*vb_it++).set<vf::position>(
+    position_vector(
+      -1,1,-1));
+  (*vb_it++).set<vf::position>(
+    position_vector(
+      -1,-1,-1));
 
 	return vb;
 }
@@ -389,19 +389,22 @@ texture3d::texture3d(
 {
 
   // Grid füllen mit Quatsch
+	double red = 1.0;
   for (int x = 0; x < dimension_; ++x)
     for (int y = 0; y < dimension_; ++y)
       for (int z = 0; z < dimension_; ++z)
       {
-				double value = 0.05;
+        if( y == 0 & z == 0 )
+          std::cout << x << "\n";
+				red = 1.0;
 				if( x > dimension_ / 2 )
-					value = 0.25;
+					red = 0.0;
 				view_[ v::dim_type(x,y,z) ] = 
 					sge::image::color::rgba8(
-						(sge::image::color::init::red %= 0.5)
-						(sge::image::color::init::green %= 1.0)
-						(sge::image::color::init::blue %= 1.0)
-						(sge::image::color::init::alpha %= value));
+						(sge::image::color::init::red %= red)
+						(sge::image::color::init::green %= 0.0)
+						(sge::image::color::init::blue %= 1.0 - red)
+						(sge::image::color::init::alpha %= 0.05));
       }
 }
 
@@ -495,7 +498,7 @@ try
       sge::systems::input(
         sge::systems::input_helper_field(
           sge::systems::input_helper::keyboard_collector) | sge::systems::input_helper::mouse_collector,
-        sge::systems::cursor_grab::off
+        sge::systems::cursor_grab::automatic
       )
 		)
 	);
@@ -610,9 +613,9 @@ try
 			(sge::renderer::state::source_blend_func::src_alpha)
 			(sge::renderer::state::dest_blend_func::inv_src_alpha)
 			// Kein Culling
-			(sge::renderer::state::cull_mode::off)
+			(sge::renderer::state::cull_mode::front)
 			// WIREFRAME
-			// (sge::renderer::state::draw_mode::line)
+			//(sge::renderer::state::draw_mode::line)
 			// Tiefenfunktion
 			(sge::renderer::state::depth_func::less)
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
