@@ -1,23 +1,3 @@
-/*
-spacegameengine is a portable easy to use game engine written in C++.
-Copyright (C) 2006-2010 Carl Philipp Reh (sefi@s-e-f-i.de)
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-
-
 #include <sge/exception.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
@@ -390,21 +370,41 @@ texture3d::texture3d(
 
   // Grid füllen mit Quatsch
 	double red = 1.0;
+	double green = 0.0;
+	double alpha = 0.0;
+	double radius = 0.0;
+	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
+	vec3 center(
+			static_cast< float >( dimension_ * .5 ),
+			static_cast< float >( dimension_ * .5 ),
+			static_cast< float >( dimension_ * .5 ));
   for (int x = 0; x < dimension_; ++x)
     for (int y = 0; y < dimension_; ++y)
       for (int z = 0; z < dimension_; ++z)
       {
         if( y == 0 & z == 0 )
-          std::cout << x << "\n";
+          std::cout << 100*(static_cast<double>(x) / dimension_) << "\n";
+				vec3 tmp(
+					static_cast< float >( x ),
+					static_cast< float >( y ),
+					static_cast< float >( z ));
 				red = 1.0;
+				green = 0.0;
+				alpha = 0.05;
+				if( fcppt::math::vector::length(tmp - center ) < dimension_ * 0.3 )
+				{
+					red = 1.0;
+					green = 1.0;
+					alpha = 1.0;
+				}
 				if( x > dimension_ / 2 )
 					red = 0.0;
 				view_[ v::dim_type(x,y,z) ] = 
 					sge::image::color::rgba8(
 						(sge::image::color::init::red %= red)
-						(sge::image::color::init::green %= 0.0)
+						(sge::image::color::init::green %= green)
 						(sge::image::color::init::blue %= 1.0 - red)
-						(sge::image::color::init::alpha %= 0.05));
+						(sge::image::color::init::alpha %= alpha));
       }
 }
 
@@ -574,7 +574,7 @@ try
 					mytex.view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
 					// sogar anisotropisch, aber das ist ungetestet)
-					sge::renderer::filter::linear,
+					sge::renderer::filter::point,
 					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
 					// man die unbedingt wieder auslesen will
 					sge::renderer::resource_flags::none)
