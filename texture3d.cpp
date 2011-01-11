@@ -70,7 +70,6 @@
 #include <sge/shader/vf_to_string.hpp>
 #include <sge/camera/projection/perspective.hpp>
 #include <sge/renderer/aspect.hpp>
-#include <sge/renderer/filter/linear.hpp>
 #include <sge/renderer/filter/point.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/time/timer.hpp>
@@ -205,129 +204,129 @@ create_cube(
 	position_vector;
 
 	// VB befüllen!
-//  sge::renderer::scalar const z = 
-//    1.0f - static_cast<sge::renderer::scalar>(i)/static_cast<sge::renderer::scalar>(slices);
-  // Hier setzen wir für alle Vertizes alle Attribute (in unserem Fall nur das Attribut vf::position)
-  // unten 1
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,-1,1));
-  // unten 2
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,-1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,-1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,-1));
-  // oben 1
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,1));
-  // oben 2
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,-1));
-  // links 1
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,1));
-  // links 2
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,-1));
-  // rechts 1
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,-1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,-1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,1));
-  // rechts 2
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,-1,-1));
-  // vorne 1
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,1));
-  // vorne 2
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,-1,1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,1));
-  // hinten 1
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,-1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,-1));
-  // hinten 2
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      1,1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,1,-1));
-  (*vb_it++).set<vf::position>(
-    position_vector(
-      -1,-1,-1));
+//	sge::renderer::scalar const z = 
+//		1.0f - static_cast<sge::renderer::scalar>(i)/static_cast<sge::renderer::scalar>(slices);
+	// Hier setzen wir für alle Vertizes alle Attribute (in unserem Fall nur das Attribut vf::position)
+	// unten 1
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,-1,1));
+	// unten 2
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,-1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,-1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,-1));
+	// oben 1
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,1));
+	// oben 2
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,1,-1));
+	// links 1
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,1,1));
+	// links 2
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,-1));
+	// rechts 1
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,-1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,-1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,1));
+	// rechts 2
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,-1,-1));
+	// vorne 1
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,1));
+	// vorne 2
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,-1,1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,1));
+	// hinten 1
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,-1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,-1));
+	// hinten 2
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			1,1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,1,-1));
+	(*vb_it++).set<vf::position>(
+		position_vector(
+			-1,-1,-1));
 
 	return vb;
 }
@@ -361,51 +360,59 @@ texture3d::texture3d(
 			_dimension,
 			_dimension,
 			_dimension)),
-  dimension_(
-    _dimension
-    ),
+	dimension_(
+		_dimension
+		),
 	view_(
 		store_.view())
 {
 
-  // Grid füllen mit Quatsch
-	double red = 1.0;
+	// Grid füllen mit Quatsch
+	double red = 0.0;
 	double green = 0.0;
+	double blue = 0.0;
 	double alpha = 0.0;
-	double radius = 0.0;
 	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
 	vec3 center(
 			static_cast< float >( dimension_ * .5 ),
 			static_cast< float >( dimension_ * .5 ),
 			static_cast< float >( dimension_ * .5 ));
-  for (int x = 0; x < dimension_; ++x)
-    for (int y = 0; y < dimension_; ++y)
-      for (int z = 0; z < dimension_; ++z)
-      {
-        if( y == 0 & z == 0 )
-          std::cout << 100*(static_cast<double>(x) / dimension_) << "\n";
+	for (int x = 0; x < dimension_; ++x)
+		for (int y = 0; y < dimension_; ++y)
+			for (int z = 0; z < dimension_; ++z)
+			{
+				if( y == 0 & z == 0 )
+					std::cout << 100*(static_cast<double>(x) / dimension_) << "\n";
 				vec3 tmp(
 					static_cast< float >( x ),
 					static_cast< float >( y ),
 					static_cast< float >( z ));
-				red = 1.0;
+
+				red = 0.9;
 				green = 0.0;
-				alpha = 0.05;
-				if( fcppt::math::vector::length(tmp - center ) < dimension_ * 0.3 )
+				blue = 0.1;
+				alpha = 0.10;
+				if( x > static_cast<double>( dimension_ / 2.0 ) )
 				{
-					red = 1.0;
-					green = 1.0;
-					alpha = 1.0;
+					red = 0.1;
+					blue = 0.9;
 				}
-				if( x > dimension_ / 2 )
-					red = 0.0;
+				if( y > static_cast<double>( dimension_ / 2.0 ) )
+					alpha = 0.025;
+				if( fcppt::math::vector::length(tmp - center) < dimension_ * 0.4 )
+				{
+					red = 0.1;
+					green = 1.0;
+					blue = 0.1;
+					alpha = 0.5;
+				}
 				view_[ v::dim_type(x,y,z) ] = 
 					sge::image::color::rgba8(
 						(sge::image::color::init::red %= red)
 						(sge::image::color::init::green %= green)
-						(sge::image::color::init::blue %= 1.0 - red)
+						(sge::image::color::init::blue %= blue)
 						(sge::image::color::init::alpha %= alpha));
-      }
+			}
 }
 
 sge::image3d::view::const_object const
@@ -436,12 +443,12 @@ try
 		"No header. Sample images can be found at\n\n"
 		"http://www-graphics.stanford.edu/data/voldata/\n\nOther options include");
 	desc.add_options()
-    ("help", "Produce help message")
-    ("directory", boost::program_options::value<fcppt::string>(), "Set the directory where to take the slices from (see above)")
-    ("prefix", boost::program_options::value<fcppt::string>(), "Slice prefix (see above)")
-    ("slice-count", boost::program_options::value<std::size_t>(), "How many slices are there")
-    ("slice-size", boost::program_options::value<std::size_t>(), "How big is one slice")
-    ("screen-size", boost::program_options::value<sge::renderer::screen_size>()->default_value(sge::renderer::screen_size(1024,768)), "Screen resolution, format: (x,y)");
+		("help", "Produce help message")
+		("directory", boost::program_options::value<fcppt::string>(), "Set the directory where to take the slices from (see above)")
+		("prefix", boost::program_options::value<fcppt::string>(), "Slice prefix (see above)")
+		("slice-count", boost::program_options::value<std::size_t>(), "How many slices are there")
+		("slice-size", boost::program_options::value<std::size_t>(), "How big is one slice")
+		("screen-size", boost::program_options::value<sge::renderer::screen_size>()->default_value(sge::renderer::screen_size(1024,768)), "Screen resolution, format: (x,y)");
 
 	boost::program_options::variables_map vm;
 	boost::program_options::store(
@@ -451,7 +458,7 @@ try
 			desc), 
 		vm);
 	boost::program_options::notify(
-		vm);    
+		vm);		
 
 	if (vm.count("help")) 
 	{
@@ -495,11 +502,11 @@ try
 			)
 		)
 		(
-      sge::systems::input(
-        sge::systems::input_helper_field(
-          sge::systems::input_helper::keyboard_collector) | sge::systems::input_helper::mouse_collector,
-        sge::systems::cursor_grab::automatic
-      )
+			sge::systems::input(
+				sge::systems::input_helper_field(
+					sge::systems::input_helper::keyboard_collector) | sge::systems::input_helper::mouse_collector,
+				sge::systems::cursor_grab::automatic
+			)
 		)
 	);
 
@@ -507,16 +514,16 @@ try
 	sge::renderer::device_ptr const rend(
 		sys.renderer());
 
-  /*
+	/*
 	testcase::texture3d mytex(
 		vm["directory"].as<fcppt::string>(),
 		vm["prefix"].as<fcppt::string>(),
 		vm["slice-size"].as<std::size_t>(),
 		vm["slice-count"].as<std::size_t>());
-  */
-  testcase::texture3d mytex(  
-    static_cast<std::size_t>( 256 )
-    );
+	*/
+	testcase::texture3d mytex(	
+		static_cast<std::size_t>( 256 )
+		);
 
 	// Unser Shader mit der tollen Klasse sge::shader
 	sge::shader::object shader(
@@ -556,8 +563,8 @@ try
 				sge::shader::variable_type::uniform,
 				// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
 				sge::renderer::matrix4()))
-      (sge::shader::variable(
-        "camera",
+			(sge::shader::variable(
+				"camera",
 				sge::shader::variable_type::uniform,
 				sge::renderer::vector3()))
 			/*
@@ -638,7 +645,7 @@ try
 				// fov
 				fcppt::math::deg_to_rad(
 					static_cast<sge::renderer::scalar>(
-						90)),
+						30)),
 				// near
 				static_cast<sge::renderer::scalar>(
 					0.1),
@@ -689,9 +696,9 @@ try
 			"mvp",
 			cam.mvp());
 
-    shader.set_uniform(
-      "camera",
-      cam.gizmo().position());
+		shader.set_uniform(
+			"camera",
+			cam.gizmo().position());
 
 		shader.set_uniform(
 			"mv",
