@@ -3,6 +3,8 @@
 #include <fcppt/random/uniform.hpp>
 #include <fcppt/random/make_inclusive_range.hpp>
 #include <algorithm>
+#include <math.h>
+#include "trig_lerp.hpp"
 #include "perlin3d.hpp"
 
 #include <iostream>
@@ -17,9 +19,6 @@ perlin3d::perlin3d(
 		_dim
 		),
 	perm_(
-		_dim
-		),
-	gradients_(
 		_dim
 		),
 	grid_(
@@ -45,14 +44,40 @@ perlin3d::perlin3d(
 		)
 	);
 
-	for( unsigned int i = 0; i < gradients_.size(); ++i )
-		gradients_[i] = vec3(
+
+	vec3 tmp;
+	while( gradients_.size() < dim_ )
+	{
+		tmp = vec3(
 			rng(),
 			rng(),
 			rng()
 		);
+		if (fcppt::math::vector::length( tmp ) <= 1.0)
+			gradients_.push_back( 
+				fcppt::math::vector::normalize( tmp )
+			);
+	}
 
 	std::cout << gradients_[42] << std::endl;
+
+	for( grid_type::size_type x = 0; x < dim_; ++x )
+		for( grid_type::size_type y = 0; y < dim_; ++y )
+			for( grid_type::size_type z = 0; z < dim_; ++z )
+				grid_[
+					grid_type::dim(
+						x,
+						y,
+						z
+					)
+				] = gradients_[ 
+					(	x + 
+						perm_[
+							( y +
+								perm_[ z ] 
+							) % dim_
+						] ) % dim_
+				];
 	
 }
 
@@ -60,5 +85,46 @@ float perlin3d::sample(
 	vec3 const &point
 )
 {
-	return 0.0f;
+	typedef
+	grid_type::dim
+	dim3;
+
+	vec3 floor(
+		std::floor( point.x() ),
+		std::floor( point.y() ),
+		std::floor( point.z() ) );
+
+
+	std::vector< vec3 > neighbors;
+	for( unsigned i = 0; i < 8; ++i )
+		neighbors.push_back(
+			vec3(
+				floor.x() +  1.0 * (i & 1u),
+				floor.y() +  1.0 * (i & 2u),
+				floor.z() +  1.0 * (i & 4u) 
+			)
+		);
+
+	std::vector< float > n_contribs;
+	for( unsigned i = 0; i < 8; ++i )
+		n_contribs.push_back(
+			fcppt::math::vector::dot(
+				grid_[
+						fcppt::math::vector::structure_cast<
+							grid_type::dim 
+						>( neighbors[i] )
+						],
+				neighbors[i] - point
+			)
+		);
+
+	vec3 const diff( point - floor );
+	
+	float const x1 = trig_lerp( n_contribs[0], n_contribs[1], diff.x() );
+	float const x2 = trig_lerp( n_contribs[2], n_contribs[3], diff.x() );
+	float const x3 = trig_lerp( n_contribs[4], n_contribs[5], diff.x() );
+	float const x4 = trig_lerp( n_contribs[6], n_contribs[7], diff.x() );
+	float const y1 = trig_lerp( x1, x2, diff.y() );
+	float const y2 = trig_lerp( x3, x4, diff.y() );
+	return trig_lerp( y1, y2, diff.z() );
 }

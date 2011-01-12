@@ -70,7 +70,7 @@
 #include <sge/shader/vf_to_string.hpp>
 #include <sge/camera/projection/perspective.hpp>
 #include <sge/renderer/aspect.hpp>
-#include <sge/renderer/filter/point.hpp>
+#include <sge/renderer/filter/trilinear.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/time/timer.hpp>
 #include <sge/time/second.hpp>
@@ -97,6 +97,7 @@
 #include <iostream>
 #include <streambuf>
 #include <cstddef>
+#include "perlin3d.hpp"
 
 // Hier mal stat dem anonymen Namensraum ein beliebig benannter
 namespace testcase
@@ -368,15 +369,16 @@ texture3d::texture3d(
 {
 
 	// Grid füllen 
-	double red = 0.0;
-	double green = 0.0;
-	double blue = 0.0;
+	double red = 1.0;
+	double green = 1.0;
+	double blue = 1.0;
 	double alpha = 0.0;
 	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
 	vec3 center(
 			static_cast< float >( dimension_ * .5 ),
 			static_cast< float >( dimension_ * .5 ),
 			static_cast< float >( dimension_ * .5 ));
+	sgevol::perlin3d noise( dimension_ );
 	for (int x = 0; x < dimension_; ++x)
 		for (int y = 0; y < dimension_; ++y)
 			for (int z = 0; z < dimension_; ++z)
@@ -384,10 +386,11 @@ texture3d::texture3d(
 				if( y == 0 & z == 0 )
 					std::cout << 100*(static_cast<double>(x) / dimension_) << "\n";
 				vec3 tmp(
-					static_cast< float >( x ),
-					static_cast< float >( y ),
-					static_cast< float >( z ));
+					static_cast< float >( x / 8.0 ),
+					static_cast< float >( y / 8.0 ),
+					static_cast< float >( z / 8.0 ));
 
+				/*
 				red = 0.9;
 				green = 0.0;
 				blue = 0.1;
@@ -406,6 +409,9 @@ texture3d::texture3d(
 					blue = 0.1;
 					alpha = 1.0;
 				}
+				*/
+				alpha = 0.05 * std::max(0.0, std::min(1.0, noise.sample( tmp ) - 0.5 ) ) *
+					(1.0f - fcppt::math::vector::length(tmp - center) / static_cast<float>(dimension_));
 				view_[ v::dim_type(x,y,z) ] = 
 					sge::image::color::rgba8(
 						(sge::image::color::init::red %= red)
@@ -581,7 +587,7 @@ try
 					mytex.view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
 					// sogar anisotropisch, aber das ist ungetestet)
-					sge::renderer::filter::point,
+					sge::renderer::filter::trilinear,
 					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
 					// man die unbedingt wieder auslesen will
 					sge::renderer::resource_flags::none)

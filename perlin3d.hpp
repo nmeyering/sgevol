@@ -4,7 +4,6 @@
 #include <fcppt/math/vector/vector.hpp>
 #include <fcppt/container/grid/object.hpp>
 #include <vector>
-#include "trig_lerp.hpp"
 
 namespace sgevol
 {
@@ -37,22 +36,25 @@ index_type;
 typedef
 std::vector<
 	index_type
-> container_type;
+> index_container;
+
+typedef
+std::vector<
+	vec3
+> vec3_container;
 
 typedef fcppt::container::grid::object<
-	index_type,
+	vec3,
 	3
 > grid_type;
 
 std::size_t dim_;
 
-container_type perm_;
+index_container perm_;
 
 grid_type grid_;
 
-std::vector<
-	vec3
-> gradients_;
+vec3_container gradients_;
 
 };
 	

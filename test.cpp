@@ -13,7 +13,7 @@ int main()
 
 	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
 	vec3 p(
-		.5f,
+		.6f,
 		.5f,
 		.5f );
 	sgevol::perlin3d perlin( 256 );
