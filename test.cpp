@@ -16,6 +16,6 @@ int main()
 		.5f,
 		.5f,
 		.5f );
-	sgevol::perlin3d perlin;
+	sgevol::perlin3d perlin( 256 );
 	std::cout << "result: " << perlin.sample( p ) << std::endl;
 }

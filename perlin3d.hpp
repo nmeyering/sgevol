@@ -1,15 +1,10 @@
 #ifndef SGEVOL_PERLIN3D_HPP_INCLUDED
 #define SGEVOL_PERLIN3D_HPP_INCLUDED
 
-#include <fcppt/math/vector/static.hpp>
+#include <fcppt/math/vector/vector.hpp>
 #include <fcppt/container/grid/object.hpp>
-#include "trig_lerp.hpp"
-#include <boost/range/algorithm_ext/iota.hpp>
-#include <boost/range/algorithm/random_shuffle.hpp>
 #include <vector>
-#include <algorithm>
-
-
+#include "trig_lerp.hpp"
 
 namespace sgevol
 {
@@ -30,7 +25,7 @@ perlin3d(
 );
 
 float sample(
-	vec3 const &foo
+	vec3 const &point
 );
 
 private:
@@ -40,8 +35,9 @@ unsigned int
 index_type;
 
 typedef
-std::vector<index_type> 
-container_type;
+std::vector<
+	index_type
+> container_type;
 
 typedef fcppt::container::grid::object<
 	index_type,
@@ -50,7 +46,7 @@ typedef fcppt::container::grid::object<
 
 std::size_t dim_;
 
-container_type perm;
+container_type perm_;
 
 grid_type grid_;
 

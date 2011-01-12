@@ -355,14 +355,14 @@ texture3d::texture3d(
 	v::dim_type::value_type const _dimension
 	)
 :
+	dimension_(
+		_dimension
+		),
 	store_(
 		store::dim_type(
 			_dimension,
 			_dimension,
 			_dimension)),
-	dimension_(
-		_dimension
-		),
 	view_(
 		store_.view())
 {
