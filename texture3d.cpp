@@ -367,7 +367,7 @@ texture3d::texture3d(
 		store_.view())
 {
 
-	// Grid füllen mit Quatsch
+	// Grid füllen 
 	double red = 0.0;
 	double green = 0.0;
 	double blue = 0.0;
@@ -398,13 +398,13 @@ texture3d::texture3d(
 					blue = 0.9;
 				}
 				if( y > static_cast<double>( dimension_ / 2.0 ) )
-					alpha = 0.025;
+					alpha = 0.05;
 				if( fcppt::math::vector::length(tmp - center) < dimension_ * 0.4 )
 				{
 					red = 0.1;
 					green = 1.0;
 					blue = 0.1;
-					alpha = 0.5;
+					alpha = 1.0;
 				}
 				view_[ v::dim_type(x,y,z) ] = 
 					sge::image::color::rgba8(
@@ -522,7 +522,7 @@ try
 		vm["slice-count"].as<std::size_t>());
 	*/
 	testcase::texture3d mytex(	
-		static_cast<std::size_t>( 256 )
+		static_cast<std::size_t>( 128 )
 		);
 
 	// Unser Shader mit der tollen Klasse sge::shader
@@ -645,7 +645,7 @@ try
 				// fov
 				fcppt::math::deg_to_rad(
 					static_cast<sge::renderer::scalar>(
-						30)),
+						60)),
 				// near
 				static_cast<sge::renderer::scalar>(
 					0.1),
@@ -657,9 +657,9 @@ try
 				1.0),
 			// mousespeed
 			static_cast<sge::renderer::scalar>(
-				100.0),
+				200.0),
 			// position
-			sge::renderer::vector3( 1, 2.5, 5 ),
+			sge::renderer::vector3( 0, 2.4, 5 ),
 			// Maus und Keyboard
 			*sys.keyboard_collector(),
 			*sys.mouse_collector()));

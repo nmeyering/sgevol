@@ -103,6 +103,12 @@ ADD_EXECUTABLE(
   texture3d.cpp
 )
 
+ADD_EXECUTABLE(
+	test
+	perlin3d.cpp
+	test.cpp
+)
+
 TARGET_LINK_LIBRARIES(
 	app
 	${FCPPT_LIBRARIES}
