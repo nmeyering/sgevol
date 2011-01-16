@@ -18,16 +18,16 @@ trig_lerp(
 	T const y )
 {
 	T const f =
-		static_cast< T >( 0.5 ) * 
+		static_cast<T>(0.5) * 
 			(
-			static_cast< T >( 1.0 ) -
+			static_cast<T>(1) -
 				std::cos( 
-					fcppt::math::pi< T >() * 
+					fcppt::math::pi<T>() * 
 					t
 				)
 			);
 	return 
-		y * f + x * ( static_cast< T >( 1.0 ) - f );
+		x * f + y * ( static_cast<T>(1) - f );
 }
 
 }

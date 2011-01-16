@@ -35,7 +35,8 @@ float sample(
 );
 
 void fill_grid(
-	output_grid &grid
+	output_grid &grid,
+	float scale
 );
 
 private:
@@ -66,6 +67,9 @@ index_container perm_;
 grid_type grid_;
 
 vec2_container gradients_;
+
+vec2 next_gradient(
+	fcppt::random::uniform<float> &rng );
 
 };
 	

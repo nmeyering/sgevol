@@ -15,6 +15,23 @@
 
 using sgevol::perlin2d;
 
+perlin2d::vec2
+perlin2d::next_gradient(
+	fcppt::random::uniform<float> &rng 
+)
+{
+	vec2 tmp;
+	while( true )
+	{
+		tmp = vec2(
+			rng(),
+			rng()
+		);
+		if (fcppt::math::vector::length( tmp ) <= 1.0)
+			return fcppt::math::vector::normalize( tmp );
+	}
+}
+
 perlin2d::perlin2d(
 	std::size_t const _dim
 )
@@ -62,13 +79,14 @@ perlin2d::perlin2d(
 					x,
 					y
 				)
-			] = gradients_[ 
+			] = next_gradient( rng );
+			/*gradients_[ 
 				( 
 					x + 
 					perm_[ y ]
 				)
 				% dim_
-			];
+			];*/
 }
 
 float perlin2d::sample(
@@ -145,10 +163,10 @@ float perlin2d::sample(
 	vec2 const diff( p - floor );
 	using fcppt::math::lerp;
 	
-	//float const tx = lerp( diff.x(), 0.0f, 1.0f);
-	//float const ty = lerp( diff.y(), 0.0f, 1.0f);
-	float const tx = diff.x();
-	float const ty = diff.y();
+	float const tx = trig_lerp( diff.x(), 0.0f, 1.0f);
+	float const ty = trig_lerp( diff.y(), 0.0f, 1.0f);
+	//float const tx = diff.x();
+	//float const ty = diff.y();
 	
 	float const x1 = lerp( tx, n_contribs[0], n_contribs[1] );
 	float const x2 = lerp( tx, n_contribs[2], n_contribs[3] );
@@ -157,7 +175,8 @@ float perlin2d::sample(
 
 void 
 perlin2d::fill_grid(
-	output_grid &grid
+	output_grid &grid,
+	float scale
 )
 {
 	typedef 
@@ -177,15 +196,16 @@ perlin2d::fill_grid(
 				x,
 				y
 			)] =
-			255.f * (
+			255.f * scale * (
 				fcppt::math::clamp(
 					(
+						0.5f + 
 						sample(
 							vec2(
 								static_cast<float>(x * factor),
 								static_cast<float>(y * factor)
 							)
-						)
+						) / 0.7f
 					),
 					0.0f,
 					1.0f

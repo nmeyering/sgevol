@@ -115,9 +115,9 @@ float perlin3d::sample(
 	}
 
 	vec3 const diff( point - floor );
-	float const tx = trig_lerp( 0.0f, 1.0f, diff.x() );
-	float const ty = trig_lerp( 0.0f, 1.0f, diff.y() );
-	float const tz = trig_lerp( 0.0f, 1.0f, diff.z() );
+	float const tx = trig_lerp( diff.x(), 0.0f, 1.0f );
+	float const ty = trig_lerp( diff.y(), 0.0f, 1.0f );
+	float const tz = trig_lerp( diff.z(), 0.0f, 1.0f );
 	
 	using fcppt::math::lerp;
 	float const x1 = lerp( tx, n_contribs[0], n_contribs[1] );
