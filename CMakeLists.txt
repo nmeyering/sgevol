@@ -44,6 +44,12 @@ FIND_PACKAGE(AWL REQUIRED)
 INCLUDE_DIRECTORIES(${AWL_INCLUDE_DIR})
 #awl end
 
+# mizuiro begin
+FIND_PACKAGE(Mizuiro REQUIRED)
+
+INCLUDE_DIRECTORIES(${MIZUIRO_INCLUDE_DIR})
+#mizuiro end
+
 # sge begin
 FIND_PACKAGE(
 	SGE REQUIRED COMPONENTS shader config time systems camera fonttext)

@@ -441,26 +441,28 @@ texture3d::calculate()
 
 				using fcppt::math::clamp;
 				alpha = 
-					0.05 *
+					0.5 *
 					clamp(
-						noise.sample( 0.04f * tmp ),
+						0.2f * noise.sample( 0.12f * tmp ) +
+						0.3f * noise.sample( 0.04f * tmp ) +
+						0.5f * noise.sample( 0.02f * tmp ),
 						0.f,
 						1.f
 					);
-				/*
-				alpha = 
-					0.05 * 
+				alpha *= 
 					clamp(
-						(noise.sample( 0.1f * tmp ) - 
-						0.5f) * 
-						(1.0f - (
-							fcppt::math::vector::length(tmp - center) /
-							( 0.5f * static_cast<float>(dimension_) ) )
-						),
+						1.0f -
+						fcppt::math::vector::length( tmp - center ) /
+						(0.5f * static_cast<float>(dimension_)),
 						0.f,
 						1.f
 					);
-				*/
+				red =
+					clamp(
+					0.2f * noise.sample( 0.03f * tmp ),
+					0.f,
+					1.f
+					);
 					
 				view_[ v::dim_type(x,y,z) ] = 
 					sge::image::color::rgba8(
