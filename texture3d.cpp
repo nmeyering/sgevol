@@ -85,6 +85,21 @@
 #include <sge/image3d/view/object.hpp>
 #include <sge/image3d/view/const_object.hpp>
 
+#include <sge/font/metrics.hpp>
+#include <sge/font/system.hpp>
+#include <sge/font/text/draw.hpp>
+#include <sge/font/text/drawer_3d.hpp>
+#include <sge/font/text/flags_none.hpp>
+#include <sge/font/text/part.hpp>
+#include <sge/font/text/lit.hpp>
+#include <sge/config/media_path.hpp>
+#include <fcppt/make_shared_ptr.hpp>
+#include <fcppt/math/dim/basic_impl.hpp>
+#include <fcppt/math/dim/structure_cast.hpp>
+
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
 #include <fcppt/math/deg_to_rad.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/container/raw_vector.hpp>
@@ -98,6 +113,7 @@
 #include <streambuf>
 #include <cstddef>
 #include "perlin3d.hpp"
+#include "locked_value.hpp"
 
 // Hier mal stat dem anonymen Namensraum ein beliebig benannter
 namespace testcase
@@ -335,21 +351,27 @@ create_cube(
 class texture3d
 {
 public:
+	typedef sge::image3d::rgba8 store;
+	typedef store::view_type v;
+
 	explicit
 	texture3d(
 		std::size_t const dimension);
 
 	sge::image3d::view::const_object const
 	view() const;
+
+	void
+	calculate();
+
+	float
+	progress();
 private:
-
-	typedef sge::image3d::rgba8 store;
-	typedef store::view_type v;
-
 	store store_;
 	v view_;
 
 	v::dim_type::value_type dimension_;
+	locked_value<float> progress_;
 };
 
 texture3d::texture3d(
@@ -367,58 +389,7 @@ texture3d::texture3d(
 	view_(
 		store_.view())
 {
-
-	// Grid füllen 
-	double red = 1.0;
-	double green = 1.0;
-	double blue = 1.0;
-	double alpha = 0.0;
-	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
-	vec3 center(
-			static_cast< float >( dimension_ * .5 ),
-			static_cast< float >( dimension_ * .5 ),
-			static_cast< float >( dimension_ * .5 ));
-	sgevol::perlin3d noise( dimension_ );
-	for (int x = 0; x < dimension_; ++x)
-		for (int y = 0; y < dimension_; ++y)
-			for (int z = 0; z < dimension_; ++z)
-			{
-				if( y == 0 & z == 0 )
-					std::cout << 100*(static_cast<double>(x) / dimension_) << "\n";
-				vec3 tmp(
-					static_cast< float >( x / 8.0 ),
-					static_cast< float >( y / 8.0 ),
-					static_cast< float >( z / 8.0 ));
-
-				/*
-				red = 0.9;
-				green = 0.0;
-				blue = 0.1;
-				alpha = 0.10;
-				if( x > static_cast<double>( dimension_ / 2.0 ) )
-				{
-					red = 0.1;
-					blue = 0.9;
-				}
-				if( y > static_cast<double>( dimension_ / 2.0 ) )
-					alpha = 0.05;
-				if( fcppt::math::vector::length(tmp - center) < dimension_ * 0.4 )
-				{
-					red = 0.1;
-					green = 1.0;
-					blue = 0.1;
-					alpha = 1.0;
-				}
-				*/
-				alpha = 0.05 * std::max(0.0, std::min(1.0, noise.sample( tmp ) - 0.5 ) ) *
-					(1.0f - fcppt::math::vector::length(tmp - center) / static_cast<float>(dimension_));
-				view_[ v::dim_type(x,y,z) ] = 
-					sge::image::color::rgba8(
-						(sge::image::color::init::red %= red)
-						(sge::image::color::init::green %= green)
-						(sge::image::color::init::blue %= blue)
-						(sge::image::color::init::alpha %= alpha));
-			}
+	progress_.value(0.0f);
 }
 
 sge::image3d::view::const_object const
@@ -430,6 +401,57 @@ texture3d::view() const
 	return 
 		sge::image3d::view::to_const( view_ );
 }
+
+float 
+texture3d::progress()
+{
+	return progress_.value();
+}
+
+void
+texture3d::calculate()
+{
+	double red = 1.0;
+	double green = 1.0;
+	double blue = 1.0;
+	double alpha = 0.0;
+	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
+	vec3 center(
+			static_cast< float >( dimension_ * .5 ),
+			static_cast< float >( dimension_ * .5 ),
+			static_cast< float >( dimension_ * .5 ));
+	sgevol::perlin3d noise( 256 );
+	for (int x = 0; x < dimension_; ++x)
+	{
+		progress_.value( 100.0f * static_cast<float>(x+1) / dimension_ );
+
+		for (int y = 0; y < dimension_; ++y)
+			for (int z = 0; z < dimension_; ++z)
+			{
+				vec3 tmp(
+					static_cast< float >( x ),
+					static_cast< float >( y ),
+					static_cast< float >( z ));
+
+				alpha = 0.05 * std::max(0.f, std::min(1.f,
+					(noise.sample( 0.1f * tmp ) - 
+					0.5f) * 
+					(1.0f - (
+						fcppt::math::vector::length(tmp - center) /
+						( 0.5f * static_cast<float>(dimension_) ) )
+					)
+					) );
+					
+				view_[ v::dim_type(x,y,z) ] = 
+					sge::image::color::rgba8(
+						(sge::image::color::init::red %= red)
+						(sge::image::color::init::green %= green)
+						(sge::image::color::init::blue %= blue)
+						(sge::image::color::init::alpha %= alpha));
+			}
+	}
+}
+
 }
 
 int 
@@ -514,22 +536,88 @@ try
 				sge::systems::cursor_grab::automatic
 			)
 		)
+		(
+			sge::systems::parameterless::font
+		)
 	);
 
 	// Abkürzung, damit wir nicht immer sys.renderer() schreiben müssen
 	sge::renderer::device_ptr const rend(
 		sys.renderer());
 
-	/*
-	testcase::texture3d mytex(
-		vm["directory"].as<fcppt::string>(),
-		vm["prefix"].as<fcppt::string>(),
-		vm["slice-size"].as<std::size_t>(),
-		vm["slice-count"].as<std::size_t>());
-	*/
+	sge::font::metrics_ptr const metrics(
+		sys.font_system()->create_font(
+				sge::config::media_path() 
+				/ FCPPT_TEXT("fonts") 
+				/ FCPPT_TEXT("default.ttf"),
+				static_cast<sge::font::size_type>(72)
+		)
+	);
+
+	sge::font::text::drawer_ptr const drawer(
+		fcppt::make_shared_ptr<
+			sge::font::text::drawer_3d
+		>(
+			sys.renderer(),
+			sge::image::colors::white()
+		)
+	);
+	
 	testcase::texture3d mytex(	
-		static_cast<std::size_t>( 128 )
+		static_cast<std::size_t>( 256 )
 		);
+
+	boost::thread t( boost::bind( &testcase::texture3d::calculate, &mytex) );
+
+	// Renderstates!
+	rend->state(
+		sge::renderer::state::list
+			// Bildschirm bei jedem Renderdurchgang neu initialisieren?
+			(sge::renderer::state::bool_::clear_backbuffer = true)
+			// Z-Buffer auch löschen? Braucht man hier glaub ich nichtmal
+			(sge::renderer::state::bool_::clear_zbuffer = true)
+			// Alphablending plus die zwei Kombinationsfunktionen
+			(sge::renderer::state::bool_::enable_alpha_blending = true)
+			(sge::renderer::state::source_blend_func::src_alpha)
+			(sge::renderer::state::dest_blend_func::inv_src_alpha)
+			// Kein Culling
+			(sge::renderer::state::cull_mode::front)
+			// WIREFRAME
+			//(sge::renderer::state::draw_mode::line)
+			// Tiefenfunktion
+			(sge::renderer::state::depth_func::less)
+			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
+			(sge::renderer::state::float_::zbuffer_clear_val = 1.f)
+			(sge::renderer::state::color::clear_color = sge::image::colors::black()));
+
+	float p;
+	while( true )
+	{
+		p = mytex.progress();
+		std::cout << p << "%\n";
+		if( p >= 99.f )
+			break;
+
+		sys.window()->dispatch();
+		
+		sge::renderer::scoped_block const block_(rend);
+		
+		sge::font::text::draw(
+			metrics,
+			drawer,
+			boost::lexical_cast<sge::font::text::string>(p),
+			sge::font::pos::null(),
+			fcppt::math::dim::structure_cast<
+				sge::font::dim
+			>(
+				rend->screen_size()
+			),
+			sge::font::text::align_h::center,
+			sge::font::text::align_v::center,
+			sge::font::text::flags::none
+		);
+	
+	}
 
 	// Unser Shader mit der tollen Klasse sge::shader
 	sge::shader::object shader(
@@ -614,26 +702,6 @@ try
 		)
 	);
 
-	// Renderstates!
-	rend->state(
-		sge::renderer::state::list
-			// Bildschirm bei jedem Renderdurchgang neu initialisieren?
-			(sge::renderer::state::bool_::clear_backbuffer = true)
-			// Z-Buffer auch löschen? Braucht man hier glaub ich nichtmal
-			(sge::renderer::state::bool_::clear_zbuffer = true)
-			// Alphablending plus die zwei Kombinationsfunktionen
-			(sge::renderer::state::bool_::enable_alpha_blending = true)
-			(sge::renderer::state::source_blend_func::src_alpha)
-			(sge::renderer::state::dest_blend_func::inv_src_alpha)
-			// Kein Culling
-			(sge::renderer::state::cull_mode::front)
-			// WIREFRAME
-			//(sge::renderer::state::draw_mode::line)
-			// Tiefenfunktion
-			(sge::renderer::state::depth_func::less)
-			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
-			(sge::renderer::state::float_::zbuffer_clear_val = 1.f)
-			(sge::renderer::state::color::clear_color = sge::image::colors::black()));
 
 	// Vertexbuffer aktivieren. Muss man machen
 	sge::renderer::scoped_vertex_buffer const vb_context(
@@ -691,7 +759,7 @@ try
 			sge::renderer::first_vertex(0),
 			sge::renderer::vertex_count(vb->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
-
+		
 		// Kamera updaten (bewegen je nach Pfeiltasten)
 		cam.update(
 			static_cast<sge::renderer::scalar>(

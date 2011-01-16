@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <math.h>
 #include "trig_lerp.hpp"
+#include <fcppt/math/lerp.hpp>
 #include "perlin3d.hpp"
 
 #include <iostream>
@@ -119,12 +120,16 @@ float perlin3d::sample(
 		);
 
 	vec3 const diff( point - floor );
+	float const tx = trig_lerp( 0.0f, 1.0f, diff.x() );
+	float const ty = trig_lerp( 0.0f, 1.0f, diff.y() );
+	float const tz = trig_lerp( 0.0f, 1.0f, diff.z() );
 	
-	float const x1 = trig_lerp( n_contribs[0], n_contribs[1], diff.x() );
-	float const x2 = trig_lerp( n_contribs[2], n_contribs[3], diff.x() );
-	float const x3 = trig_lerp( n_contribs[4], n_contribs[5], diff.x() );
-	float const x4 = trig_lerp( n_contribs[6], n_contribs[7], diff.x() );
-	float const y1 = trig_lerp( x1, x2, diff.y() );
-	float const y2 = trig_lerp( x3, x4, diff.y() );
-	return trig_lerp( y1, y2, diff.z() );
+	using fcppt::math::lerp;
+	float const x1 = lerp( tx, n_contribs[0], n_contribs[1] );
+	float const x2 = lerp( tx, n_contribs[2], n_contribs[3] );
+	float const x3 = lerp( tx, n_contribs[4], n_contribs[5] );
+	float const x4 = lerp( tx, n_contribs[6], n_contribs[7] );
+	float const y1 = lerp( ty, x1, x2 );
+	float const y2 = lerp( ty, x3, x4 );
+	return lerp( tz, y1, y2 );
 }

@@ -7,7 +7,7 @@ out vec4 frag_color;
 
 //steps * stepsize > volume_diagonal
 //=> steps * stepsize > sqrt(3)
-uniform float stepsize = 0.01;
+uniform float stepsize = 0.02;
 uniform int steps = 200;
 
 void
@@ -29,8 +29,8 @@ main()
     
     vec4 src = value;
 
-    //dst = (1.0 - dst.a) * src + dst;
-    dst = (1.0 - dst.a) * src + vec4(vec3(dst.a * dst), dst.a);
+    dst = (1.0 - dst.a) * src + dst;
+    //dst = (1.0 - dst.a) * src + vec4(vec3(dst.a * dst), dst.a);
     //dst = (1.0 - dst.a) * src + dst.a * dst;
 		//dst = dst + value;
 
