@@ -3,6 +3,8 @@
 #include <fcppt/random/uniform.hpp>
 #include <fcppt/random/make_inclusive_range.hpp>
 #include <fcppt/math/clamp.hpp>
+#include <fcppt/math/mod.hpp>
+#include <fcppt/container/array.hpp>
 #include <algorithm>
 #include <math.h>
 #include <fcppt/math/lerp.hpp>
@@ -73,9 +75,13 @@ float perlin2d::sample(
 	vec2 const &point
 )
 {
+	vec2 p(
+		fcppt::math::mod( point.x(), static_cast<float>(dim_ )),
+		fcppt::math::mod( point.y(), static_cast<float>(dim_ ))
+	);
 	if(
-		point.x() >= dim_ ||
-		point.y() >= dim_
+		p.x() >= dim_ ||
+		p.y() >= dim_
 		)
 	return 0.f;
 
@@ -84,10 +90,17 @@ float perlin2d::sample(
 	dim2;
 
 	vec2 floor(
-		std::floor( point.x() ),
-		std::floor( point.y() ) );
+		std::floor( p.x() ),
+		std::floor( p.y() ) );
 
-	std::vector<float> n_contribs;
+	/*
+	std::cout << 
+		"---------------------------------" << std::endl <<
+		"point: " << point << std::endl <<
+		"floor: " << floor << std::endl <<
+		"---------------------------------" << std::endl;
+	*/
+	fcppt::container::array<float, 4> n_contribs;
 	for( unsigned i = 0; i < 4; ++i )
 	{
 		vec2 neighbor(
@@ -99,15 +112,20 @@ float perlin2d::sample(
 					dim2
 			>( neighbor)
 		];
-		n_contribs.push_back(
-			fcppt::math::vector::dot(
+		float dp = fcppt::math::vector::dot(
 				grad,
-				point - neighbor
-				)
-		);
+				p - neighbor
+				);
+		n_contribs[i] = dp;
+		/*
+		std::cout << 
+			"neighbor: " << neighbor << std::endl <<
+			"dot: " << dp << std::endl <<
+			"grad: " << grad << std::endl;
+		*/
 	}
 
-	vec2 const diff( point - floor );
+	vec2 const diff( p - floor );
 	float const tx = trig_lerp( 0.0f, 1.0f, diff.x() );
 	float const ty = trig_lerp( 0.0f, 1.0f, diff.y() );
 	
@@ -141,14 +159,14 @@ perlin2d::fill_grid(
 			)] =
 			255.f * (
 				fcppt::math::clamp(
-					(0.5f *
-					sample(
-						vec2(
-							static_cast<float>(x * factor),
-							static_cast<float>(y * factor)
+					(
+						sample(
+							vec2(
+								static_cast<float>(x * factor),
+								static_cast<float>(y * factor)
+							)
 						)
-					)
-					+ 1.0f),
+					),
 					0.0f,
 					1.0f
 				)

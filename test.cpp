@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fcppt/math/vector/vector.hpp>
+#include <fcppt/math/mod.hpp>
 #include <fcppt/random/uniform.hpp>
 #include <fcppt/random/make_inclusive_range.hpp>
 #include "trig_lerp.hpp"
@@ -21,20 +22,22 @@ int main()
 			1.0f
 		)
 	);
-	sgevol::perlin2d perlin( 16 );
+	sgevol::perlin2d perlin( 2 );
+	/*
 	for( unsigned i = 0; i < 10; ++i )
 	{
 		sgevol::perlin2d::vec2 p(
 			4.0f * rng(),
 			4.0f * rng()
 		);
-		//std::cout << "result: " << perlin.sample( p ) << std::endl;
+		std::cout << "result: " << perlin.sample( p ) << std::endl;
 	}
+	*/
 	using	sgevol::perlin2d;
 	perlin2d::output_grid	grid(
 		perlin2d::output_grid::dim(
-			256,
-			256
+			128,
+			128
 		)
 	);
 	perlin.fill_grid( grid );
