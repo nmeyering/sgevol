@@ -40,7 +40,7 @@ LINK_DIRECTORIES(${FCPPT_LIBRARY_DIRS})
 
 # sge begin
 FIND_PACKAGE(
-	SGE REQUIRED COMPONENTS shader config console systems camera parse sprite)
+	SGE REQUIRED COMPONENTS shader config time systems camera fonttext)
 
 INCLUDE_DIRECTORIES(${SGE_INCLUDE_DIRS})
 
@@ -115,7 +115,8 @@ TARGET_LINK_LIBRARIES(
 	${FCPPT_LIBRARIES}
 	${SGE_core_LIBRARY}
 	${SGE_config_LIBRARY}
-	${SGE_console_LIBRARY}
+	${SGE_time_LIBRARY}
+	${SGE_fonttext_LIBRARY}
 	${SGE_shader_LIBRARY}
 	${SGE_systems_LIBRARY}
 	${SGE_camera_LIBRARY}
@@ -124,7 +125,4 @@ TARGET_LINK_LIBRARIES(
 TARGET_LINK_LIBRARIES(
 	test
 	${FCPPT_LIBRARIES}
-	${SGE_CORE_LIBRARY}
-	${SGE_config_LIBRARY}
-	${SGE_systems_LIBRARY}
 	${Boost_LIBRARIES})
