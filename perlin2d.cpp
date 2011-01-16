@@ -2,6 +2,7 @@
 #include <boost/range/algorithm/random_shuffle.hpp>
 #include <fcppt/random/uniform.hpp>
 #include <fcppt/random/make_inclusive_range.hpp>
+#include <fcppt/math/clamp.hpp>
 #include <algorithm>
 #include <math.h>
 #include <fcppt/math/lerp.hpp>
@@ -126,6 +127,11 @@ perlin2d::fill_grid(
 	dimtype;
 
 	dimtype len = grid.dimension().w();
+
+	float factor =
+		static_cast<float>(dim_) /
+		static_cast<float>(len);
+
 	for( dimtype y = 0; y < len; ++y )
 		for( dimtype x = 0; x < len; ++x )
 		{
@@ -133,10 +139,18 @@ perlin2d::fill_grid(
 				x,
 				y
 			)] =
-			sample(
-				vec2(
-					static_cast<float>(x),
-					static_cast<float>(y)
+			255.f * (
+				fcppt::math::clamp(
+					(0.5f *
+					sample(
+						vec2(
+							static_cast<float>(x * factor),
+							static_cast<float>(y * factor)
+						)
+					)
+					+ 1.0f),
+					0.0f,
+					1.0f
 				)
 			);
 		}

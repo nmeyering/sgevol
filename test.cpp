@@ -33,13 +33,14 @@ int main()
 	using	sgevol::perlin2d;
 	perlin2d::output_grid	grid(
 		perlin2d::output_grid::dim(
-			128,
-			128
+			256,
+			256
 		)
 	);
 	perlin.fill_grid( grid );
 	to_ppm(
 		grid,
-		std::cout
+		std::cout,
+		255u
 	);
 }
