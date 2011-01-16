@@ -4,15 +4,15 @@
 #include <fcppt/random/make_inclusive_range.hpp>
 #include <algorithm>
 #include <math.h>
-#include "trig_lerp.hpp"
 #include <fcppt/math/lerp.hpp>
-#include "perlin3d.hpp"
+#include "trig_lerp.hpp"
+#include "perlin2d.hpp"
 
 #include <iostream>
 
-using sgevol::perlin3d;
+using sgevol::perlin2d;
 
-perlin3d::perlin3d(
+perlin2d::perlin2d(
 	std::size_t const _dim
 )
 :
@@ -24,7 +24,6 @@ perlin3d::perlin3d(
 		),
 	grid_(
 		grid_type::dim(
-			_dim,
 			_dim,
 			_dim
 		)
@@ -40,11 +39,10 @@ perlin3d::perlin3d(
 		)
 	);
 
-	vec3 tmp;
+	vec2 tmp;
 	while( gradients_.size() < dim_ )
 	{
-		tmp = vec3(
-			rng(),
+		tmp = vec2(
 			rng(),
 			rng()
 		);
@@ -54,56 +52,50 @@ perlin3d::perlin3d(
 			);
 	}
 
-	for( grid_type::size_type z = 0; z < dim_; ++z )
+	for( grid_type::size_type x = 0; x < dim_; ++x )
 		for( grid_type::size_type y = 0; y < dim_; ++y )
-			for( grid_type::size_type x = 0; x < dim_; ++x )
-				grid_[
-					grid_type::dim(
-						x,
-						y,
-						z
-					)
-				] = gradients_[ 
-					(	x + 
-						perm_[
-							( y +
-								perm_[ z ] 
-							) % dim_
-						] ) % dim_
-				];
+			grid_[
+				grid_type::dim(
+					x,
+					y
+				)
+			] = gradients_[ 
+				( x + 
+				perm_[
+					 y % dim_ ]
+				)
+				% dim_
+			];
 }
 
-float perlin3d::sample(
-	vec3 const &point
+float perlin2d::sample(
+	vec2 const &point
 )
 {
 	if(
 		point.x() >= dim_ ||
-		point.y() >= dim_ ||
-		point.z() >= dim_
+		point.y() >= dim_
 		)
 	return 0.f;
 
 	typedef
 	grid_type::dim
-	dim3;
+	dim2;
 
-	vec3 floor(
+	vec2 floor(
 		std::floor( point.x() ),
-		std::floor( point.y() ),
-		std::floor( point.z() ) );
+		std::floor( point.y() ) );
 
-	std::vector< float > n_contribs;
-	for( unsigned i = 0; i < 8; ++i )
+	std::vector<float> n_contribs;
+	for( unsigned i = 0; i < 4; ++i )
 	{
-		vec3 neighbor(
+		vec2 neighbor(
 			floor.x() +  static_cast<float>(i & 1u),
-			floor.y() +  static_cast<float>(i & 2u)/2.f,
-			floor.z() +  static_cast<float>(i & 4u)/4.f 
+			floor.y() +  static_cast<float>(i & 2u)/2.f
 		);
-		vec3 grad = grid_[
+		vec2 grad = grid_[
 				fcppt::math::vector::structure_cast<
-					dim3
+					dim2
 			>( neighbor)
 		];
 		n_contribs.push_back(
@@ -114,17 +106,38 @@ float perlin3d::sample(
 		);
 	}
 
-	vec3 const diff( point - floor );
+	vec2 const diff( point - floor );
 	float const tx = trig_lerp( 0.0f, 1.0f, diff.x() );
 	float const ty = trig_lerp( 0.0f, 1.0f, diff.y() );
-	float const tz = trig_lerp( 0.0f, 1.0f, diff.z() );
 	
 	using fcppt::math::lerp;
 	float const x1 = lerp( tx, n_contribs[0], n_contribs[1] );
 	float const x2 = lerp( tx, n_contribs[2], n_contribs[3] );
-	float const x3 = lerp( tx, n_contribs[4], n_contribs[5] );
-	float const x4 = lerp( tx, n_contribs[6], n_contribs[7] );
-	float const y1 = lerp( ty, x1, x2 );
-	float const y2 = lerp( ty, x3, x4 );
-	return lerp( tz, y1, y2 );
+	return lerp( ty, x1, x2 );
+}
+
+void 
+perlin2d::fill_grid(
+	output_grid &grid
+)
+{
+	typedef 
+	output_grid::size_type
+	dimtype;
+
+	dimtype len = grid.dimension().w();
+	for( dimtype y = 0; y < len; ++y )
+		for( dimtype x = 0; x < len; ++x )
+		{
+			grid[ output_grid::dim( 
+				x,
+				y
+			)] =
+			sample(
+				vec2(
+					static_cast<float>(x),
+					static_cast<float>(y)
+				)
+			);
+		}
 }

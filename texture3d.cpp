@@ -428,11 +428,11 @@ texture3d::calculate()
 			static_cast< float >( dimension_ ) * .5f,
 			static_cast< float >( dimension_ ) * .5f);
 	sgevol::perlin3d noise( 128 );
-	for (dimtype x = 0; x < dimension_; ++x)
+	for (dimtype z = 0; z < dimension_; ++z)
 	{
-		progress_.value( 100.0f * static_cast<float>(x+1) / static_cast<float>(dimension_) );
+		progress_.value( 100.0f * static_cast<float>(z+1) / static_cast<float>(dimension_) );
 		for (dimtype y = 0; y < dimension_; ++y)
-			for (dimtype z = 0; z < dimension_; ++z)
+			for (dimtype x = 0; x < dimension_; ++x)
 			{
 				vec3 tmp(
 					static_cast< float >( x ),
