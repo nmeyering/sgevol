@@ -13,9 +13,9 @@ template< typename T >
 typename 
 boost::enable_if< boost::is_floating_point< T >, T >::type
 trig_lerp( 
+	T const t,
 	T const x,
-	T const y,
-	T const t )
+	T const y )
 {
 	T const f =
 		static_cast< T >( 0.5 ) * 

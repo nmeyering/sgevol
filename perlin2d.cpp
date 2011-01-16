@@ -55,17 +55,17 @@ perlin2d::perlin2d(
 			);
 	}
 
-	for( grid_type::size_type x = 0; x < dim_; ++x )
-		for( grid_type::size_type y = 0; y < dim_; ++y )
+	for( grid_type::size_type y = 0; y < dim_; ++y )
+		for( grid_type::size_type x = 0; x < dim_; ++x )
 			grid_[
 				grid_type::dim(
 					x,
 					y
 				)
 			] = gradients_[ 
-				( x + 
-				perm_[
-					 y % dim_ ]
+				( 
+					x + 
+					perm_[ y ]
 				)
 				% dim_
 			];
@@ -103,10 +103,33 @@ float perlin2d::sample(
 	fcppt::container::array<float, 4> n_contribs;
 	for( unsigned i = 0; i < 4; ++i )
 	{
-		vec2 neighbor(
-			floor.x() +  static_cast<float>(i & 1u),
-			floor.y() +  static_cast<float>(i & 2u)/2.f
-		);
+		vec2 neighbor(0.0f,0.0f);
+		switch (i)
+		{
+			case 0:
+				neighbor = vec2(
+					floor.x() +  0.f,
+					floor.y() +  0.f
+				);
+			break;
+			case 1:
+				neighbor = vec2(
+					floor.x() +  1.f,
+					floor.y() +  0.f
+				);
+			break;
+			case 2:
+				neighbor = vec2(
+					floor.x() +  0.f,
+					floor.y() +  1.f
+				);
+			break;
+			case 3:
+				neighbor = vec2(
+					floor.x() +  1.f,
+					floor.y() +  1.f
+				);
+		}
 		vec2 grad = grid_[
 				fcppt::math::vector::structure_cast<
 					dim2
@@ -117,19 +140,16 @@ float perlin2d::sample(
 				p - neighbor
 				);
 		n_contribs[i] = dp;
-		/*
-		std::cout << 
-			"neighbor: " << neighbor << std::endl <<
-			"dot: " << dp << std::endl <<
-			"grad: " << grad << std::endl;
-		*/
 	}
 
 	vec2 const diff( p - floor );
-	float const tx = trig_lerp( 0.0f, 1.0f, diff.x() );
-	float const ty = trig_lerp( 0.0f, 1.0f, diff.y() );
-	
 	using fcppt::math::lerp;
+	
+	//float const tx = lerp( diff.x(), 0.0f, 1.0f);
+	//float const ty = lerp( diff.y(), 0.0f, 1.0f);
+	float const tx = diff.x();
+	float const ty = diff.y();
+	
 	float const x1 = lerp( tx, n_contribs[0], n_contribs[1] );
 	float const x2 = lerp( tx, n_contribs[2], n_contribs[3] );
 	return lerp( ty, x1, x2 );
