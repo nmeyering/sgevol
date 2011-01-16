@@ -51,6 +51,7 @@
 #include <sge/renderer/vf/make_unspecified_tag.hpp>
 #include <sge/camera/object.hpp>
 #include <sge/camera/parameters.hpp>
+#include <sge/camera/identity_gizmo.hpp>
 #include <sge/shader/object.hpp>
 #include <sge/shader/scoped.hpp>
 #include <sge/shader/variable_type.hpp>
@@ -440,7 +441,7 @@ texture3d::calculate()
 
 				using fcppt::math::clamp;
 				alpha = 
-					0.5 *
+					0.8 *
 					clamp(
 						0.2f * noise.sample( 0.12f * tmp ) +
 						0.3f * noise.sample( 0.05f * tmp ) +
@@ -470,9 +471,7 @@ texture3d::calculate()
 }
 
 int 
-main(
-	int argc,
-	char*argv[])
+main()
 try
 {
 
@@ -719,9 +718,32 @@ try
 			// mousespeed
 			static_cast<sge::renderer::scalar>(
 				200.0),
-			// position
-			sge::renderer::vector3( -5.f, 1.f, 3.f ),
 			// Maus und Keyboard
+			sge::camera::gizmo_type().position(
+				sge::renderer::vector3(
+					0.f,
+					1.f,
+					3.f
+					)
+				).forward(
+				sge::renderer::vector3(
+					0.f,
+					0.f,
+					1.f
+					)
+				).right(
+				sge::renderer::vector3(
+					1.f,
+					0.f,
+					0.f
+					)
+				).up(
+				sge::renderer::vector3(
+					0.f,
+					1.f,
+					0.f
+					)
+				),
 			*sys.keyboard_collector(),
 			*sys.mouse_collector()));
 
