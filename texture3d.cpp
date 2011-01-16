@@ -74,6 +74,7 @@
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/time/timer.hpp>
 #include <sge/time/second.hpp>
+#include <sge/time/millisecond.hpp>
 
 #include <sge/image3d/rgba8.hpp>
 #include <sge/image/color/rgba8.hpp>
@@ -590,13 +591,14 @@ try
 			(sge::renderer::state::float_::zbuffer_clear_val = 1.f)
 			(sge::renderer::state::color::clear_color = sge::image::colors::black()));
 
-	float p;
+	sge::time::timer accesstimer(sge::time::millisecond(100));
+	float p = 0.f;
 	while( true )
 	{
-		p = mytex.progress();
-		std::cout << p << "%\n";
-		if( p >= 99.f )
-			break;
+		
+		if( accesstimer.update_b() )
+			if( (p = mytex.progress()) >= 99.f )
+				break;
 
 		sys.window()->dispatch();
 		
@@ -605,7 +607,10 @@ try
 		sge::font::text::draw(
 			metrics,
 			drawer,
-			boost::lexical_cast<sge::font::text::string>(p),
+			boost::lexical_cast<sge::font::text::string>(
+				static_cast<int>(p) 
+			) + 
+			SGE_FONT_TEXT_LIT("%"),
 			sge::font::pos::null(),
 			fcppt::math::dim::structure_cast<
 				sge::font::dim
