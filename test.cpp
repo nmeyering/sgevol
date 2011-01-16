@@ -14,8 +14,8 @@ int main()
 	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
 	vec3 p(
 		.6f,
-		.5f,
-		.5f );
-	sgevol::perlin3d perlin( 256 );
+		1.2444f,
+		.021f );
+	sgevol::perlin3d perlin( 3 );
 	std::cout << "result: " << perlin.sample( p ) << std::endl;
 }

@@ -115,12 +115,10 @@ TARGET_LINK_LIBRARIES(
 	${FCPPT_LIBRARIES}
 	${SGE_core_LIBRARY}
 	${SGE_config_LIBRARY}
-	${SGE_shader_LIBRARY}
 	${SGE_console_LIBRARY}
+	${SGE_shader_LIBRARY}
 	${SGE_systems_LIBRARY}
 	${SGE_camera_LIBRARY}
-	${SGE_parse_LIBRARY}
-	${SGE_sprite_LIBRARY}
 	${Boost_LIBRARIES})
 
 TARGET_LINK_LIBRARIES(
@@ -128,10 +126,5 @@ TARGET_LINK_LIBRARIES(
 	${FCPPT_LIBRARIES}
 	${SGE_CORE_LIBRARY}
 	${SGE_config_LIBRARY}
-	${SGE_shader_LIBRARY}
-	${SGE_console_LIBRARY}
 	${SGE_systems_LIBRARY}
-	${SGE_camera_LIBRARY}
-	${SGE_parse_LIBRARY}
-	${SGE_sprite_LIBRARY}
 	${Boost_LIBRARIES})

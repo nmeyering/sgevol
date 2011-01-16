@@ -97,6 +97,7 @@
 #include <fcppt/make_shared_ptr.hpp>
 #include <fcppt/math/dim/basic_impl.hpp>
 #include <fcppt/math/dim/structure_cast.hpp>
+#include <fcppt/math/clamp.hpp>
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -172,6 +173,11 @@ sge::renderer::vf::view
 >
 vertex_view;
 }
+
+sge::renderer::vertex_buffer_ptr const
+create_cube(
+	sge::renderer::device_ptr const,
+	sge::shader::object &);
 
 // Hier ein kurzes Wort zu Vertexbuffern: Das sind letztendlich nur
 // Speicherbereiche auf dem Graka-RAM.
@@ -368,10 +374,9 @@ public:
 	float
 	progress();
 private:
+	v::dim_type::value_type dimension_;
 	store store_;
 	v view_;
-
-	v::dim_type::value_type dimension_;
 	locked_value<float> progress_;
 };
 
@@ -417,31 +422,45 @@ texture3d::calculate()
 	double blue = 1.0;
 	double alpha = 0.0;
 	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
+	typedef v::dim_type::value_type dimtype;
 	vec3 center(
-			static_cast< float >( dimension_ * .5 ),
-			static_cast< float >( dimension_ * .5 ),
-			static_cast< float >( dimension_ * .5 ));
-	sgevol::perlin3d noise( 256 );
-	for (int x = 0; x < dimension_; ++x)
+			static_cast< float >( dimension_ ) * .5f,
+			static_cast< float >( dimension_ ) * .5f,
+			static_cast< float >( dimension_ ) * .5f);
+	sgevol::perlin3d noise( 128 );
+	for (dimtype x = 0; x < dimension_; ++x)
 	{
-		progress_.value( 100.0f * static_cast<float>(x+1) / dimension_ );
-
-		for (int y = 0; y < dimension_; ++y)
-			for (int z = 0; z < dimension_; ++z)
+		progress_.value( 100.0f * static_cast<float>(x+1) / static_cast<float>(dimension_) );
+		for (dimtype y = 0; y < dimension_; ++y)
+			for (dimtype z = 0; z < dimension_; ++z)
 			{
 				vec3 tmp(
 					static_cast< float >( x ),
 					static_cast< float >( y ),
 					static_cast< float >( z ));
 
-				alpha = 0.05 * std::max(0.f, std::min(1.f,
-					(noise.sample( 0.1f * tmp ) - 
-					0.5f) * 
-					(1.0f - (
-						fcppt::math::vector::length(tmp - center) /
-						( 0.5f * static_cast<float>(dimension_) ) )
-					)
-					) );
+				using fcppt::math::clamp;
+				alpha = 
+					0.05 *
+					clamp(
+						noise.sample( 0.04f * tmp ),
+						0.f,
+						1.f
+					);
+				/*
+				alpha = 
+					0.05 * 
+					clamp(
+						(noise.sample( 0.1f * tmp ) - 
+						0.5f) * 
+						(1.0f - (
+							fcppt::math::vector::length(tmp - center) /
+							( 0.5f * static_cast<float>(dimension_) ) )
+						),
+						0.f,
+						1.f
+					);
+				*/
 					
 				view_[ v::dim_type(x,y,z) ] = 
 					sge::image::color::rgba8(
@@ -565,7 +584,7 @@ try
 	);
 	
 	testcase::texture3d mytex(	
-		static_cast<std::size_t>( 256 )
+		static_cast<std::size_t>( 128 )
 		);
 
 	boost::thread t( boost::bind( &testcase::texture3d::calculate, &mytex) );
@@ -623,6 +642,7 @@ try
 		);
 	
 	}
+	t.join();
 
 	// Unser Shader mit der tollen Klasse sge::shader
 	sge::shader::object shader(
@@ -738,7 +758,7 @@ try
 			static_cast<sge::renderer::scalar>(
 				200.0),
 			// position
-			sge::renderer::vector3( 0, 2.4, 5 ),
+			sge::renderer::vector3( 0.f, 2.f, 5.f ),
 			// Maus und Keyboard
 			*sys.keyboard_collector(),
 			*sys.mouse_collector()));

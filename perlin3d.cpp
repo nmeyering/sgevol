@@ -33,18 +33,12 @@ perlin3d::perlin3d(
 	boost::iota(perm_,static_cast<index_type>(0));
 	boost::random_shuffle(perm_);
 
-	std::cout << "[ ";
-	for( unsigned int i = 0; i < perm_.size(); ++i )
-		std::cout << perm_[i] << " ";
-	std::cout << "]" << std::endl;
-
 	fcppt::random::uniform<float> rng(
 		fcppt::random::make_inclusive_range(
 			0.0f,
 			1.0f
 		)
 	);
-
 
 	vec3 tmp;
 	while( gradients_.size() < dim_ )
@@ -59,8 +53,6 @@ perlin3d::perlin3d(
 				fcppt::math::vector::normalize( tmp )
 			);
 	}
-
-	std::cout << gradients_[42] << std::endl;
 
 	for( grid_type::size_type x = 0; x < dim_; ++x )
 		for( grid_type::size_type y = 0; y < dim_; ++y )
@@ -79,13 +71,19 @@ perlin3d::perlin3d(
 							) % dim_
 						] ) % dim_
 				];
-	
 }
 
 float perlin3d::sample(
 	vec3 const &point
 )
 {
+	if(
+		point.x() >= dim_ ||
+		point.y() >= dim_ ||
+		point.z() >= dim_
+		)
+	return 0.f;
+
 	typedef
 	grid_type::dim
 	dim3;
@@ -95,29 +93,26 @@ float perlin3d::sample(
 		std::floor( point.y() ),
 		std::floor( point.z() ) );
 
-
-	std::vector< vec3 > neighbors;
-	for( unsigned i = 0; i < 8; ++i )
-		neighbors.push_back(
-			vec3(
-				floor.x() +  1.0 * (i & 1u),
-				floor.y() +  1.0 * (i & 2u),
-				floor.z() +  1.0 * (i & 4u) 
-			)
-		);
-
 	std::vector< float > n_contribs;
 	for( unsigned i = 0; i < 8; ++i )
+	{
+		vec3 neighbor(
+			floor.x() +  static_cast<float>(i & 1u),
+			floor.y() +  static_cast<float>(i & 2u)/2.f,
+			floor.z() +  static_cast<float>(i & 4u)/4.f 
+		);
+		vec3 grad = grid_[
+				fcppt::math::vector::structure_cast<
+					dim3
+			>( neighbor)
+		];
 		n_contribs.push_back(
 			fcppt::math::vector::dot(
-				grid_[
-						fcppt::math::vector::structure_cast<
-							grid_type::dim 
-						>( neighbors[i] )
-						],
-				neighbors[i] - point
-			)
+				grad,
+				point - neighbor
+				)
 		);
+	}
 
 	vec3 const diff( point - floor );
 	float const tx = trig_lerp( 0.0f, 1.0f, diff.x() );
