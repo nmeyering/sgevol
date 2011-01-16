@@ -110,7 +110,6 @@
 #include <fcppt/io/cifstream.hpp>
 #include <fcppt/exception.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/program_options.hpp>
 #include <iostream>
 #include <streambuf>
 #include <cstddef>
@@ -444,7 +443,7 @@ texture3d::calculate()
 					0.5 *
 					clamp(
 						0.2f * noise.sample( 0.12f * tmp ) +
-						0.3f * noise.sample( 0.04f * tmp ) +
+						0.3f * noise.sample( 0.05f * tmp ) +
 						0.5f * noise.sample( 0.02f * tmp ),
 						0.f,
 						1.f
@@ -456,12 +455,6 @@ texture3d::calculate()
 						(0.5f * static_cast<float>(dimension_)),
 						0.f,
 						1.f
-					);
-				red =
-					clamp(
-					0.2f * noise.sample( 0.03f * tmp ),
-					0.f,
-					1.f
 					);
 					
 				view_[ v::dim_type(x,y,z) ] = 
@@ -482,39 +475,6 @@ main(
 	char*argv[])
 try
 {
-	boost::program_options::options_description desc(
-		"To use this sge example, you need a 3D texture somewhere on your file system.\n"
-		"The texture must consist of one file per slice and all slice files\n"
-		"have to be in the same directory.\n"
-		"You can specify said directory with \"directory\". The file names have the\n"
-		"format \"prefix.number\" where prefix can be specified via the \"prefix\"\n"
-		"option. The numbers start with 1.\n"
-		"The slice files themselves consist of 16 bit integers in little endian.\n"
-		"No header. Sample images can be found at\n\n"
-		"http://www-graphics.stanford.edu/data/voldata/\n\nOther options include");
-	desc.add_options()
-		("help", "Produce help message")
-		("directory", boost::program_options::value<fcppt::string>(), "Set the directory where to take the slices from (see above)")
-		("prefix", boost::program_options::value<fcppt::string>(), "Slice prefix (see above)")
-		("slice-count", boost::program_options::value<std::size_t>(), "How many slices are there")
-		("slice-size", boost::program_options::value<std::size_t>(), "How big is one slice")
-		("screen-size", boost::program_options::value<sge::renderer::screen_size>()->default_value(sge::renderer::screen_size(1024,768)), "Screen resolution, format: (x,y)");
-
-	boost::program_options::variables_map vm;
-	boost::program_options::store(
-		boost::program_options::parse_command_line(
-			argc, 
-			argv, 
-			desc), 
-		vm);
-	boost::program_options::notify(
-		vm);		
-
-	if (vm.count("help")) 
-	{
-		std::cout << desc << "\n";
-		return EXIT_SUCCESS;
-	}
 
 	// systems::instance ist eine Hilfsklasse, die es einem abnimmt, alle
 	// Plugins, die man so braucht, manuell zu laden und zusammenzustecken.
@@ -537,7 +497,7 @@ try
 				sge::renderer::parameters(
 					sge::renderer::display_mode(
 						// screen-size aus der Kommandozeile
-						vm["screen-size"].as<sge::renderer::screen_size>(),
+						sge::renderer::screen_size(1024,768),
 						sge::renderer::bit_depth::depth32,
 						sge::renderer::refresh_rate_dont_care
 					),
