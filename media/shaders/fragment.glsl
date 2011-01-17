@@ -16,18 +16,31 @@ main()
   vec4 value;
   vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
   vec3 position = position_interp;
-  vec3 direction = normalize( position - camera );
+	vec3 direction = normalize( position - camera );
 
-  position = (position + 1.0) * 0.5;
 	//jeden Ray eine Stepsize in das Volume laufen lassen,
 	//um Sampling-Artefakte an den Rändern zu vermeiden.
-	position = position + direction * stepsize;
+	//position = position + direction * stepsize;
+
+	if(
+		abs( camera.x ) < 1.0 ||
+		abs( camera.y ) < 1.0 ||
+		abs( camera.z ) < 1.0
+		)
+	{
+		position = camera;
+	}
+	else
+	{
+		//position = position;
+	}
+	position = (position + 1.0) * 0.5;
 
   for( int i = 0; i < steps; i++ )
   {
     value = texture( tex, clamp(position, 0.0, 1.0) );
     
-    vec4 src = value;
+		vec4 src = value;
 
     dst = (1.0 - dst.a) * src + dst;
     //dst = (1.0 - dst.a) * src + vec4(vec3(dst.a * dst), dst.a);

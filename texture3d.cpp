@@ -562,7 +562,7 @@ try
 			(sge::renderer::state::source_blend_func::src_alpha)
 			(sge::renderer::state::dest_blend_func::inv_src_alpha)
 			// Kein Culling
-			(sge::renderer::state::cull_mode::front)
+			(sge::renderer::state::cull_mode::off)
 			// WIREFRAME
 			//(sge::renderer::state::draw_mode::line)
 			// Tiefenfunktion
@@ -570,40 +570,6 @@ try
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
 			(sge::renderer::state::float_::zbuffer_clear_val = 1.f)
 			(sge::renderer::state::color::clear_color = sge::image::colors::black()));
-
-	sge::time::timer accesstimer(sge::time::millisecond(100));
-	float p = 0.f;
-	while( true )
-	{
-		
-		if( accesstimer.update_b() )
-			if( (p = mytex.progress()) >= 99.f )
-				break;
-
-		sys.window()->dispatch();
-		
-		sge::renderer::scoped_block const block_(rend);
-		
-		sge::font::text::draw(
-			metrics,
-			drawer,
-			boost::lexical_cast<sge::font::text::string>(
-				static_cast<int>(p) 
-			) + 
-			SGE_FONT_TEXT_LIT("%"),
-			sge::font::pos::null(),
-			fcppt::math::dim::structure_cast<
-				sge::font::dim
-			>(
-				rend->screen_size()
-			),
-			sge::font::text::align_h::center,
-			sge::font::text::align_v::center,
-			sge::font::text::flags::none
-		);
-	
-	}
-	t.join();
 
 	// Unser Shader mit der tollen Klasse sge::shader
 	sge::shader::object shader(
@@ -655,8 +621,49 @@ try
 		// sampler (sprich Texturen), die wir im Shader brauchen (ebenfalls in $$$HEADER$$$ drin)
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
-				"tex",
+				"tex", sge::renderer::volume_texture_ptr()
 				// Selbsterklärend
+				// Man muss bei 3D-Texturen noch angeben, dass die 3 Dimensionen hat.
+				// Das kann er aus dem obigen create_volume_texture leider nicht
+				// ableiten (ein TODO für Freundlich?)
+				)));
+
+	sge::time::timer accesstimer(sge::time::millisecond(100));
+	float p = 0.f;
+	while( true )
+	{
+		
+		if( accesstimer.update_b() )
+			if( (p = mytex.progress()) >= 99.f )
+				break;
+
+		sys.window()->dispatch();
+		
+		sge::renderer::scoped_block const block_(rend);
+		
+		sge::font::text::draw(
+			metrics,
+			drawer,
+			boost::lexical_cast<sge::font::text::string>(
+				static_cast<int>(p) 
+			) + 
+			SGE_FONT_TEXT_LIT("%"),
+
+			sge::font::pos::null(),
+			fcppt::math::dim::structure_cast<
+				sge::font::dim
+			>(
+				rend->screen_size()
+			),
+			sge::font::text::align_h::center,
+			sge::font::text::align_v::center,
+			sge::font::text::flags::none
+		);
+	
+	}
+	t.join();
+
+	shader.update_texture( "tex",
 				rend->create_volume_texture(
 					mytex.view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
@@ -665,10 +672,8 @@ try
 					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
 					// man die unbedingt wieder auslesen will
 					sge::renderer::resource_flags::none)
-				// Man muss bei 3D-Texturen noch angeben, dass die 3 Dimensionen hat.
-				// Das kann er aus dem obigen create_volume_texture leider nicht
-				// ableiten (ein TODO für Freundlich?)
-				)));
+					);
+
 
 	sge::renderer::vertex_buffer_ptr const vb = 
 		testcase::create_cube(
@@ -722,8 +727,10 @@ try
 			sge::camera::gizmo_type().position(
 				sge::renderer::vector3(
 					0.f,
-					1.f,
-					3.f
+					//1.f,
+					0.f,
+					//3.f
+					0.f
 					)
 				).forward(
 				sge::renderer::vector3(
@@ -773,6 +780,25 @@ try
 		cam.update(
 			static_cast<sge::renderer::scalar>(
 				frame_timer.reset()));
+
+		if(
+				std::abs( cam.gizmo().position().x() ) >= 1.0f ||
+				std::abs( cam.gizmo().position().y() ) >= 1.0f ||
+				std::abs( cam.gizmo().position().z() ) >= 1.0f
+			)
+		{
+			rend->state(
+				sge::renderer::state::list( 
+					sge::renderer::state::cull_mode::front
+				));
+		}
+		else
+		{
+			rend->state(
+				sge::renderer::state::list( 
+					sge::renderer::state::cull_mode::back
+				));
+		}
 
 		// mvp updaten
 		shader.set_uniform(
