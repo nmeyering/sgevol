@@ -566,7 +566,7 @@ try
 			// WIREFRAME
 			//(sge::renderer::state::draw_mode::line)
 			// Tiefenfunktion
-			(sge::renderer::state::depth_func::less)
+			(sge::renderer::state::depth_func::off)
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
 			(sge::renderer::state::float_::zbuffer_clear_val = 1.f)
 			(sge::renderer::state::color::clear_color = sge::image::colors::black()));
@@ -781,6 +781,7 @@ try
 			static_cast<sge::renderer::scalar>(
 				frame_timer.reset()));
 
+		/*
 		if(
 				std::abs( cam.gizmo().position().x() ) >= 1.0f ||
 				std::abs( cam.gizmo().position().y() ) >= 1.0f ||
@@ -799,6 +800,7 @@ try
 					sge::renderer::state::cull_mode::back
 				));
 		}
+		*/
 
 		// mvp updaten
 		shader.set_uniform(

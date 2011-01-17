@@ -53,12 +53,27 @@ main()
     position = position + direction * stepsize;
 
     // early termination
+		/*
     vec3 temp1 = sign( position - vec3( 0.0, 0.0, 0.0 ) );
     vec3 temp2 = sign( vec3( 1.0, 1.0, 1.0 ) - position );
     float inside = dot( temp1, temp2 );
     
     if ( inside < 3.0 )
       break;
+		*/
+		//doesn't work
+		/*
+		if( i > 20 )
+			if(
+				abs( position.x ) < 0.0 ||
+				abs( position.x ) > 1.0 ||
+				abs( position.y ) < 0.0 ||
+				abs( position.y ) > 1.0 ||
+				abs( position.z ) < 0.0 ||
+				abs( position.z ) > 1.0
+				)
+				break;
+		*/
   }
 	frag_color = dst;
 
