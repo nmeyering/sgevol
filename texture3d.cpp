@@ -99,6 +99,8 @@
 #include <fcppt/math/dim/basic_impl.hpp>
 #include <fcppt/math/dim/structure_cast.hpp>
 #include <fcppt/math/clamp.hpp>
+#include <fcppt/math/lerp.hpp>
+#include <fcppt/math/vector/slerp.hpp>
 
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -441,11 +443,11 @@ texture3d::calculate()
 
 				using fcppt::math::clamp;
 				alpha = 
-					0.8 *
+					0.9 *
 					clamp(
-						0.2f * noise.sample( 0.12f * tmp ) +
-						0.3f * noise.sample( 0.05f * tmp ) +
-						0.5f * noise.sample( 0.02f * tmp ),
+						0.125f * noise.sample( 0.15f * tmp ) +
+						0.25f * noise.sample( 0.05f * tmp ) +
+						0.5f * noise.sample( 0.03f * tmp ),
 						0.f,
 						1.f
 					);
@@ -726,11 +728,11 @@ try
 			// Maus und Keyboard
 			sge::camera::gizmo_type().position(
 				sge::renderer::vector3(
-					0.f,
+					1.0f,
 					//1.f,
-					0.f,
+					0.5f,
 					//3.f
-					0.f
+					3.0f
 					)
 				).forward(
 				sge::renderer::vector3(
@@ -758,8 +760,98 @@ try
 		sge::time::second(
 			1));
 
+	typedef
+	std::vector<sge::camera::gizmo_type>
+	gizmo_vector;
+
+	gizmo_vector gizmos;
+	gizmos.push_back(
+		cam.gizmo()
+	);
+	gizmos.push_back(
+		sge::camera::gizmo_type()
+		.position(
+			sge::renderer::vector3(
+				-1.5f, -2.0f, 3.0f 
+			) )
+		.forward(
+			sge::renderer::vector3(
+				0.0f, 0.0f, 1.0f 
+			) )
+		.up(
+			sge::renderer::vector3(
+				0.0f, 1.0f, 0.0f 
+			) )
+		.right(
+			sge::renderer::vector3(
+				0.0f, 0.0f, 1.0f 
+			) )
+	);
+	gizmos.push_back(
+		sge::camera::gizmo_type()
+		.position(
+			sge::renderer::vector3(
+				-0.5f, -1.0f, -3.f 
+			) )
+		.forward(
+			sge::renderer::vector3(
+				0.0f, 0.0f, 1.0f 
+			) )
+		.up(
+			sge::renderer::vector3(
+				0.0f, 1.0f, 0.0f 
+			) )
+		.right(
+			sge::renderer::vector3(
+				0.0f, 0.0f, 1.0f 
+			) )
+	);
+	// hier weitere gizmos
+
+	gizmo_vector::const_iterator current_gizmo =
+	  gizmos.begin();
+		sge::time::timer frames_timer(
+		  sge::time::second(
+			    10));
+
+
 	while(running)
 	{
+		if (frames_timer.update_b())
+			current_gizmo++;
+
+		//crasht
+		gizmo_vector::const_iterator next_gizmo =
+			 boost::next(
+				 current_gizmo);
+		float diff = frames_timer.elapsed_frames();
+		cam.gizmo() =
+			sge::camera::gizmo_type()
+				.position(
+					fcppt::math::lerp(
+						diff,
+						current_gizmo->position(),
+						next_gizmo->position()
+						))
+				.forward(
+					fcppt::math::vector::slerp(
+						current_gizmo->forward(),
+						next_gizmo->forward(),
+						diff
+						))
+				.up(
+					fcppt::math::vector::slerp(
+						current_gizmo->up(),
+						next_gizmo->up(),
+						diff
+						))
+				.right(
+					fcppt::math::vector::slerp(
+						current_gizmo->right(),
+						next_gizmo->right(),
+						diff
+						));
+
 		// Sonst werden keine Input-Events geschickt
 		sys.window()->dispatch();
 
@@ -777,11 +869,12 @@ try
 			sge::renderer::nonindexed_primitive_type::triangle);
 		
 		// Kamera updaten (bewegen je nach Pfeiltasten)
+		/*
 		cam.update(
 			static_cast<sge::renderer::scalar>(
 				frame_timer.reset()));
+		*/
 
-		/*
 		if(
 				std::abs( cam.gizmo().position().x() ) >= 1.0f ||
 				std::abs( cam.gizmo().position().y() ) >= 1.0f ||
@@ -800,7 +893,6 @@ try
 					sge::renderer::state::cull_mode::back
 				));
 		}
-		*/
 
 		// mvp updaten
 		shader.set_uniform(

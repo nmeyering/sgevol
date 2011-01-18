@@ -7,16 +7,16 @@ out vec4 frag_color;
 
 //steps * stepsize > volume_diagonal
 //=> steps * stepsize > sqrt(3)
-uniform float stepsize = 0.02;
-uniform int steps = 200;
+uniform float stepsize = 0.04;
+uniform int steps = 150;
 
 void
 main()
 {
   vec4 value;
   vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
-  vec3 position = position_interp;
-	vec3 direction = normalize( position - camera );
+	vec3 direction = normalize( position_interp - camera );
+  vec3 position;
 
 	//jeden Ray eine Stepsize in das Volume laufen lassen,
 	//um Sampling-Artefakte an den Rändern zu vermeiden.
@@ -32,6 +32,7 @@ main()
 	}
 	else
 	{
+  	position = position_interp;
 		//position = position;
 	}
 	position = (position + 1.0) * 0.5;
@@ -52,27 +53,15 @@ main()
     
     position = position + direction * stepsize;
 
-    // early termination
+    // ray termination
 		/*
-    vec3 temp1 = sign( position - vec3( 0.0, 0.0, 0.0 ) );
+    vec3 temp1 = sign( position );
     vec3 temp2 = sign( vec3( 1.0, 1.0, 1.0 ) - position );
     float inside = dot( temp1, temp2 );
     
+		// outside
     if ( inside < 3.0 )
       break;
-		*/
-		//doesn't work
-		/*
-		if( i > 20 )
-			if(
-				abs( position.x ) < 0.0 ||
-				abs( position.x ) > 1.0 ||
-				abs( position.y ) < 0.0 ||
-				abs( position.y ) > 1.0 ||
-				abs( position.z ) < 0.0 ||
-				abs( position.z ) > 1.0
-				)
-				break;
 		*/
   }
 	frag_color = dst;
