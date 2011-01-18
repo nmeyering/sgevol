@@ -8,7 +8,7 @@ out vec4 frag_color;
 //steps * stepsize > volume_diagonal
 //=> steps * stepsize > sqrt(3)
 uniform float stepsize = 0.04;
-uniform int steps = 150;
+uniform int steps = 100;
 
 void
 main()

@@ -473,9 +473,12 @@ texture3d::calculate()
 }
 
 int 
-main()
+main(int argc, char **argv)
 try
 {
+	std::size_t texture_size = 128;
+	if( argc == 2 )
+		 texture_size = boost::lexical_cast<std::size_t>(argv[1]);
 
 	// systems::instance ist eine Hilfsklasse, die es einem abnimmt, alle
 	// Plugins, die man so braucht, manuell zu laden und zusammenzustecken.
@@ -547,7 +550,7 @@ try
 	);
 	
 	testcase::texture3d mytex(	
-		static_cast<std::size_t>( 128 )
+		static_cast<std::size_t>( texture_size )
 		);
 
 	boost::thread t( boost::bind( &testcase::texture3d::calculate, &mytex) );
