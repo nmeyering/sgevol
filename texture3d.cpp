@@ -760,98 +760,8 @@ try
 		sge::time::second(
 			1));
 
-	typedef
-	std::vector<sge::camera::gizmo_type>
-	gizmo_vector;
-
-	gizmo_vector gizmos;
-	gizmos.push_back(
-		cam.gizmo()
-	);
-	gizmos.push_back(
-		sge::camera::gizmo_type()
-		.position(
-			sge::renderer::vector3(
-				-1.5f, -2.0f, 3.0f 
-			) )
-		.forward(
-			sge::renderer::vector3(
-				0.0f, 0.0f, 1.0f 
-			) )
-		.up(
-			sge::renderer::vector3(
-				0.0f, 1.0f, 0.0f 
-			) )
-		.right(
-			sge::renderer::vector3(
-				0.0f, 0.0f, 1.0f 
-			) )
-	);
-	gizmos.push_back(
-		sge::camera::gizmo_type()
-		.position(
-			sge::renderer::vector3(
-				-0.5f, -1.0f, -3.f 
-			) )
-		.forward(
-			sge::renderer::vector3(
-				0.0f, 0.0f, 1.0f 
-			) )
-		.up(
-			sge::renderer::vector3(
-				0.0f, 1.0f, 0.0f 
-			) )
-		.right(
-			sge::renderer::vector3(
-				0.0f, 0.0f, 1.0f 
-			) )
-	);
-	// hier weitere gizmos
-
-	gizmo_vector::const_iterator current_gizmo =
-	  gizmos.begin();
-		sge::time::timer frames_timer(
-		  sge::time::second(
-			    10));
-
-
 	while(running)
 	{
-		if (frames_timer.update_b())
-			current_gizmo++;
-
-		//crasht
-		gizmo_vector::const_iterator next_gizmo =
-			 boost::next(
-				 current_gizmo);
-		float diff = frames_timer.elapsed_frames();
-		cam.gizmo() =
-			sge::camera::gizmo_type()
-				.position(
-					fcppt::math::lerp(
-						diff,
-						current_gizmo->position(),
-						next_gizmo->position()
-						))
-				.forward(
-					fcppt::math::vector::slerp(
-						current_gizmo->forward(),
-						next_gizmo->forward(),
-						diff
-						))
-				.up(
-					fcppt::math::vector::slerp(
-						current_gizmo->up(),
-						next_gizmo->up(),
-						diff
-						))
-				.right(
-					fcppt::math::vector::slerp(
-						current_gizmo->right(),
-						next_gizmo->right(),
-						diff
-						));
-
 		// Sonst werden keine Input-Events geschickt
 		sys.window()->dispatch();
 
@@ -868,12 +778,9 @@ try
 			sge::renderer::vertex_count(vb->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
 		
-		// Kamera updaten (bewegen je nach Pfeiltasten)
-		/*
 		cam.update(
 			static_cast<sge::renderer::scalar>(
 				frame_timer.reset()));
-		*/
 
 		if(
 				std::abs( cam.gizmo().position().x() ) >= 1.0f ||
