@@ -79,7 +79,7 @@ perlin2d::perlin2d(
 					x,
 					y
 				)
-			] = next_gradient( rng );
+			] = rng();
 			/*gradients_[ 
 				( 
 					x + 
@@ -148,18 +148,13 @@ float perlin2d::sample(
 					floor.y() +  1.f
 				);
 		}
-		vec2 grad = grid_[
+		float grad = grid_[
 				fcppt::math::vector::structure_cast<
 					dim2
 			>( neighbor)
 		];
-		float dp = fcppt::math::vector::dot(
-				grad,
-				p - neighbor
-				);
-		n_contribs[i] = dp;
+		n_contribs[i] = grad;
 	}
-
 	vec2 const diff( p - floor );
 	using fcppt::math::lerp;
 	
@@ -196,17 +191,13 @@ perlin2d::fill_grid(
 				x,
 				y
 			)] =
-			255.f * scale * (
+			 scale * (
 				fcppt::math::clamp(
-					(
-						0.5f + 
 						sample(
 							vec2(
 								static_cast<float>(x * factor),
 								static_cast<float>(y * factor)
-							)
-						) / 0.7f
-					),
+							) ),
 					0.0f,
 					1.0f
 				)

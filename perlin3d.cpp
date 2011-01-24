@@ -2,6 +2,8 @@
 #include <boost/range/algorithm/random_shuffle.hpp>
 #include <fcppt/random/uniform.hpp>
 #include <fcppt/random/make_inclusive_range.hpp>
+#include <fcppt/time/std_time.hpp>
+#include <fcppt/random/default_generator.hpp>
 #include <algorithm>
 #include <math.h>
 #include "trig_lerp.hpp"
@@ -33,10 +35,33 @@ perlin3d::perlin3d(
 	boost::iota(perm_,static_cast<index_type>(0));
 	boost::random_shuffle(perm_);
 
-	fcppt::random::uniform<float> rng(
+	fcppt::random::uniform<float> rngx(
 		fcppt::random::make_inclusive_range(
 			0.0f,
 			1.0f
+		),
+		fcppt::random::default_generator(
+			fcppt::time::std_time()
+		)
+	);
+
+	fcppt::random::uniform<float> rngy(
+		fcppt::random::make_inclusive_range(
+			0.0f,
+			1.0f
+		),
+		fcppt::random::default_generator(
+			fcppt::time::std_time() + 1
+		)
+	);
+
+	fcppt::random::uniform<float> rngz(
+		fcppt::random::make_inclusive_range(
+			0.0f,
+			1.0f
+		),
+		fcppt::random::default_generator(
+			fcppt::time::std_time() + 2
 		)
 	);
 
@@ -44,9 +69,9 @@ perlin3d::perlin3d(
 	while( gradients_.size() < dim_ )
 	{
 		tmp = vec3(
-			rng(),
-			rng(),
-			rng()
+			rngx(),
+			rngy(),
+			rngz()
 		);
 		if (fcppt::math::vector::length( tmp ) <= 1.0)
 			gradients_.push_back( 
@@ -63,7 +88,8 @@ perlin3d::perlin3d(
 						y,
 						z
 					)
-				] = gradients_[ 
+				] = rngx();
+				/*= gradients_[ 
 					(	x + 
 						perm_[
 							( y +
@@ -71,6 +97,7 @@ perlin3d::perlin3d(
 							) % dim_
 						] ) % dim_
 				];
+				*/
 }
 
 float perlin3d::sample(
@@ -80,8 +107,7 @@ float perlin3d::sample(
 	if(
 		point.x() >= dim_ ||
 		point.y() >= dim_ ||
-		point.z() >= dim_
-		)
+		point.z() >= dim_	)
 	return 0.f;
 
 	typedef
@@ -93,7 +119,8 @@ float perlin3d::sample(
 		std::floor( point.y() ),
 		std::floor( point.z() ) );
 
-	std::vector< float > n_contribs;
+	fcppt::container::array<float, 8> n_contribs;
+
 	for( unsigned i = 0; i < 8; ++i )
 	{
 		vec3 neighbor(
@@ -101,17 +128,12 @@ float perlin3d::sample(
 			floor.y() +  static_cast<float>(i & 2u)/2.f,
 			floor.z() +  static_cast<float>(i & 4u)/4.f 
 		);
-		vec3 grad = grid_[
+		n_contribs[i] = 
+			grid_[
 				fcppt::math::vector::structure_cast<
 					dim3
-			>( neighbor)
-		];
-		n_contribs.push_back(
-			fcppt::math::vector::dot(
-				grad,
-				point - neighbor
-				)
-		);
+			>( neighbor )
+			];
 	}
 
 	vec3 const diff( point - floor );

@@ -43,10 +43,19 @@ std::vector<
 	vec3
 > vec3_container;
 
-typedef fcppt::container::grid::object<
+/*
+typedef 
+fcppt::container::grid::object<
 	vec3,
 	3
 > grid_type;
+*/
+typedef
+fcppt::container::grid::object<
+	float,
+	3
+>
+grid_type;
 
 std::size_t dim_;
 

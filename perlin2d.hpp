@@ -21,7 +21,7 @@ vec2;
 
 typedef
 fcppt::container::grid::object<
-	unsigned int,
+	float,
 	2
 >
 output_grid;
@@ -56,7 +56,7 @@ std::vector<
 > vec2_container;
 
 typedef fcppt::container::grid::object<
-	vec2,
+	float,
 	2
 > grid_type;
 
