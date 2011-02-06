@@ -444,11 +444,10 @@ texture3d::calculate()
 
 				using fcppt::math::clamp;
 				alpha = 
-					0.9 *
 					clamp(
-						0.125f * noise.sample( 0.15f * tmp ) +
-						0.25f * noise.sample( 0.05f * tmp ) +
-						0.5f * noise.sample( 0.03f * tmp ),
+						0.25f * noise.sample( 0.20f * tmp ) +
+						noise.sample( 0.10f * tmp ) *
+						noise.sample( 0.05f * tmp ),
 						0.f,
 						1.f
 					);
@@ -538,7 +537,7 @@ try
 				sge::config::media_path() 
 				/ FCPPT_TEXT("fonts") 
 				/ FCPPT_TEXT("default.ttf"),
-				static_cast<sge::font::size_type>(72)
+				static_cast<sge::font::size_type>(128)
 		)
 	);
 
@@ -651,10 +650,13 @@ try
 		sge::font::text::draw(
 			metrics,
 			drawer,
+			/*
 			boost::lexical_cast<sge::font::text::string>(
 				static_cast<int>(p) 
 			) + 
 			SGE_FONT_TEXT_LIT("%"),
+			*/
+			SGE_FONT_TEXT_LIT("LOST"),
 
 			sge::font::pos::null(),
 			fcppt::math::dim::structure_cast<

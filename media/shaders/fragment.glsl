@@ -5,10 +5,9 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
-//steps * stepsize > volume_diagonal
-//=> steps * stepsize > sqrt(3)
-uniform float stepsize = 0.04;
+uniform float stepsize = 0.05;
 uniform int steps = 100;
+//uniform vec3 sun = vec3(0.0,0.0,-1.0);
 
 void
 main()
@@ -36,6 +35,7 @@ main()
 		//position = position;
 	}
 	position = (position + 1.0) * 0.5;
+	//float light = abs( dot( sun, direction ) );
 
   for( int i = 0; i < steps; i++ )
   {
@@ -43,13 +43,13 @@ main()
     
 		vec4 src = value;
 
-    dst = (1.0 - dst.a) * src + dst;
+    dst = (1.0 - dst.a) * src * 0.05 + dst;
     //dst = (1.0 - dst.a) * src + vec4(vec3(dst.a * dst), dst.a);
     //dst = (1.0 - dst.a) * src + dst.a * dst;
 		//dst = dst + value;
 
-		//if( dst.a >= 0.95 )
-		//break;
+		if( dst.a >= 0.95 )
+			break;
     
     position = position + direction * stepsize;
 
