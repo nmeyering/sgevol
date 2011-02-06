@@ -5,7 +5,7 @@
 template<typename T>
 class locked_value
 {
-FCPPT_NONCOPYABLE(locked_value)
+FCPPT_NONCOPYABLE(locked_value);
 private:
 	typedef
 	boost::mutex

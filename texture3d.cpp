@@ -86,6 +86,7 @@
 #include <sge/image3d/view/to_const.hpp>
 #include <sge/image3d/view/object.hpp>
 #include <sge/image3d/view/const_object.hpp>
+#include <sge/systems/cursor_grab.hpp>
 
 #include <sge/font/metrics.hpp>
 #include <sge/font/system.hpp>
@@ -519,7 +520,8 @@ try
 			sge::systems::input(
 				sge::systems::input_helper_field(
 					sge::systems::input_helper::keyboard_collector) | sge::systems::input_helper::mouse_collector,
-				sge::systems::cursor_grab::automatic
+				sge::systems::cursor_option_field(
+					sge::systems::cursor_option::confine)
 			)
 		)
 		(
@@ -757,7 +759,8 @@ try
 					)
 				),
 			*sys.keyboard_collector(),
-			*sys.mouse_collector()));
+			*sys.mouse_collector(),
+			true));
 
 	sge::time::timer frame_timer(
 		sge::time::second(
