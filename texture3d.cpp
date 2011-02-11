@@ -86,7 +86,6 @@
 #include <sge/image3d/view/to_const.hpp>
 #include <sge/image3d/view/object.hpp>
 #include <sge/image3d/view/const_object.hpp>
-#include <sge/systems/cursor_grab.hpp>
 
 #include <sge/font/metrics.hpp>
 #include <sge/font/system.hpp>
@@ -650,13 +649,10 @@ try
 		sge::font::text::draw(
 			metrics,
 			drawer,
-			/*
 			boost::lexical_cast<sge::font::text::string>(
 				static_cast<int>(p) 
 			) + 
 			SGE_FONT_TEXT_LIT("%"),
-			*/
-			SGE_FONT_TEXT_LIT("LOST"),
 
 			sge::font::pos::null(),
 			fcppt::math::dim::structure_cast<
