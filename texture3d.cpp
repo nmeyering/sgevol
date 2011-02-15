@@ -16,7 +16,6 @@
 #include <sge/renderer/state/float.hpp>
 #include <sge/renderer/state/var.hpp>
 #include <sge/renderer/device.hpp>
-#include <sge/renderer/volume_texture.hpp>
 #include <sge/renderer/vertex_buffer.hpp>
 #include <sge/renderer/scoped_block.hpp>
 #include <sge/renderer/scoped_vertex_buffer.hpp>
@@ -24,6 +23,8 @@
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/renderer/refresh_rate_dont_care.hpp>
 #include <sge/renderer/no_multi_sampling.hpp>
+#include <sge/renderer/texture/create_volume_from_view.hpp>
+#include <sge/renderer/texture/address_mode3.hpp>
 #include <sge/image/color/rgba8_format.hpp>
 #include <sge/image/colors.hpp>
 #include <sge/image/color/any/convert.hpp>
@@ -44,7 +45,6 @@
 #include <ostream>
 #include <exception>
 #include <cstdlib>
-
 #include <sge/renderer/vf/unspecified.hpp>
 #include <sge/renderer/vf/vector.hpp>
 #include <sge/renderer/scalar.hpp>
@@ -59,6 +59,9 @@
 #include <sge/shader/variable.hpp>
 #include <sge/renderer/state/source_blend_func.hpp>
 #include <sge/renderer/state/dest_blend_func.hpp>
+#include <sge/renderer/onscreen_target.hpp>
+#include <sge/renderer/viewport.hpp>
+#include <fcppt/math/box/structure_cast.hpp>
 #include <sge/shader/sampler.hpp>
 #include <sge/image3d/view/optional_pitch.hpp>
 #include <sge/image/const_raw_pointer.hpp>
@@ -71,12 +74,11 @@
 #include <sge/shader/vf_to_string.hpp>
 #include <sge/camera/projection/perspective.hpp>
 #include <sge/renderer/aspect.hpp>
-#include <sge/renderer/filter/trilinear.hpp>
+#include <sge/renderer/texture/filter/trilinear.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/time/timer.hpp>
 #include <sge/time/second.hpp>
 #include <sge/time/millisecond.hpp>
-
 #include <sge/image3d/rgba8.hpp>
 #include <sge/image/color/rgba8.hpp>
 #include <sge/image/color/init.hpp>
@@ -86,7 +88,6 @@
 #include <sge/image3d/view/to_const.hpp>
 #include <sge/image3d/view/object.hpp>
 #include <sge/image3d/view/const_object.hpp>
-
 #include <sge/font/metrics.hpp>
 #include <sge/font/system.hpp>
 #include <sge/font/text/draw.hpp>
@@ -101,10 +102,8 @@
 #include <fcppt/math/clamp.hpp>
 #include <fcppt/math/lerp.hpp>
 #include <fcppt/math/vector/slerp.hpp>
-
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
-
 #include <fcppt/math/deg_to_rad.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/container/raw_vector.hpp>
@@ -536,17 +535,13 @@ try
 				sge::config::media_path() 
 				/ FCPPT_TEXT("fonts") 
 				/ FCPPT_TEXT("default.ttf"),
-				static_cast<sge::font::size_type>(128)
+				static_cast<sge::font::size_type>(96)
 		)
 	);
 
-	sge::font::text::drawer_ptr const drawer(
-		fcppt::make_shared_ptr<
-			sge::font::text::drawer_3d
-		>(
+	sge::font::text::drawer_3d drawer(
 			sys.renderer(),
 			sge::image::colors::white()
-		)
 	);
 	
 	testcase::texture3d mytex(	
@@ -631,7 +626,7 @@ try
 		// sampler (sprich Texturen), die wir im Shader brauchen (ebenfalls in $$$HEADER$$$ drin)
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
-				"tex", sge::renderer::volume_texture_ptr()
+				"tex", sge::renderer::texture::volume_ptr()
 				// Selbsterklärend
 				// Man muss bei 3D-Texturen noch angeben, dass die 3 Dimensionen hat.
 				// Das kann er aus dem obigen create_volume_texture leider nicht
@@ -659,26 +654,27 @@ try
 			) + 
 			SGE_FONT_TEXT_LIT("%"),
 
-			sge::font::pos::null(),
-			fcppt::math::dim::structure_cast<
-				sge::font::dim
-			>(
-				rend->screen_size()
-			),
-			sge::font::text::align_h::center,
-			sge::font::text::align_v::center,
-			sge::font::text::flags::none
+      fcppt::math::box::structure_cast<sge::font::rect>(
+        rend->onscreen_target()->viewport().get()),
+
+      sge::font::text::align_h::center,
+      sge::font::text::align_v::center,
+      sge::font::text::flags::none
+
 		);
 	
 	}
 	t.join();
 
 	shader.update_texture( "tex",
-				rend->create_volume_texture(
+				sge::renderer::texture::create_volume_from_view(
+					rend,
 					mytex.view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
 					// sogar anisotropisch, aber das ist ungetestet)
-					sge::renderer::filter::trilinear,
+					sge::renderer::texture::filter::trilinear,
+					sge::renderer::texture::address_mode3(
+						sge::renderer::texture::address_mode::clamp),
 					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
 					// man die unbedingt wieder auslesen will
 					sge::renderer::resource_flags::none)
@@ -799,8 +795,6 @@ try
 		if(offset_timer.update_b())
 			offset += fcppt::math::pi<float>()/100.f;
 	
-		std::cout << "offset: " << offset << std::endl;
-
 		if(
 				std::abs( cam.gizmo().position().x() ) >= 1.0f ||
 				std::abs( cam.gizmo().position().y() ) >= 1.0f ||
