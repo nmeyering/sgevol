@@ -797,7 +797,7 @@ try
 				frame_timer.reset()));
 
 		if(offset_timer.update_b())
-			offset += fcppt::math::pi<float>()/20.f;
+			offset += fcppt::math::pi<float>()/100.f;
 	
 		std::cout << "offset: " << offset << std::endl;
 
