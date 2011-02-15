@@ -615,6 +615,11 @@ try
 				// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
 				sge::renderer::matrix4()))
 			(sge::shader::variable(
+				"offset",
+				sge::shader::variable_type::uniform,
+				static_cast<sge::renderer::scalar>(
+					1.f)))
+			(sge::shader::variable(
 				"camera",
 				sge::shader::variable_type::uniform,
 				sge::renderer::vector3()))
@@ -758,12 +763,17 @@ try
 				),
 			*sys.keyboard_collector(),
 			*sys.mouse_collector(),
-			true));
+			sge::camera::activation_state::active
+			));
 
 	sge::time::timer frame_timer(
 		sge::time::second(
 			1));
+	sge::time::timer offset_timer(
+		sge::time::millisecond(
+			50));
 
+	sge::renderer::scalar offset = 0.0f;
 	while(running)
 	{
 		// Sonst werden keine Input-Events geschickt
@@ -785,6 +795,11 @@ try
 		cam.update(
 			static_cast<sge::renderer::scalar>(
 				frame_timer.reset()));
+
+		if(offset_timer.update_b())
+			offset += fcppt::math::pi<float>()/20.f;
+	
+		std::cout << "offset: " << offset << std::endl;
 
 		if(
 				std::abs( cam.gizmo().position().x() ) >= 1.0f ||
@@ -813,6 +828,11 @@ try
 		shader.set_uniform(
 			"camera",
 			cam.gizmo().position());
+
+		shader.set_uniform(
+			"offset",
+			std::sin(
+				offset));
 
 		shader.set_uniform(
 			"mv",

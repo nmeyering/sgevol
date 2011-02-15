@@ -35,6 +35,7 @@ main()
 		//position = position;
 	}
 	position = (position + 1.0) * 0.5;
+	position += 0.1 * offset;
 	//float light = abs( dot( sun, direction ) );
 
   for( int i = 0; i < steps; i++ )
