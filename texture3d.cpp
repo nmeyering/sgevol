@@ -1,7 +1,7 @@
 #include <sge/exception.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
-#include <sge/systems/viewport/manage_resize.hpp>
+#include <sge/systems/viewport/center_on_resize.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/renderer/vf/format.hpp>
 #include <sge/renderer/vf/pos.hpp>
@@ -498,7 +498,6 @@ try
 			sge::systems::renderer(
 				sge::renderer::parameters(
 					sge::renderer::display_mode(
-						// screen-size aus der Kommandozeile
 						sge::renderer::screen_size(1024,768),
 						sge::renderer::bit_depth::depth32,
 						sge::renderer::refresh_rate_dont_care
@@ -510,7 +509,7 @@ try
 					sge::renderer::no_multi_sampling
 				),
 				// Copypaste
-				sge::systems::viewport::manage_resize()
+				sge::systems::viewport::center_on_resize()
 			)
 		)
 		(
@@ -699,7 +698,6 @@ try
 		)
 	);
 
-
 	// Vertexbuffer aktivieren. Muss man machen
 	sge::renderer::scoped_vertex_buffer const vb_context(
 		rend,
@@ -711,7 +709,7 @@ try
 			// Perspektivische Projektion. projection::orthogonal() wäre auch möglich
 			sge::camera::projection::perspective(
 				// aspect
-				sge::renderer::aspect<sge::renderer::scalar>(
+				sge::renderer::aspect(
 					rend->screen_size()),
 				// fov
 				fcppt::math::deg_to_rad(

@@ -3,6 +3,7 @@
 
 #include <fcppt/math/vector/vector.hpp>
 #include <fcppt/container/grid/object.hpp>
+#include <fcppt/random/uniform.hpp>
 #include <vector>
 
 namespace sgevol

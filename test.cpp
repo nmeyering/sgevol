@@ -1,17 +1,19 @@
-#include <iostream>
-#include <fcppt/math/vector/vector.hpp>
-#include <fcppt/math/dim/dim.hpp>
-#include <fcppt/random/uniform.hpp>
-#include <fcppt/random/make_inclusive_range.hpp>
 #include "trig_lerp.hpp"
 #include "perlin2d.hpp"
 #include "to_ppm.hpp"
 #include "zip_with.hpp"
+#include <fcppt/math/vector/vector.hpp>
+#include <fcppt/math/dim/dim.hpp>
+#include <fcppt/random/uniform.hpp>
+#include <fcppt/random/make_inclusive_range.hpp>
 #include <boost/foreach.hpp>
+#include <iostream>
+#include <cmath>
 
 int main()
 {
 
+	std::cout << std::exp(-0.0f) << std::endl;
 	typedef fcppt::math::vector::static_< float, 2 >::type vec2;
 	fcppt::random::uniform<float> rng(
 		fcppt::random::make_inclusive_range(
@@ -20,6 +22,7 @@ int main()
 		)
 	);
 
+	/*
 	using	sgevol::perlin2d;
 
 	sgevol::perlin2d perlin( 16 );
@@ -95,4 +98,5 @@ int main()
 		std::cout,
 		255u
 	);
+	*/
 }
