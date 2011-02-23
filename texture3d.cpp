@@ -1,7 +1,7 @@
 #include <sge/exception.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
-#include <sge/systems/viewport/center_on_resize.hpp>
+#include <sge/systems/viewport/fill_on_resize.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/renderer/vf/format.hpp>
 #include <sge/renderer/vf/pos.hpp>
@@ -74,6 +74,7 @@
 #include <sge/image3d/view/make.hpp>
 #include <sge/shader/vf_to_string.hpp>
 #include <sge/camera/projection/perspective.hpp>
+#include <sge/camera/projection/update_perspective_from_viewport.hpp>
 #include <sge/renderer/aspect.hpp>
 #include <sge/renderer/texture/filter/trilinear.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
@@ -101,8 +102,6 @@
 #include <fcppt/math/dim/basic_impl.hpp>
 #include <fcppt/math/dim/structure_cast.hpp>
 #include <fcppt/math/clamp.hpp>
-#include <fcppt/math/lerp.hpp>
-#include <fcppt/math/vector/slerp.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <fcppt/math/deg_to_rad.hpp>
@@ -490,7 +489,7 @@ try
 		1024,
 		768
 	);
-	sge::systems::instance const sys(
+	sge::systems::instance sys(
 		sge::systems::list()
 		(
 			sge::systems::window(
@@ -509,9 +508,7 @@ try
 					sge::renderer::vsync::on,
 					sge::renderer::no_multi_sampling
 				),
-				sge::systems::viewport::center_on_resize(
-					dimensions
-				)
+				sge::systems::viewport::fill_on_resize()
 			)
 		)
 		(
@@ -709,20 +706,7 @@ try
 	sge::camera::object cam(
 		sge::camera::parameters(
 			// Perspektivische Projektion. projection::orthogonal() wäre auch möglich
-			sge::camera::projection::perspective(
-				// aspect
-				sge::renderer::aspect(
-					dimensions),
-				// fov
-				fcppt::math::deg_to_rad(
-					static_cast<sge::renderer::scalar>(
-						60)),
-				// near
-				static_cast<sge::renderer::scalar>(
-					0.1),
-				// far
-				static_cast<sge::renderer::scalar>(
-					10)),
+			sge::camera::projection::object(),
 			// movementspeed
 			static_cast<sge::renderer::scalar>(
 				1.0),
@@ -762,6 +746,38 @@ try
 			sge::camera::activation_state::active
 			));
 
+	fcppt::signal::scoped_connection const viewport_connection(
+		sys.manage_viewport_callback(
+			std::tr1::bind(
+				sge::camera::projection::update_perspective_from_viewport,
+				std::tr1::placeholders::_1,
+				std::tr1::ref(
+					cam
+				),
+				// fov
+				static_cast<
+					sge::renderer::scalar
+				>(
+					fcppt::math::deg_to_rad(
+						60.
+					)
+				),
+				// near
+				static_cast<
+					sge::renderer::scalar
+				>(
+					0.1
+				),
+				// far
+				static_cast<
+					sge::renderer::scalar
+				>(
+					1000.
+				)
+			)
+		)
+	);
+
 	sge::time::timer frame_timer(
 		sge::time::second(
 			1));
@@ -774,6 +790,10 @@ try
 	{
 		// Sonst werden keine Input-Events geschickt
 		sys.window()->dispatch();
+
+		cam.update(
+			static_cast<sge::renderer::scalar>(
+				frame_timer.reset()));
 
 		// Beginne Renderdurchgang
 		sge::renderer::scoped_block const block_(rend);
@@ -788,9 +808,6 @@ try
 			sge::renderer::vertex_count(vb->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
 		
-		cam.update(
-			static_cast<sge::renderer::scalar>(
-				frame_timer.reset()));
 
 		if(offset_timer.update_b())
 			offset += fcppt::math::pi<float>()/100.f;

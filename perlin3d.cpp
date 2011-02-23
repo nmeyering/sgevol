@@ -6,8 +6,8 @@
 #include <fcppt/random/default_generator.hpp>
 #include <algorithm>
 #include <math.h>
-#include "trig_lerp.hpp"
-#include <fcppt/math/lerp.hpp>
+#include <fcppt/math/interpolation/linear.hpp>
+#include <fcppt/math/interpolation/trigonometric.hpp>
 #include "perlin3d.hpp"
 
 #include <iostream>
@@ -136,17 +136,19 @@ float perlin3d::sample(
 			];
 	}
 
+	using fcppt::math::interpolation::linear;
+	using fcppt::math::interpolation::trigonometric;
+
 	vec3 const diff( point - floor );
-	float const tx = trig_lerp( diff.x(), 0.0f, 1.0f );
-	float const ty = trig_lerp( diff.y(), 0.0f, 1.0f );
-	float const tz = trig_lerp( diff.z(), 0.0f, 1.0f );
+	float const tx = trigonometric( diff.x(), 1.0f, 0.0f );
+	float const ty = trigonometric( diff.y(), 1.0f, 0.0f );
+	float const tz = trigonometric( diff.z(), 1.0f, 0.0f );
 	
-	using fcppt::math::lerp;
-	float const x1 = lerp( tx, n_contribs[0], n_contribs[1] );
-	float const x2 = lerp( tx, n_contribs[2], n_contribs[3] );
-	float const x3 = lerp( tx, n_contribs[4], n_contribs[5] );
-	float const x4 = lerp( tx, n_contribs[6], n_contribs[7] );
-	float const y1 = lerp( ty, x1, x2 );
-	float const y2 = lerp( ty, x3, x4 );
-	return lerp( tz, y1, y2 );
+	float const x1 = linear( tx, n_contribs[1], n_contribs[0] );
+	float const x2 = linear( tx, n_contribs[3], n_contribs[2] );
+	float const x3 = linear( tx, n_contribs[5], n_contribs[4] );
+	float const x4 = linear( tx, n_contribs[7], n_contribs[6] );
+	float const y1 = linear( ty, x2, x1 );
+	float const y2 = linear( ty, x4, x3 );
+	return linear( tz, y2, y1 );
 }

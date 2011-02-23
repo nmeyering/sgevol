@@ -1,4 +1,3 @@
-#include "trig_lerp.hpp"
 #include "perlin2d.hpp"
 #include "to_ppm.hpp"
 #include "zip_with.hpp"

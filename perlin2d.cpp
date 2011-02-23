@@ -7,8 +7,8 @@
 #include <fcppt/container/array.hpp>
 #include <algorithm>
 #include <math.h>
-#include <fcppt/math/lerp.hpp>
-#include "trig_lerp.hpp"
+#include <fcppt/math/interpolation/linear.hpp>
+#include <fcppt/math/interpolation/trigonometric.hpp>
 #include "perlin2d.hpp"
 
 #include <iostream>
@@ -156,16 +156,17 @@ float perlin2d::sample(
 		n_contribs[i] = grad;
 	}
 	vec2 const diff( p - floor );
-	using fcppt::math::lerp;
+	using fcppt::math::interpolation::linear;
+	using fcppt::math::interpolation::trigonometric;
 	
-	float const tx = trig_lerp( diff.x(), 0.0f, 1.0f);
-	float const ty = trig_lerp( diff.y(), 0.0f, 1.0f);
+	float const tx = trigonometric( diff.x(), 1.0f, 0.0f);
+	float const ty = trigonometric( diff.y(), 1.0f, 0.0f);
 	//float const tx = diff.x();
 	//float const ty = diff.y();
 	
-	float const x1 = lerp( tx, n_contribs[0], n_contribs[1] );
-	float const x2 = lerp( tx, n_contribs[2], n_contribs[3] );
-	return lerp( ty, x1, x2 );
+	float const x1 = linear( tx, n_contribs[1], n_contribs[0] );
+	float const x2 = linear( tx, n_contribs[3], n_contribs[2] );
+	return linear( ty, x2, x1 );
 }
 
 void 
