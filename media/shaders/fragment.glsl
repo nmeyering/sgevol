@@ -37,13 +37,16 @@ main()
 		//position = position;
 	}
 	position = (position + 1.0) * 0.5;
-	position += 0.1 * offset;
+	//position += 0.1 * offset;
 	//float light = abs( dot( sun, direction ) );
 
   for( int i = 0; i < steps; i++ )
   {
+		/*
     offset_value = texture( tex, clamp( (position + offset * 0.25) * 0.8 , 0.0, 1.0) );
     value = texture( tex, clamp(position + offset_value.a, 0.0, 1.0) );
+		*/
+		value = texture( tex, position );
     
 		vec4 src = value;
 
@@ -71,5 +74,5 @@ main()
 	frag_color = dst;
 
   //frag_color = vec4( position_interp, 0.5 );
-  frag_color = vec4(1.0,1.0,1.0,1.0);
+  //frag_color = vec4(1.0,1.0,1.0,1.0);
 }
