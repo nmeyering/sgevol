@@ -61,6 +61,7 @@
 #include <sge/renderer/state/dest_blend_func.hpp>
 #include <sge/renderer/onscreen_target.hpp>
 #include <sge/renderer/viewport.hpp>
+#include <sge/renderer/aspect_from_viewport.hpp>
 #include <fcppt/math/box/structure_cast.hpp>
 #include <sge/shader/sampler.hpp>
 #include <sge/image3d/view/optional_pitch.hpp>
@@ -484,32 +485,33 @@ try
 	//
 	// Das sind alles shared_ptr, d.h. man muss auf die Methoden mit
 	// sys.renderer()->bla zugreifen statt sys.renderer().bla
+
+	sge::window::dim const dimensions(
+		1024,
+		768
+	);
 	sge::systems::instance const sys(
 		sge::systems::list()
 		(
 			sge::systems::window(
-				sge::renderer::window_parameters(
+				sge::window::simple_parameters(
 					// Fenstertitel offenbar
-					FCPPT_TEXT("sge test for 3d textures")
+					FCPPT_TEXT("sge test for 3d textures"),
+					dimensions
 				)
 			)
 		)
 		(
 			sge::systems::renderer(
 				sge::renderer::parameters(
-					sge::renderer::display_mode(
-						sge::renderer::screen_size(1024,768),
-						sge::renderer::bit_depth::depth32,
-						sge::renderer::refresh_rate_dont_care
-					),
-					sge::renderer::depth_buffer::d24,
-					sge::renderer::stencil_buffer::off,
-					sge::renderer::window_mode::windowed,
+					sge::renderer::visual_depth::depth32,
+					sge::renderer::depth_stencil_buffer::off,
 					sge::renderer::vsync::on,
 					sge::renderer::no_multi_sampling
 				),
-				// Copypaste
-				sge::systems::viewport::center_on_resize()
+				sge::systems::viewport::center_on_resize(
+					dimensions
+				)
 			)
 		)
 		(
@@ -710,7 +712,7 @@ try
 			sge::camera::projection::perspective(
 				// aspect
 				sge::renderer::aspect(
-					rend->screen_size()),
+					dimensions),
 				// fov
 				fcppt::math::deg_to_rad(
 					static_cast<sge::renderer::scalar>(

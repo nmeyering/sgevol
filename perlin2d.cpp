@@ -178,7 +178,7 @@ perlin2d::fill_grid(
 	output_grid::size_type
 	dimtype;
 
-	dimtype len = grid.dimension().w();
+	dimtype len = grid.size().w();
 
 	float factor =
 		static_cast<float>(dim_) /
