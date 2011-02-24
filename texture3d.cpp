@@ -802,6 +802,7 @@ try
 		sge::renderer::scoped_block const block_(rend);
 
 		// Shader aktivieren
+		{
 		sge::shader::scoped scoped_shader(
 			shader);
 
@@ -810,6 +811,46 @@ try
 			sge::renderer::first_vertex(0),
 			sge::renderer::vertex_count(vb->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
+			if(offset_timer.update_b())
+				offset += fcppt::math::pi<float>()/100.f;
+		
+			if(
+					std::abs( cam.gizmo().position().x() ) >= 1.0f ||
+					std::abs( cam.gizmo().position().y() ) >= 1.0f ||
+					std::abs( cam.gizmo().position().z() ) >= 1.0f
+				)
+			{
+				rend->state(
+					sge::renderer::state::list( 
+						sge::renderer::state::cull_mode::front
+					));
+			}
+			else
+			{
+				rend->state(
+					sge::renderer::state::list( 
+						sge::renderer::state::cull_mode::back
+					));
+			}
+
+			// mvp updaten
+			shader.set_uniform(
+				"mvp",
+				cam.mvp());
+
+			shader.set_uniform(
+				"camera",
+				cam.gizmo().position());
+
+			shader.set_uniform(
+				"offset",
+				std::sin(
+					offset));
+
+			shader.set_uniform(
+				"mv",
+				cam.world());
+		}
 
 		fps_counter.update();
 
@@ -826,45 +867,6 @@ try
       sge::font::text::flags::none
 		);
 
-		if(offset_timer.update_b())
-			offset += fcppt::math::pi<float>()/100.f;
-	
-		if(
-				std::abs( cam.gizmo().position().x() ) >= 1.0f ||
-				std::abs( cam.gizmo().position().y() ) >= 1.0f ||
-				std::abs( cam.gizmo().position().z() ) >= 1.0f
-			)
-		{
-			rend->state(
-				sge::renderer::state::list( 
-					sge::renderer::state::cull_mode::front
-				));
-		}
-		else
-		{
-			rend->state(
-				sge::renderer::state::list( 
-					sge::renderer::state::cull_mode::back
-				));
-		}
-
-		// mvp updaten
-		shader.set_uniform(
-			"mvp",
-			cam.mvp());
-
-		shader.set_uniform(
-			"camera",
-			cam.gizmo().position());
-
-		shader.set_uniform(
-			"offset",
-			std::sin(
-				offset));
-
-		shader.set_uniform(
-			"mv",
-			cam.world());
 	}
 }
 catch(sge::exception const &e)
