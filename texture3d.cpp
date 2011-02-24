@@ -81,6 +81,7 @@
 #include <sge/time/timer.hpp>
 #include <sge/time/second.hpp>
 #include <sge/time/millisecond.hpp>
+#include <sge/time/frames_counter.hpp>
 #include <sge/image3d/rgba8.hpp>
 #include <sge/image/color/rgba8.hpp>
 #include <sge/image/color/init.hpp>
@@ -92,6 +93,7 @@
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/font/metrics.hpp>
 #include <sge/font/system.hpp>
+#include <sge/font/text/from_fcppt_string.hpp>
 #include <sge/font/text/draw.hpp>
 #include <sge/font/text/drawer_3d.hpp>
 #include <sge/font/text/flags_none.hpp>
@@ -538,7 +540,7 @@ try
 	);
 
 	sge::font::text::drawer_3d drawer(
-			sys.renderer(),
+			rend,
 			sge::image::colors::white()
 	);
 	
@@ -784,6 +786,7 @@ try
 	sge::time::timer offset_timer(
 		sge::time::millisecond(
 			50));
+	sge::time::frames_counter fps_counter;
 
 	sge::renderer::scalar offset = 0.0f;
 	while(running)
@@ -807,7 +810,21 @@ try
 			sge::renderer::first_vertex(0),
 			sge::renderer::vertex_count(vb->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
-		
+
+		fps_counter.update();
+
+		sge::font::text::draw(
+			metrics,
+			drawer,
+			sge::font::text::from_fcppt_string(
+				fps_counter.frames_str())
+			+ SGE_FONT_TEXT_LIT(" fps"),
+      fcppt::math::box::structure_cast<sge::font::rect>(
+        rend->onscreen_target()->viewport().get()),
+      sge::font::text::align_h::center,
+      sge::font::text::align_v::center,
+      sge::font::text::flags::none
+		);
 
 		if(offset_timer.update_b())
 			offset += fcppt::math::pi<float>()/100.f;
