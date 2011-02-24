@@ -633,77 +633,6 @@ try
 				// ableiten (ein TODO für Freundlich?)
 				)));
 
-	sge::time::timer accesstimer(sge::time::millisecond(100));
-	float p = 0.f;
-	while( true )
-	{
-		
-		if( accesstimer.update_b() )
-			if( (p = mytex.progress()) >= 99.f )
-				break;
-
-		sys.window()->dispatch();
-		
-		sge::renderer::scoped_block const block_(rend);
-		
-		sge::font::text::draw(
-			metrics,
-			drawer,
-			boost::lexical_cast<sge::font::text::string>(
-				static_cast<int>(p) 
-			) + 
-			SGE_FONT_TEXT_LIT("%"),
-
-      fcppt::math::box::structure_cast<sge::font::rect>(
-        rend->onscreen_target()->viewport().get()),
-
-      sge::font::text::align_h::center,
-      sge::font::text::align_v::center,
-      sge::font::text::flags::none
-
-		);
-	
-	}
-	t.join();
-
-	shader.update_texture( "tex",
-				sge::renderer::texture::create_volume_from_view(
-					rend,
-					mytex.view(),
-					// Lineare Filterung. trilinear und point sind auch möglich (und
-					// sogar anisotropisch, aber das ist ungetestet)
-					sge::renderer::texture::filter::trilinear,
-					sge::renderer::texture::address_mode3(
-						sge::renderer::texture::address_mode::clamp),
-					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
-					// man die unbedingt wieder auslesen will
-					sge::renderer::resource_flags::none)
-					);
-
-
-	sge::renderer::vertex_buffer_ptr const vb = 
-		testcase::create_cube(
-			rend,
-			shader);
-
-	bool running = true;
-
-	// Registriert einen Keyboard-Listener, der auf Escape wartet und dann das
-	// obige "running" auf false setzt.
-	fcppt::signal::scoped_connection const cb(
-		sys.keyboard_collector()->key_callback(
-			sge::input::keyboard::action(
-				sge::input::keyboard::key_code::escape,
-				boost::phoenix::ref(running) = false
-			)
-		)
-	);
-
-	// Vertexbuffer aktivieren. Muss man machen
-	sge::renderer::scoped_vertex_buffer const vb_context(
-		rend,
-		vb);
-
 	// Kamera sollte bekannt sein
 	sge::camera::object cam(
 		sge::camera::parameters(
@@ -780,6 +709,72 @@ try
 		)
 	);
 
+
+	sge::time::timer accesstimer(sge::time::millisecond(100));
+	float p = 0.f;
+	while( true )
+	{
+		
+		if( accesstimer.update_b() )
+			if( (p = mytex.progress()) >= 99.f )
+				break;
+
+		sys.window()->dispatch();
+		
+		sge::renderer::scoped_block const block_(rend);
+		
+		sge::font::text::draw(
+			metrics,
+			drawer,
+			boost::lexical_cast<sge::font::text::string>(
+				static_cast<int>(p) 
+			) + 
+			SGE_FONT_TEXT_LIT("%"),
+
+      fcppt::math::box::structure_cast<sge::font::rect>(
+        rend->onscreen_target()->viewport().get()),
+
+      sge::font::text::align_h::center,
+      sge::font::text::align_v::center,
+      sge::font::text::flags::none
+
+		);
+	
+	}
+	t.join();
+
+	shader.update_texture( "tex",
+				sge::renderer::texture::create_volume_from_view(
+					rend,
+					mytex.view(),
+					// Lineare Filterung. trilinear und point sind auch möglich (und
+					// sogar anisotropisch, aber das ist ungetestet)
+					sge::renderer::texture::filter::trilinear,
+					sge::renderer::texture::address_mode3(
+						sge::renderer::texture::address_mode::clamp),
+					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
+					// man die unbedingt wieder auslesen will
+					sge::renderer::resource_flags::none)
+					);
+
+	sge::renderer::vertex_buffer_ptr const vb = 
+		testcase::create_cube(
+			rend,
+			shader);
+
+	bool running = true;
+
+	// Registriert einen Keyboard-Listener, der auf Escape wartet und dann das
+	// obige "running" auf false setzt.
+	fcppt::signal::scoped_connection const cb(
+		sys.keyboard_collector()->key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::escape,
+				boost::phoenix::ref(running) = false
+			)
+		)
+	);
+
 	sge::time::timer frame_timer(
 		sge::time::second(
 			1));
@@ -789,6 +784,16 @@ try
 	sge::time::frames_counter fps_counter;
 
 	sge::renderer::scalar offset = 0.0f;
+
+	sge::font::metrics_ptr const fps_metrics(
+		sys.font_system()->create_font(
+				sge::config::media_path() 
+				/ FCPPT_TEXT("fonts") 
+				/ FCPPT_TEXT("default.ttf"),
+				static_cast<sge::font::size_type>(32)
+		)
+	);
+
 	while(running)
 	{
 		// Sonst werden keine Input-Events geschickt
@@ -805,6 +810,11 @@ try
 		{
 		sge::shader::scoped scoped_shader(
 			shader);
+
+		// Vertexbuffer aktivieren. Muss man machen
+		sge::renderer::scoped_vertex_buffer const vb_context(
+			rend,
+			vb);
 
 		// Rendern (copypaste)
 		rend->render(
@@ -855,7 +865,7 @@ try
 		fps_counter.update();
 
 		sge::font::text::draw(
-			metrics,
+			fps_metrics,
 			drawer,
 			sge::font::text::from_fcppt_string(
 				fps_counter.frames_str())
