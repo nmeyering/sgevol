@@ -1,127 +1,128 @@
+#include "media_path.hpp"
+#include <sge/camera/identity_gizmo.hpp>
+#include <sge/camera/object.hpp>
+#include <sge/camera/parameters.hpp>
+#include <sge/camera/projection/perspective.hpp>
+#include <sge/camera/projection/update_perspective_from_viewport.hpp>
+#include <sge/config/media_path.hpp>
 #include <sge/exception.hpp>
+#include <sge/font/metrics.hpp>
+#include <sge/font/system.hpp>
+#include <sge/font/text/drawer_3d.hpp>
+#include <sge/font/text/draw.hpp>
+#include <sge/font/text/flags_none.hpp>
+#include <sge/font/text/from_fcppt_string.hpp>
+#include <sge/font/text/lit.hpp>
+#include <sge/font/text/part.hpp>
+#include <sge/image3d/dim.hpp>
+#include <sge/image3d/rgba8.hpp>
+#include <sge/image3d/view/const_object.hpp>
+#include <sge/image3d/view/format.hpp>
+#include <sge/image3d/view/make_const.hpp>
+#include <sge/image3d/view/make.hpp>
+#include <sge/image3d/view/object.hpp>
+#include <sge/image3d/view/optional_pitch.hpp>
+#include <sge/image3d/view/to_const.hpp>
+#include <sge/image/color/any/convert.hpp>
+#include <sge/image/color/init.hpp>
+#include <sge/image/color/rgba8_format.hpp>
+#include <sge/image/color/rgba8.hpp>
+#include <sge/image/colors.hpp>
+#include <sge/image/const_raw_pointer.hpp>
+#include <sge/image/raw_pointer.hpp>
+#include <sge/image/store.hpp>
+#include <sge/input/keyboard/action.hpp>
+#include <sge/input/keyboard/device.hpp>
+#include <sge/renderer/aspect_from_viewport.hpp>
+#include <sge/renderer/aspect.hpp>
+#include <sge/renderer/device.hpp>
+#include <sge/renderer/matrix4.hpp>
+#include <sge/renderer/no_multi_sampling.hpp>
+#include <sge/renderer/onscreen_target.hpp>
+#include <sge/renderer/refresh_rate_dont_care.hpp>
+#include <sge/renderer/resource_flags_none.hpp>
+#include <sge/renderer/scalar.hpp>
+#include <sge/renderer/scoped_block.hpp>
+#include <sge/renderer/scoped_vertex_buffer.hpp>
+#include <sge/renderer/scoped_vertex_declaration.hpp>
+#include <sge/renderer/scoped_vertex_lock.hpp>
+#include <sge/renderer/state/cull_mode.hpp>
+#include <sge/renderer/state/depth_func.hpp>
+#include <sge/renderer/state/dest_blend_func.hpp>
+#include <sge/renderer/state/float.hpp>
+#include <sge/renderer/state/list.hpp>
+#include <sge/renderer/state/source_blend_func.hpp>
+#include <sge/renderer/state/trampoline.hpp>
+#include <sge/renderer/state/var.hpp>
+#include <sge/renderer/texture/address_mode3.hpp>
+#include <sge/renderer/texture/create_volume_from_view.hpp>
+#include <sge/renderer/texture/filter/trilinear.hpp>
+#include <sge/renderer/vertex_buffer.hpp>
+#include <sge/renderer/vertex_declaration_ptr.hpp>
+#include <sge/renderer/vf/color.hpp>
+#include <sge/renderer/vf/dynamic/make_format.hpp>
+#include <sge/renderer/vf/format.hpp>
+#include <sge/renderer/vf/iterator.hpp>
+#include <sge/renderer/vf/make_unspecified_tag.hpp>
+#include <sge/renderer/vf/pos.hpp>
+#include <sge/renderer/vf/unspecified.hpp>
+#include <sge/renderer/vf/vector.hpp>
+#include <sge/renderer/vf/vertex.hpp>
+#include <sge/renderer/vf/view.hpp>
+#include <sge/renderer/viewport.hpp>
+#include <sge/shader/object.hpp>
+#include <sge/shader/sampler.hpp>
+#include <sge/shader/scoped.hpp>
+#include <sge/shader/variable.hpp>
+#include <sge/shader/variable_type.hpp>
+#include <sge/shader/vf_to_string.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
 #include <sge/systems/viewport/fill_on_resize.hpp>
-#include <sge/renderer/vf/dynamic/make_format.hpp>
-#include <sge/renderer/vf/format.hpp>
-#include <sge/renderer/vf/pos.hpp>
-#include <sge/renderer/vf/color.hpp>
-#include <sge/renderer/vf/view.hpp>
-#include <sge/renderer/vf/iterator.hpp>
-#include <sge/renderer/vf/vertex.hpp>
-#include <sge/renderer/state/trampoline.hpp>
-#include <sge/renderer/state/cull_mode.hpp>
-#include <sge/renderer/state/depth_func.hpp>
-#include <sge/renderer/state/list.hpp>
-#include <sge/renderer/state/float.hpp>
-#include <sge/renderer/state/var.hpp>
-#include <sge/renderer/device.hpp>
-#include <sge/renderer/vertex_buffer.hpp>
-#include <sge/renderer/scoped_block.hpp>
-#include <sge/renderer/scoped_vertex_buffer.hpp>
-#include <sge/renderer/scoped_vertex_lock.hpp>
-#include <sge/renderer/resource_flags_none.hpp>
-#include <sge/renderer/refresh_rate_dont_care.hpp>
-#include <sge/renderer/no_multi_sampling.hpp>
-#include <sge/renderer/texture/create_volume_from_view.hpp>
-#include <sge/renderer/texture/address_mode3.hpp>
-#include <sge/image/color/rgba8_format.hpp>
-#include <sge/image/colors.hpp>
-#include <sge/image/color/any/convert.hpp>
-#include <sge/input/keyboard/action.hpp>
-#include <sge/input/keyboard/device.hpp>
-#include "media_path.hpp"
+#include <sge/time/frames_counter.hpp>
+#include <sge/time/millisecond.hpp>
+#include <sge/time/second.hpp>
+#include <sge/time/timer.hpp>
 #include <sge/window/instance.hpp>
-#include <fcppt/signal/scoped_connection.hpp>
-#include <fcppt/io/cerr.hpp>
-#include <fcppt/io/cerr.hpp>
-#include <fcppt/math/vector/basic_impl.hpp>
-#include <fcppt/text.hpp>
+#include <mizuiro/image/view.hpp>
+#include <fcppt/assign/make_container.hpp>
 #include <fcppt/container/grid/object.hpp>
+#include <fcppt/container/raw_vector.hpp>
+#include <fcppt/exception.hpp>
+#include <fcppt/io/cerr.hpp>
+#include <fcppt/io/cerr.hpp>
+#include <fcppt/io/cifstream.hpp>
+#include <fcppt/make_shared_ptr.hpp>
+#include <fcppt/math/box/structure_cast.hpp>
+#include <fcppt/math/clamp.hpp>
+#include <fcppt/math/deg_to_rad.hpp>
+#include <fcppt/math/dim/basic_impl.hpp>
+#include <fcppt/math/dim/basic_impl.hpp>
+#include <fcppt/math/dim/input.hpp>
+#include <fcppt/math/dim/output.hpp>
+#include <fcppt/math/dim/structure_cast.hpp>
+#include <fcppt/math/vector/basic_impl.hpp>
 #include <fcppt/math/vector/length.hpp>
+#include <fcppt/signal/scoped_connection.hpp>
+#include <fcppt/text.hpp>
+#include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector/vector10.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
-#include <ostream>
-#include <exception>
-#include <cstdlib>
-#include <sge/renderer/vf/unspecified.hpp>
-#include <sge/renderer/vf/vector.hpp>
-#include <sge/renderer/scalar.hpp>
-#include <sge/renderer/vf/make_unspecified_tag.hpp>
-#include <sge/camera/object.hpp>
-#include <sge/camera/parameters.hpp>
-#include <sge/camera/identity_gizmo.hpp>
-#include <sge/shader/object.hpp>
-#include <sge/shader/scoped.hpp>
-#include <sge/shader/variable_type.hpp>
-#include <sge/renderer/matrix4.hpp>
-#include <sge/shader/variable.hpp>
-#include <sge/renderer/state/source_blend_func.hpp>
-#include <sge/renderer/state/dest_blend_func.hpp>
-#include <sge/renderer/onscreen_target.hpp>
-#include <sge/renderer/viewport.hpp>
-#include <sge/renderer/aspect_from_viewport.hpp>
-#include <fcppt/math/box/structure_cast.hpp>
-#include <sge/shader/sampler.hpp>
-#include <sge/image3d/view/optional_pitch.hpp>
-#include <sge/image/const_raw_pointer.hpp>
-#include <sge/image/raw_pointer.hpp>
-#include <sge/image3d/view/make_const.hpp>
-#include <sge/image3d/view/format.hpp>
-#include <sge/image3d/dim.hpp>
-#include <sge/image3d/view/const_object.hpp>
-#include <sge/image3d/view/make.hpp>
-#include <sge/shader/vf_to_string.hpp>
-#include <sge/camera/projection/perspective.hpp>
-#include <sge/camera/projection/update_perspective_from_viewport.hpp>
-#include <sge/renderer/aspect.hpp>
-#include <sge/renderer/texture/filter/trilinear.hpp>
-#include <sge/renderer/resource_flags_none.hpp>
-#include <sge/time/timer.hpp>
-#include <sge/time/second.hpp>
-#include <sge/time/millisecond.hpp>
-#include <sge/time/frames_counter.hpp>
-#include <sge/image3d/rgba8.hpp>
-#include <sge/image/color/rgba8.hpp>
-#include <sge/image/color/init.hpp>
-#include <sge/image/store.hpp>
-#include <mizuiro/image/view.hpp>
-#include <fcppt/math/dim/basic_impl.hpp>
-#include <sge/image3d/view/to_const.hpp>
-#include <sge/image3d/view/object.hpp>
-#include <sge/image3d/view/const_object.hpp>
-#include <sge/font/metrics.hpp>
-#include <sge/font/system.hpp>
-#include <sge/font/text/from_fcppt_string.hpp>
-#include <sge/font/text/draw.hpp>
-#include <sge/font/text/drawer_3d.hpp>
-#include <sge/font/text/flags_none.hpp>
-#include <sge/font/text/part.hpp>
-#include <sge/font/text/lit.hpp>
-#include <sge/config/media_path.hpp>
-#include <fcppt/make_shared_ptr.hpp>
-#include <fcppt/math/dim/basic_impl.hpp>
-#include <fcppt/math/dim/structure_cast.hpp>
-#include <fcppt/math/clamp.hpp>
 #include <boost/thread.hpp>
-#include <boost/bind.hpp>
-#include <fcppt/math/deg_to_rad.hpp>
-#include <fcppt/assign/make_container.hpp>
-#include <fcppt/container/raw_vector.hpp>
-#include <fcppt/math/dim/input.hpp>
-#include <fcppt/math/dim/output.hpp>
-#include <fcppt/io/cifstream.hpp>
-#include <fcppt/exception.hpp>
-#include <boost/lexical_cast.hpp>
-#include <iostream>
-#include <streambuf>
 #include <cstddef>
+#include <cstdlib>
+#include <exception>
+#include <iostream>
+#include <ostream>
+#include <streambuf>
+#include <utility>
 #include "perlin3d.hpp"
 #include "locked_value.hpp"
 
 // Hier mal stat dem anonymen Namensraum ein beliebig benannter
-namespace testcase
+namespace
 {
 namespace vf
 {
@@ -159,32 +160,37 @@ position;
 
 // Das eigentliche Format
 typedef 
-sge::renderer::vf::format
+sge::renderer::vf::part
 <
 	boost::mpl::vector1
 	<
 		position
 	>
 > 
+part;
+
+typedef
+sge::renderer::vf::format
+<
+	boost::mpl::vector1
+	<
+		part
+	>
+>
 format;
 
 // Das brauchen wir später um den Vertexbuffer zu befüllen.
 typedef 
 sge::renderer::vf::view
 <
-	format
+	part
 >
 vertex_view;
 }
 
-sge::renderer::vertex_buffer_ptr const
-create_cube(
-	sge::renderer::device_ptr const,
-	sge::shader::object &);
-
 // Hier ein kurzes Wort zu Vertexbuffern: Das sind letztendlich nur
 // Speicherbereiche auf dem Graka-RAM.
-sge::renderer::vertex_buffer_ptr const
+std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const
 create_cube(
 	sge::renderer::device_ptr const renderer,
 	sge::shader::object &sh)
@@ -194,10 +200,16 @@ create_cube(
 	sge::shader::scoped scoped_shader(
 		sh);
 
+	sge::renderer::vertex_declaration_ptr const decl =
+		renderer->create_vertex_declaration(
+			sge::renderer::vf::dynamic::make_format<vf::format>());
+
 	sge::renderer::vertex_buffer_ptr const vb = 
 		renderer->create_vertex_buffer(
+			decl,
 			// copypaste
-			sge::renderer::vf::dynamic::make_format<vf::format>(),
+			sge::renderer::vf::dynamic::part_index(
+				0u),
 			// Two triangles per slice
 			static_cast<sge::renderer::size_type>(
 				6 * 6 ),
@@ -355,7 +367,7 @@ create_cube(
 		position_vector(
 			-1,-1,-1));
 
-	return vb;
+	return std::make_pair(vb,decl);
 }
 
 class texture3d
@@ -544,11 +556,11 @@ try
 			sge::image::colors::white()
 	);
 	
-	testcase::texture3d mytex(	
+	texture3d mytex(
 		static_cast<std::size_t>( texture_size )
 		);
 
-	boost::thread t( boost::bind( &testcase::texture3d::calculate, &mytex) );
+	boost::thread t( boost::bind( &texture3d::calculate, &mytex) );
 
 	// Renderstates!
 	rend->state(
@@ -590,7 +602,7 @@ try
 		//
 		// Deshalb sind diese $$$HEADER$$$ in den Shadern. Wenn man jetzt ein
 		// Vertexattribut hinzufügt, muss man am Shader nichts mehr ändern!
-		sge::shader::vf_to_string<testcase::vf::format>(),
+		sge::shader::vf_to_string<vf::format>(),
 		// Alle uniform-Variablen (und Konstanten), die man im Shader nutzen will.
 		// Wir brauchen nur die Modelviewprojection-Matrix von der Kamera im Shader.
 		// Diese Liste wird auch für $$$HEADER$$$ rangezogen
@@ -757,8 +769,8 @@ try
 					sge::renderer::resource_flags::none)
 					);
 
-	sge::renderer::vertex_buffer_ptr const vb = 
-		testcase::create_cube(
+	std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const buffer_and_declaration =
+		create_cube(
 			rend,
 			shader);
 
@@ -812,14 +824,18 @@ try
 			shader);
 
 		// Vertexbuffer aktivieren. Muss man machen
+		sge::renderer::scoped_vertex_declaration const decl_context(
+			rend,
+			buffer_and_declaration.second);
+
 		sge::renderer::scoped_vertex_buffer const vb_context(
 			rend,
-			vb);
+			buffer_and_declaration.first);
 
 		// Rendern (copypaste)
 		rend->render(
 			sge::renderer::first_vertex(0),
-			sge::renderer::vertex_count(vb->size()),
+			sge::renderer::vertex_count(buffer_and_declaration.first->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
 			if(offset_timer.update_b())
 				offset += fcppt::math::pi<float>()/100.f;
@@ -844,20 +860,20 @@ try
 			}
 
 			// mvp updaten
-			shader.set_uniform(
+			shader.update_uniform(
 				"mvp",
 				cam.mvp());
 
-			shader.set_uniform(
+			shader.update_uniform(
 				"camera",
 				cam.gizmo().position());
 
-			shader.set_uniform(
+			shader.update_uniform(
 				"offset",
 				std::sin(
 					offset));
 
-			shader.set_uniform(
+			shader.update_uniform(
 				"mv",
 				cam.world());
 		}
