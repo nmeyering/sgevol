@@ -116,13 +116,6 @@ ADD_EXECUTABLE(
 	perlin3d.cpp
 )
 
-ADD_EXECUTABLE(
-	test
-	perlin3d.cpp
-	perlin2d.cpp
-	test.cpp
-)
-
 TARGET_LINK_LIBRARIES(
 	app
 	${FCPPT_LIBRARIES}
@@ -133,9 +126,4 @@ TARGET_LINK_LIBRARIES(
 	${SGE_systems_LIBRARY}
 	${SGE_camera_LIBRARY}
 	${SGE_fonttext_LIBRARY}
-	${Boost_LIBRARIES})
-
-TARGET_LINK_LIBRARIES(
-	test
-	${FCPPT_LIBRARIES}
 	${Boost_LIBRARIES})

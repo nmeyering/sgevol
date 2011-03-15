@@ -83,6 +83,8 @@
 #include <sge/time/millisecond.hpp>
 #include <sge/time/second.hpp>
 #include <sge/time/timer.hpp>
+#include <sge/viewport/fill_on_resize.hpp>
+#include <sge/viewport/manager.hpp>
 #include <sge/window/instance.hpp>
 #include <mizuiro/image/view.hpp>
 #include <fcppt/assign/make_container.hpp>
@@ -105,6 +107,7 @@
 #include <fcppt/math/vector/length.hpp>
 #include <fcppt/signal/scoped_connection.hpp>
 #include <fcppt/text.hpp>
+#include <fcppt/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/vector/vector10.hpp>
@@ -522,7 +525,7 @@ try
 					sge::renderer::vsync::on,
 					sge::renderer::no_multi_sampling
 				),
-				sge::systems::viewport::fill_on_resize()
+				sge::viewport::fill_on_resize()
 			)
 		)
 		(
@@ -690,13 +693,13 @@ try
 			));
 
 	fcppt::signal::scoped_connection const viewport_connection(
-		sys.manage_viewport_callback(
+		sys.viewport_manager().manage_callback(
 			std::tr1::bind(
 				sge::camera::projection::update_perspective_from_viewport,
-				std::tr1::placeholders::_1,
-				std::tr1::ref(
-					cam
-				),
+				fcppt::ref(
+					*rend),
+				fcppt::ref(
+					cam),
 				// fov
 				static_cast<
 					sge::renderer::scalar
