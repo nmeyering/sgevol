@@ -78,7 +78,6 @@
 #include <sge/shader/vf_to_string.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
-#include <sge/systems/viewport/fill_on_resize.hpp>
 #include <sge/time/frames_counter.hpp>
 #include <sge/time/millisecond.hpp>
 #include <sge/time/second.hpp>
