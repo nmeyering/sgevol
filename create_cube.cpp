@@ -1,12 +1,12 @@
-#include <sge/renderer/vertex_buffer.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/renderer/scoped_vertex_lock.hpp>
+#include <sge/renderer/vertex_buffer.hpp>
 #include <sge/shader/object.hpp>
 #include <sge/shader/scoped.hpp>
 #include <utility>
-#include "vf.hpp"
 #include "create_cube.hpp"
+#include "vf.hpp"
 
 namespace sgevol
 {

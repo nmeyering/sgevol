@@ -1,19 +1,19 @@
 #ifndef SGEVOL_VF_HPP_INCLUDED
 #define SGEVOL_VF_HPP_INCLUDED
 
-#include <boost/mpl/vector/vector10.hpp>
 #include <sge/renderer/scalar.hpp>
-#include <sge/renderer/vf/dynamic/make_format.hpp>
-#include <sge/renderer/vf/vector.hpp>
-#include <sge/renderer/vf/make_unspecified_tag.hpp>
-#include <sge/renderer/vf/unspecified.hpp>
-#include <sge/renderer/vf/part.hpp>
-#include <sge/renderer/vf/format.hpp>
-#include <sge/renderer/vf/view.hpp>
 #include <sge/renderer/vf/color.hpp>
+#include <sge/renderer/vf/dynamic/make_format.hpp>
+#include <sge/renderer/vf/format.hpp>
 #include <sge/renderer/vf/iterator.hpp>
+#include <sge/renderer/vf/make_unspecified_tag.hpp>
+#include <sge/renderer/vf/part.hpp>
 #include <sge/renderer/vf/pos.hpp>
+#include <sge/renderer/vf/unspecified.hpp>
+#include <sge/renderer/vf/vector.hpp>
 #include <sge/renderer/vf/vertex.hpp>
+#include <sge/renderer/vf/view.hpp>
+#include <boost/mpl/vector/vector10.hpp>
 
 namespace sgevol
 {

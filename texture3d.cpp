@@ -32,8 +32,8 @@
 #include <ostream>
 #include <streambuf>
 #include <utility>
-#include "perlin3d.hpp"
 #include "media_path.hpp"
+#include "perlin3d.hpp"
 #include "texture3d.hpp"
 #include "vf.hpp"
 
