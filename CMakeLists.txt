@@ -111,9 +111,11 @@ SET_SOURCE_FILES_PROPERTIES(
 
 ADD_EXECUTABLE(
 	app
+	create_cube.cpp
+	main.cpp
+	perlin3d.cpp
   media_path.cpp
   texture3d.cpp
-	perlin3d.cpp
 )
 
 TARGET_LINK_LIBRARIES(
