@@ -339,12 +339,12 @@ try
 			) + 
 			SGE_FONT_TEXT_LIT("%"),
 
-      fcppt::math::box::structure_cast<sge::font::rect>(
-        rend->onscreen_target()->viewport().get()),
+			fcppt::math::box::structure_cast<sge::font::rect>(
+				rend->onscreen_target()->viewport().get()),
 
-      sge::font::text::align_h::center,
-      sge::font::text::align_v::center,
-      sge::font::text::flags::none
+			sge::font::text::align_h::center,
+			sge::font::text::align_v::center,
+			sge::font::text::flags::none
 
 		);
 	
@@ -482,11 +482,11 @@ try
 			sge::font::text::from_fcppt_string(
 				fps_counter.frames_str())
 			+ SGE_FONT_TEXT_LIT(" fps"),
-      fcppt::math::box::structure_cast<sge::font::rect>(
-        rend->onscreen_target()->viewport().get()),
-      sge::font::text::align_h::center,
-      sge::font::text::align_v::center,
-      sge::font::text::flags::none
+			fcppt::math::box::structure_cast<sge::font::rect>(
+				rend->onscreen_target()->viewport().get()),
+			sge::font::text::align_h::center,
+			sge::font::text::align_v::center,
+			sge::font::text::flags::none
 		);
 
 	}

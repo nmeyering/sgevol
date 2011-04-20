@@ -5,8 +5,7 @@ PROJECT(sgevol)
 # This allows ENDIFs with no specifier _what_ ends
 SET (CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
-SET(EXTRA_CMAKE_MODULE_PATH "" CACHE PATH "Extra paths to search for cmake modules")
-SET(CMAKE_MODULE_PATH "${EXTRA_CMAKE_MODULE_PATH}")
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 
 IF(${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
 	MESSAGE(
@@ -82,7 +81,7 @@ IF (CMAKE_COMPILER_IS_GNUCXX OR COMPILER_IS_CLANGPP)
 		"-Wextra -Wconversion -Wfloat-equal -Wredundant-decls"
 		"-Winit-self -Woverloaded-virtual"
 		"-Wshadow"
-		"-Wold-style-cast -Wnon-virtual-dtor -Wctor-dtor-privacy -Wsign-promo"
+		"-Wold-style-cast -Wnon-virtual-dtor -Wsign-promo"
 		"-Wstrict-aliasing=1 -Wmissing-declarations -Wno-long-long")
 	# we don't use long long but boost does :(
 
@@ -107,6 +106,18 @@ SET_SOURCE_FILES_PROPERTIES(
 	PROPERTIES
 	COMPILE_FLAGS
 	-DMEDIA_PATH="\\\"${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME}/media\\\""
+)
+
+ADD_EXECUTABLE(
+	test
+	test.cpp
+	simplex2d.cpp
+  simplex3d.cpp
+)
+
+TARGET_LINK_LIBRARIES(
+	test
+	${FCPPT_LIBRARIES}
 )
 
 ADD_EXECUTABLE(

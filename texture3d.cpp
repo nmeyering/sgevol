@@ -12,7 +12,6 @@
 #include <sge/image3d/view/optional_pitch.hpp>
 #include <sge/image3d/view/to_const.hpp>
 #include <mizuiro/image/view.hpp>
-#include <fcppt/container/grid/object.hpp>
 #include <fcppt/container/raw_vector.hpp>
 #include <fcppt/make_shared_ptr.hpp>
 #include <fcppt/math/clamp.hpp>
