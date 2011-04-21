@@ -6,9 +6,7 @@
 #include <iostream>
 #include "simplex2d.hpp"
 
-using sgevol::simplex2d;
-
-simplex2d::simplex2d(
+sgevol::simplex2d::simplex2d(
 	std::size_t const _dim)
 :
 	dim_(
@@ -26,7 +24,7 @@ simplex2d::simplex2d(
 
 // 2D simplex noise
 float
-simplex2d::sample(
+sgevol::simplex2d::sample(
 	vec2 const &in)
 {
 	float n0, n1, n2; // Noise contributions from the three corners

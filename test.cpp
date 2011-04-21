@@ -3,6 +3,7 @@
 #include <cmath>
 #include "simplex2d.hpp"
 #include "simplex3d.hpp"
+#include "simplex_noise.hpp"
 #include "to_ppm.hpp"
 
 int main()
@@ -13,6 +14,8 @@ int main()
 	std::size_t const dim = 256;
 	simplex2d s(dim);
   simplex3d foo(dim);
+
+	sgevol::simplex_noise<float,3> noisy(dim);
 
 	typedef
 	fcppt::container::grid::object<unsigned char,2>
@@ -40,6 +43,8 @@ int main()
             y)
         ] += static_cast<unsigned char>( 128 + 127 * (tmp/pow(2,oct)) );
       }
+
+	std::cout << noisy.sample(simplex3d::vec3(1.f,1.f,1.f)) << std::endl;
 
 	to_ppm(
 		noise,
