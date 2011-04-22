@@ -4,16 +4,13 @@ PROJECT(sgevol)
 
 INCLUDE(FcpptCMakeUtils)
 
-# This allows ENDIFs with no specifier _what_ ends
-SET (CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
-
 # boost begin
 FIND_PACKAGE(
 	Boost 1.45.0 REQUIRED COMPONENTS
 	system
   )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 # boost end
 
