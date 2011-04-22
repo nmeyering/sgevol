@@ -1,17 +1,20 @@
 #include <fcppt/container/grid/object.hpp>
 #include <iostream>
 #include <cmath>
+#include <cstddef>
 #include "simplex_noise.hpp"
+#include "simplex3d.hpp"
 #include "to_ppm.hpp"
 
 int main()
 {
-	std::size_t const dim = 512;
-	std::size_t const n = 4; // dimensionality - also change sampling vector below!
-	std::size_t const octaves = 5;
-	float const scaling = 4.f;
+	std::size_t const dim = 1024;
+	std::size_t const n = 3; // dimensionality - also change sampling vector below!
+	std::size_t const octaves = 1;
+	float const scaling = 256.f;
 
-	sgevol::simplex_noise<float,n> noisy(dim);
+	 sgevol::simplex_noise<float,n> noisy(dim, 256);
+	// sgevol::simplex3d noisy(dim);
 
 	typedef
 	fcppt::container::grid::object<
@@ -36,7 +39,6 @@ int main()
 			dim,
 			dim));
 
-  using std::pow;
 	for (std::size_t oct = 0; oct < octaves; ++oct)
 	for (grid::size_type y = 0; y < dim; ++y)
 		for (grid::size_type x = 0; x < dim; ++x)
@@ -48,7 +50,6 @@ int main()
 							static_cast<float>(dim),
 						scaling * std::pow(2.f, static_cast<float>(oct)) * static_cast<float>(y)/
 							static_cast<float>(dim),
-						0.f,
 						0.f)); // pad to fill {3,4} dimensions
 
 			tmpgrid[
