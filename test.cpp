@@ -29,6 +29,11 @@ int main(int argc, char **argv)
 		case 4:
 			test<4>(dim,octaves);
 			break;
+		case 20:
+			test<20>(dim,octaves);
+			break;
+		default:
+			test<3>(dim,octaves);
 	}
 	/*
 	output_grid output(
