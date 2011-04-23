@@ -222,7 +222,7 @@ simplex_noise<Float,N>::sample(
 			contrib(t, floored + v);
 	}
 
-	return 23.f * res;
+	return 40.f * res;
 }
 
 }
