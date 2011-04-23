@@ -66,8 +66,6 @@ SET_SOURCE_FILES_PROPERTIES(
 ADD_EXECUTABLE(
 	test
 	test.cpp
-	simplex2d.cpp
-  simplex3d.cpp
 )
 
 TARGET_LINK_LIBRARIES(

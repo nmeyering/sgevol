@@ -6,7 +6,6 @@
 #include <cmath>
 #include <cstddef>
 #include "simplex_noise.hpp"
-#include "simplex3d.hpp"
 #include "to_ppm.hpp"
 
 template<std::size_t N>
