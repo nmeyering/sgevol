@@ -45,7 +45,7 @@ test(
 			dim));
 
 	time_point before = clock::now();
-	vec pos;
+	vec pos = vec::null();
 	
 	for (std::size_t oct = 0; oct < octaves; ++oct)
 	for (grid::size_type y = 0; y < dim; ++y)
