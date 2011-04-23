@@ -3,6 +3,7 @@
 
 #include <boost/range/algorithm_ext/iota.hpp>
 #include <boost/range/algorithm/random_shuffle.hpp>
+#include <fcppt/container/array.hpp>
 #include <fcppt/math/vector/vector.hpp>
 #include <fcppt/math/matrix/matrix.hpp>
 #include <cstddef>
@@ -88,17 +89,21 @@ private:
 		return res;
 	}
 
-	std::vector<
-		vector>
+	typedef fcppt::container::array<
+		vector,
+		N + 1
+	> corner_array;
+
+	corner_array
 	corners(
 		vector point)
 	{
-		std::vector<vector> res;
+		corner_array res;
 		vector cur = vector::null();
 		Float max = static_cast<Float>(-1);
 		typename vector::size_type max_i = 0;
 
-		res.push_back(vector(cur));
+		res[0] = vector(cur);
 
 		for (typename vector::size_type j = 0; j < N; ++j)
 		{
@@ -111,7 +116,7 @@ private:
 			max = static_cast<Float>(-1);
 			point[max_i] = static_cast<Float>(-2);
 			cur += fcppt::math::vector::unit<vector>(max_i);
-			res.push_back(vector(cur));
+			res[j+1] = vector(cur);
 		}
 
 		return res;
@@ -214,7 +219,7 @@ simplex_noise<Float,N>::sample(
 	vector offset(tmp);
 	tmp = stretch_m() * tmp;
 
-	std::vector<vector> c = corners(tmp);
+	corner_array c = corners(tmp);
 	BOOST_FOREACH(vector &v, c)
 	{
 		vector t(in - inv_m() * (floored + v));
