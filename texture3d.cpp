@@ -32,7 +32,7 @@
 #include <streambuf>
 #include <utility>
 #include "media_path.hpp"
-#include "perlin3d.hpp"
+#include "simplex_noise.hpp"
 #include "texture3d.hpp"
 #include "vf.hpp"
 
@@ -85,29 +85,38 @@ texture3d::calculate()
 			static_cast< float >( dimension_ ) * .5f,
 			static_cast< float >( dimension_ ) * .5f,
 			static_cast< float >( dimension_ ) * .5f);
-	sgevol::perlin3d noise( 256 );
+	sgevol::simplex_noise<float,3> noise( 128, 256 );
+	vec3 tmp = vec3(42.f,13.f,37.f);
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
 		progress_.value( 100.0f * static_cast<float>(z+1) / static_cast<float>(dimension_) );
 		for (dimtype y = 0; y < dimension_; ++y)
 			for (dimtype x = 0; x < dimension_; ++x)
 			{
-				vec3 tmp(
-					static_cast< float >( x ),
-					static_cast< float >( y ),
-					static_cast< float >( z ));
+				tmp[0] = 
+					static_cast< float >( x );
+				tmp[1] = 
+					static_cast< float >( y );
+				tmp[2] = 
+					static_cast< float >( z );
 
-				using fcppt::math::clamp;
 				alpha = 
-					clamp(
-						0.25f * noise.sample( 0.20f * tmp ) +
-						noise.sample( 0.10f * tmp ) *
-						noise.sample( 0.05f * tmp ),
-						0.f,
-						1.f
-					);
+					/*
+					fcppt::math::clamp(
+						0.2f +
+						0.125f * noise.sample( 0.20f * tmp ) +
+						0.25f * noise.sample( 0.10f * tmp ) +
+						0.5f * noise.sample( 0.05f * tmp )
+						,0.f
+						,1.f) *
+					*/
+					fcppt::math::clamp(
+						noise.sample( 0.015f * tmp )
+						,0.f
+						,1.f);
+
 				alpha *= 
-					clamp(
+					fcppt::math::clamp(
 						1.0f -
 						fcppt::math::vector::length( tmp - center ) /
 						(0.5f * static_cast<float>(dimension_)),

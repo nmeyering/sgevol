@@ -5,9 +5,29 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
-uniform float stepsize = 0.04;
+uniform float stepsize = 0.02;
 uniform int steps = 100;
-//uniform vec3 sun = vec3(0.0,0.0,-1.0);
+uniform vec3 sun = vec3(0.0,1.0,0.0);
+uniform float delta = 0.005;
+
+vec3
+gradient(vec3 point)
+{
+	vec3 sample1, sample2, res;
+
+	sample1.x = texture(tex, point - vec3(delta,0.0,0.0)).a;
+	sample2.x = texture(tex, point + vec3(delta,0.0,0.0)).a;
+	sample1.y = texture(tex, point - vec3(0.0,delta,0.0)).a;
+	sample2.y = texture(tex, point + vec3(0.0,delta,0.0)).a;
+	sample1.z = texture(tex, point - vec3(0.0,0.0,delta)).a;
+	sample2.z = texture(tex, point + vec3(0.0,0.0,delta)).a;
+
+	res = sample2 - sample1;
+	if (length(res) < 0.02)
+		return vec3(0.,0.,0.);
+	else
+		return normalize(res);
+}
 
 void
 main()
@@ -17,7 +37,7 @@ main()
   vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
 	vec3 direction = normalize( position_interp - camera );
   vec3 position;
-	float factor = 0.5;
+	float factor = 0.02;
 
 	//jeden Ray eine Stepsize in das Volume laufen lassen,
 	//um Sampling-Artefakte an den Rändern zu vermeiden.
@@ -38,23 +58,14 @@ main()
 	}
 	position = (position + 1.0) * 0.5;
 	//position += 0.1 * offset;
-	//float light = abs( dot( sun, direction ) );
 
   for( int i = 0; i < steps; i++ )
   {
-		/*
-    offset_value = texture( tex, clamp( (position + offset * 0.25) * 0.8 , 0.0, 1.0) );
-    value = texture( tex, clamp(position + offset_value.a, 0.0, 1.0) );
-		*/
-		value = texture( tex, position );
-    
-		vec4 src = value;
-
-    dst = (1.0 - dst.a) * src * factor + dst;
-    //dst = (1.0 - dst.a) * src + vec4(vec3(dst.a * dst), dst.a);
-    //dst = (1.0 - dst.a) * src + dst.a * dst;
-		//dst = dst + value;
-
+		vec4 value = texture( tex, position );
+		// vec4 value = vec4(1.0,1.0,1.0,abs(dot(sun,gradient(position))));
+		float light = dot(gradient(position),sun);
+		
+		dst += (1.0 - dst.a) * (factor * value + vec4(1.0,0.0,0.0,light * 0.1));
 		if( dst.a >= 0.95 )
 			break;
     
@@ -72,7 +83,4 @@ main()
 		*/
   }
 	frag_color = dst;
-
-  //frag_color = vec4( position_interp, 0.5 );
-  //frag_color = vec4(1.0,1.0,1.0,1.0);
 }

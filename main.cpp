@@ -484,8 +484,8 @@ try
 			+ SGE_FONT_TEXT_LIT(" fps"),
 			fcppt::math::box::structure_cast<sge::font::rect>(
 				rend->onscreen_target()->viewport().get()),
-			sge::font::text::align_h::center,
-			sge::font::text::align_v::center,
+			sge::font::text::align_h::left,
+			sge::font::text::align_v::top,
 			sge::font::text::flags::none
 		);
 
