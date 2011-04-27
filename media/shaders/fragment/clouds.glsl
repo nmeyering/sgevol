@@ -37,7 +37,7 @@ main()
   vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
 	vec3 direction = normalize( position_interp - camera );
   vec3 position;
-	float factor = 0.02;
+	float factor = 0.32;
 
 	//jeden Ray eine Stepsize in das Volume laufen lassen,
 	//um Sampling-Artefakte an den Rändern zu vermeiden.
@@ -63,9 +63,10 @@ main()
   {
 		vec4 value = texture( tex, position );
 		// vec4 value = vec4(1.0,1.0,1.0,abs(dot(sun,gradient(position))));
-		float light = dot(gradient(position),sun);
+		// float light = dot(gradient(position),sun);
 		
-		dst += (1.0 - dst.a) * (factor * value + vec4(1.0,0.0,0.0,light * 0.1));
+		// dst += (1.0 - dst.a) * (factor * value + vec4(1.0,0.0,0.0,light * 0.1));
+		dst += (1.0 - dst.a) * value * factor;
 		if( dst.a >= 0.95 )
 			break;
     

@@ -185,10 +185,12 @@ try
 		// Vertexshader, liegen in unserem Fall im sge-Mediapath
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("vertex")
 			/ FCPPT_TEXT("vertex.glsl"),
 		// Fragmentshader
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("fragment")
 			/ FCPPT_TEXT("fragment.glsl"),
 		// Das hier nimmt sich das Vertexformat (vf::format) und macht das zu einer
 		// glsl-Deklaration aller Variablen, d.h. in unserem Fall erstellt das

@@ -85,7 +85,7 @@ texture3d::calculate()
 			static_cast< float >( dimension_ ) * .5f,
 			static_cast< float >( dimension_ ) * .5f,
 			static_cast< float >( dimension_ ) * .5f);
-	sgevol::simplex_noise<float,3> noise( 128, 256 );
+	sgevol::simplex_noise<float,3> noise( 64, 256 );
 	vec3 tmp = vec3(42.f,13.f,37.f);
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
