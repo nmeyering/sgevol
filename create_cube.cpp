@@ -14,7 +14,7 @@ namespace sgevol
 // Speicherbereiche auf dem Graka-RAM.
 std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const
 create_cube(
-	sge::renderer::device_ptr const renderer,
+	sge::renderer::device &renderer,
 	sge::shader::object &sh)
 {
 	// Um den Vertexbuffer zu befüllen, müssen wir erstmal den Shader aktivieren,
@@ -22,30 +22,29 @@ create_cube(
 	sge::shader::scoped scoped_shader(
 		sh);
 
-	sge::renderer::vertex_declaration_ptr const decl =
-		renderer->create_vertex_declaration(
-			sge::renderer::vf::dynamic::make_format<vf::format>());
+	sge::renderer::vertex_declaration_ptr const decl(
+		renderer.create_vertex_declaration(
+			sge::renderer::vf::dynamic::make_format<vf::format>()));
 
-	sge::renderer::vertex_buffer_ptr const vb = 
-		renderer->create_vertex_buffer(
-			decl,
+	sge::renderer::vertex_buffer_ptr const vb(
+		renderer.create_vertex_buffer(
+			*decl,
 			// copypaste
-			sge::renderer::vf::dynamic::part_index(
-				0u),
+			sge::renderer::vf::dynamic::part_index(0u),
 			// Two triangles per slice
 			static_cast<sge::renderer::size_type>(
 				6 * 6 ),
 			// Hier kann man angeben, ob der Vertexbuffer "dynamic" sein soll, oder
 			// nicht. Dynamische Vertexbuffer sind solche, die man oft (jedes Frame
 			// z.B.) neu setzen will. Hier brauchen wir das aber offenbar nicht.
-			sge::renderer::resource_flags::none);
+			sge::renderer::resource_flags::none));
 
 	// Um lesend oder schreibend auf einen Vertexbuffer zugreifen zu können, muss
 	// man ihn locken. Intern wird da vermutlich der Speicherblock, der sich auf
 	// der Graka befindet, in den Hauptspeicher übertragen, damit man den
 	// auslesen kann.
 	sge::renderer::scoped_vertex_lock const vblock(
-		vb,
+		*vb,
 		sge::renderer::lock_mode::writeonly);
 
 	// Ein Vertexbuffer ist eigentlich nur ein roher Block Speicher. Hier

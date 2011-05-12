@@ -135,11 +135,11 @@ try
 	);
 
 	// Abkürzung, damit wir nicht immer sys.renderer() schreiben müssen
-	sge::renderer::device_ptr const rend(
+	sge::renderer::device& rend(
 		sys.renderer());
 
 	sge::font::metrics_ptr const metrics(
-		sys.font_system()->create_font(
+		sys.font_system().create_font(
 				sge::config::media_path() 
 				/ FCPPT_TEXT("fonts") 
 				/ FCPPT_TEXT("default.ttf"),
@@ -159,7 +159,7 @@ try
 	boost::thread t( boost::bind( &texture3d::calculate, &mytex) );
 
 	// Renderstates!
-	rend->state(
+	rend.state(
 		sge::renderer::state::list
 			// Bildschirm bei jedem Renderdurchgang neu initialisieren?
 			(sge::renderer::state::bool_::clear_backbuffer = true)
@@ -282,8 +282,8 @@ try
 					0.f
 					)
 				),
-			*sys.keyboard_collector(),
-			*sys.mouse_collector(),
+			sys.keyboard_collector(),
+			sys.mouse_collector(),
 			sge::camera::activation_state::active
 			));
 
@@ -292,7 +292,7 @@ try
 			std::tr1::bind(
 				sge::camera::projection::update_perspective_from_viewport,
 				fcppt::ref(
-					*rend),
+					rend),
 				fcppt::ref(
 					cam),
 				// fov
@@ -329,25 +329,22 @@ try
 			if( (p = mytex.progress()) >= 99.f )
 				break;
 
-		sys.window()->dispatch();
+		sys.window().dispatch();
 		
 		sge::renderer::scoped_block const block_(rend);
 		
 		sge::font::text::draw(
-			metrics,
+			*metrics,
 			drawer,
 			boost::lexical_cast<sge::font::text::string>(
 				static_cast<int>(p) 
 			) + 
 			SGE_FONT_TEXT_LIT("%"),
-
 			fcppt::math::box::structure_cast<sge::font::rect>(
-				rend->onscreen_target()->viewport().get()),
-
+				rend.onscreen_target().viewport().get()),
 			sge::font::text::align_h::center,
 			sge::font::text::align_v::center,
 			sge::font::text::flags::none
-
 		);
 	
 	}
@@ -377,7 +374,7 @@ try
 	// Registriert einen Keyboard-Listener, der auf Escape wartet und dann das
 	// obige "running" auf false setzt.
 	fcppt::signal::scoped_connection const cb(
-		sys.keyboard_collector()->key_callback(
+		sys.keyboard_collector().key_callback(
 			sge::input::keyboard::action(
 				sge::input::keyboard::key_code::escape,
 				boost::phoenix::ref(running) = false
@@ -396,7 +393,7 @@ try
 	sge::renderer::scalar offset = 0.0f;
 
 	sge::font::metrics_ptr const fps_metrics(
-		sys.font_system()->create_font(
+		sys.font_system().create_font(
 				sge::config::media_path() 
 				/ FCPPT_TEXT("fonts") 
 				/ FCPPT_TEXT("default.ttf"),
@@ -407,7 +404,7 @@ try
 	while(running)
 	{
 		// Sonst werden keine Input-Events geschickt
-		sys.window()->dispatch();
+		sys.window().dispatch();
 
 		cam.update(
 			static_cast<sge::renderer::scalar>(
@@ -424,14 +421,14 @@ try
 		// Vertexbuffer aktivieren. Muss man machen
 		sge::renderer::scoped_vertex_declaration const decl_context(
 			rend,
-			buffer_and_declaration.second);
+			*buffer_and_declaration.second);
 
 		sge::renderer::scoped_vertex_buffer const vb_context(
 			rend,
-			buffer_and_declaration.first);
+			*buffer_and_declaration.first);
 
 		// Rendern (copypaste)
-		rend->render(
+		rend.render(
 			sge::renderer::first_vertex(0),
 			sge::renderer::vertex_count(buffer_and_declaration.first->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
@@ -444,14 +441,14 @@ try
 					std::abs( cam.gizmo().position().z() ) >= 1.0f
 				)
 			{
-				rend->state(
+				rend.state(
 					sge::renderer::state::list( 
 						sge::renderer::state::cull_mode::front
 					));
 			}
 			else
 			{
-				rend->state(
+				rend.state(
 					sge::renderer::state::list( 
 						sge::renderer::state::cull_mode::back
 					));
@@ -479,13 +476,13 @@ try
 		fps_counter.update();
 
 		sge::font::text::draw(
-			fps_metrics,
+			*fps_metrics,
 			drawer,
 			sge::font::text::from_fcppt_string(
 				fps_counter.frames_str())
 			+ SGE_FONT_TEXT_LIT(" fps"),
 			fcppt::math::box::structure_cast<sge::font::rect>(
-				rend->onscreen_target()->viewport().get()),
+				rend.onscreen_target().viewport().get()),
 			sge::font::text::align_h::left,
 			sge::font::text::align_v::top,
 			sge::font::text::flags::none

@@ -10,7 +10,7 @@ namespace sgevol
 {
 std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const
 create_cube(
-	sge::renderer::device_ptr const,
+	sge::renderer::device&,
 	sge::shader::object&);
 }
 
