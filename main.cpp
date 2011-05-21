@@ -162,9 +162,9 @@ try
 	rend.state(
 		sge::renderer::state::list
 			// Bildschirm bei jedem Renderdurchgang neu initialisieren?
-			(sge::renderer::state::bool_::clear_backbuffer = true)
+			(sge::renderer::state::bool_::clear_back_buffer = true)
 			// Z-Buffer auch löschen? Braucht man hier glaub ich nichtmal
-			(sge::renderer::state::bool_::clear_zbuffer = true)
+			(sge::renderer::state::bool_::clear_depth_buffer = true)
 			// Alphablending plus die zwei Kombinationsfunktionen
 			(sge::renderer::state::bool_::enable_alpha_blending = true)
 			(sge::renderer::state::source_blend_func::src_alpha)
@@ -176,8 +176,8 @@ try
 			// Tiefenfunktion
 			(sge::renderer::state::depth_func::off)
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
-			(sge::renderer::state::float_::zbuffer_clear_val = 1.f)
-			(sge::renderer::state::color::clear_color = sge::image::colors::black()));
+			(sge::renderer::state::float_::depth_buffer_clear_val = 1.f)
+			(sge::renderer::state::color::back_buffer_clear_color = sge::image::colors::black()));
 
 	// Unser Shader mit der tollen Klasse sge::shader
 	sge::shader::object shader(
