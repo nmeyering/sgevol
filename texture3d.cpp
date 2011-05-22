@@ -101,25 +101,33 @@ texture3d::calculate()
 					static_cast< float >( z );
 
 				alpha = 
-					/*
 					fcppt::math::clamp(
-						0.2f +
-						0.125f * noise.sample( 0.20f * tmp ) +
-						0.25f * noise.sample( 0.10f * tmp ) +
-						0.5f * noise.sample( 0.05f * tmp )
+						0.0625f * noise.sample( 0.2f * tmp ) +
+						0.125f * noise.sample( 0.10f * tmp ) +
+						0.25f * noise.sample( 0.05f * tmp ) +
+						0.5f * noise.sample( 0.025f * tmp )
 						,0.f
-						,1.f) *
-					*/
+						,1.f);
+						/* *
 					fcppt::math::clamp(
 						noise.sample( 0.015f * tmp )
 						,0.f
 						,1.f);
+						*/
 
+				//sphere
 				alpha *= 
 					fcppt::math::clamp(
+						/*
 						1.0f -
 						fcppt::math::vector::length( tmp - center ) /
 						(0.5f * static_cast<float>(dimension_)),
+						*/
+						(
+							fcppt::math::vector::length(tmp - center) < 
+								0.5f * static_cast<float>(dimension_) ?
+								1.f :
+								0.f ),
 						0.f,
 						1.f
 					);

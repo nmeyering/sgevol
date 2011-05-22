@@ -177,7 +177,7 @@ try
 			(sge::renderer::state::depth_func::off)
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
 			(sge::renderer::state::float_::depth_buffer_clear_val = 1.f)
-			(sge::renderer::state::color::back_buffer_clear_color = sge::image::colors::black()));
+			(sge::renderer::state::color::back_buffer_clear_color = sge::image::colors::darkblue()));
 
 	// Unser Shader mit der tollen Klasse sge::shader
 	sge::shader::object shader(
@@ -253,7 +253,7 @@ try
 				1.0),
 			// mousespeed
 			static_cast<sge::renderer::scalar>(
-				200.0),
+				400.0),
 			// Maus und Keyboard
 			sge::camera::gizmo_type().position(
 				sge::renderer::vector3(
@@ -435,6 +435,7 @@ try
 			if(offset_timer.update_b())
 				offset += fcppt::math::pi<float>()/100.f;
 		
+			/*
 			if(
 					std::abs( cam.gizmo().position().x() ) >= 1.0f ||
 					std::abs( cam.gizmo().position().y() ) >= 1.0f ||
@@ -453,6 +454,10 @@ try
 						sge::renderer::state::cull_mode::back
 					));
 			}
+			*/
+			rend.state(
+				sge::renderer::state::list(
+					sge::renderer::state::cull_mode::front));
 
 			// mvp updaten
 			shader.update_uniform(
