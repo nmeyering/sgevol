@@ -177,7 +177,7 @@ try
 			(sge::renderer::state::depth_func::off)
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
 			(sge::renderer::state::float_::depth_buffer_clear_val = 1.f)
-			(sge::renderer::state::color::back_buffer_clear_color = sge::image::colors::darkblue()));
+			(sge::renderer::state::color::back_buffer_clear_color = sge::image::colors::darkgray()));
 
 	// Unser Shader mit der tollen Klasse sge::shader
 	sge::shader::object shader(

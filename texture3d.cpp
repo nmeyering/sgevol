@@ -99,21 +99,17 @@ texture3d::calculate()
 					static_cast< float >( y );
 				tmp[2] = 
 					static_cast< float >( z );
+				
+				float const scale = 0.5f;
 
 				alpha = 
 					fcppt::math::clamp(
-						0.0625f * noise.sample( 0.2f * tmp ) +
-						0.125f * noise.sample( 0.10f * tmp ) +
-						0.25f * noise.sample( 0.05f * tmp ) +
-						0.5f * noise.sample( 0.025f * tmp )
+						0.0625f * noise.sample( scale * 0.2f * tmp ) +
+						0.125f * noise.sample( scale * 0.10f * tmp ) +
+						0.25f * noise.sample( scale * 0.05f * tmp ) +
+						0.5f * noise.sample( scale * 0.025f * tmp )
 						,0.f
 						,1.f);
-						/* *
-					fcppt::math::clamp(
-						noise.sample( 0.015f * tmp )
-						,0.f
-						,1.f);
-						*/
 
 				//sphere
 				alpha *= 

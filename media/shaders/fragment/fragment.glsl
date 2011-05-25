@@ -6,8 +6,7 @@ in vec3 position_interp;
 out vec4 frag_color;
 
 uniform float stepsize = 0.01;
-uniform int steps = 200;
-uniform vec3 sun = vec3(0.0,1.0,0.0);
+uniform int steps = 600;
 uniform float delta = 0.005;
 
 vec3
@@ -33,11 +32,15 @@ void
 main()
 {
   vec4 value;
-	vec4 offset_value;
   vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
 	vec3 direction = normalize( position_interp - camera );
   vec3 position;
-	float factor = 0.08;
+	float factor = 0.05;
+
+	vec3 skycolor = vec3(0.8,0.85,1.0);
+	vec3 suncolor = vec3(1.0,1.0,0.8);
+	vec3 sun = vec3(sin(offset),cos(offset),0.0);
+	vec3 sky = vec3(0.0,-1.0,0.0);
 
 	/*
 	if(
@@ -59,12 +62,16 @@ main()
   for( int i = 0; i < steps; i++ )
   {
 		vec4 value = texture( tex, position );
-		// vec4 value = vec4(1.0,1.0,1.0,abs(dot(sun,gradient(position))));
-		// float light = dot(gradient(position),sun);
+		//	vec4 value = vec4(1.0,1.0,1.0,abs(dot(sun,gradient(position))));
+
+		float sunlight = max(0.0, dot(gradient(position),sun));
+		float skylight = max(0.0, dot(gradient(position),sky));
 		
-		// dst += (1.0 - dst.a) * (factor * value + vec4(1.0,0.0,0.0,light * 0.1));
-		dst += (1.0 - dst.a) * value * factor;
-		if( dst.a >= 0.95 )
+		// dst += (1.0 - dst.a) * value * factor * (sunlight * suncolor + skylight * skycolor);
+		vec3 col = min(sunlight * suncolor, 1.0);
+		dst += (1.0 - dst.a) * factor * value * vec4(col,1.0);
+
+		if( dst.a > 0.95 )
 			break;
     
     position = position + direction * stepsize;
@@ -78,5 +85,9 @@ main()
     if ( inside < 3.0 )
       break;
   }
-	frag_color = dst;
+	float m = max(max(dst.r, dst.g), max(dst.b, dst.a));
+	vec4 result = dst;
+	if(m > 1.0)
+		result = vec4(dst.r / m, dst.g / m, dst.b / m, dst.a);
+	frag_color = result;
 }

@@ -77,7 +77,6 @@ ADD_EXECUTABLE(
 	app
 	create_cube.cpp
 	main.cpp
-	perlin3d.cpp
   media_path.cpp
   texture3d.cpp
 )
