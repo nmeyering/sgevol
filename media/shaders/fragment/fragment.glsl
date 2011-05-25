@@ -7,7 +7,7 @@ out vec4 frag_color;
 
 uniform float stepsize = 0.01;
 uniform int steps = 600;
-uniform float delta = 0.005;
+uniform float delta = 0.010;
 
 vec3
 gradient(vec3 point)
@@ -35,11 +35,12 @@ main()
   vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
 	vec3 direction = normalize( position_interp - camera );
   vec3 position;
-	float factor = 0.05;
+	// scaling factor for uniform cloud data
+	float factor = 0.20;
 
 	vec3 skycolor = vec3(0.8,0.85,1.0);
-	vec3 suncolor = vec3(1.0,1.0,0.8);
-	vec3 sun = vec3(sin(offset),cos(offset),0.0);
+	vec3 suncolor = 0.5 * vec3(1.0,1.0,0.8);
+	vec3 sun = normalize(vec3(sin(offset),0.0,cos(offset)));
 	vec3 sky = vec3(0.0,-1.0,0.0);
 
 	/*

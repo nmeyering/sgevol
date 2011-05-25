@@ -13,6 +13,7 @@
 #include <sge/font/text/from_fcppt_string.hpp>
 #include <sge/font/text/lit.hpp>
 #include <sge/font/text/part.hpp>
+#include <sge/image/color/color.hpp>
 #include <sge/image/colors.hpp>
 #include <sge/input/keyboard/action.hpp>
 #include <sge/input/keyboard/device.hpp>
@@ -65,6 +66,7 @@
 #include <fcppt/io/cifstream.hpp>
 #include <fcppt/math/box/structure_cast.hpp>
 #include <fcppt/math/deg_to_rad.hpp>
+#include <fcppt/math/twopi.hpp>
 #include <fcppt/ref.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
@@ -177,7 +179,12 @@ try
 			(sge::renderer::state::depth_func::off)
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
 			(sge::renderer::state::float_::depth_buffer_clear_val = 1.f)
-			(sge::renderer::state::color::back_buffer_clear_color = sge::image::colors::darkgray()));
+			(sge::renderer::state::color::back_buffer_clear_color = sge::image::color::rgba8(
+				(sge::image::color::init::red %= 0.5)
+				(sge::image::color::init::green %= 0.5)
+				(sge::image::color::init::blue %= 1.0)
+				(sge::image::color::init::alpha %= 1.0)
+				)));
 
 	// Unser Shader mit der tollen Klasse sge::shader
 	sge::shader::object shader(
@@ -223,7 +230,7 @@ try
 				"offset",
 				sge::shader::variable_type::uniform,
 				static_cast<sge::renderer::scalar>(
-					1.f)))
+					0.f)))
 			(sge::shader::variable(
 				"camera",
 				sge::shader::variable_type::uniform,
@@ -432,8 +439,10 @@ try
 			sge::renderer::first_vertex(0),
 			sge::renderer::vertex_count(buffer_and_declaration.first->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
-			if(offset_timer.update_b())
-				offset += fcppt::math::pi<float>()/100.f;
+			if (offset_timer.update_b())
+				offset += fcppt::math::pi<float>()/50.f;
+				if (offset > fcppt::math::twopi<float>())
+					offset = 0.f;
 		
 			/*
 			if(

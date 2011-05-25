@@ -85,7 +85,7 @@ texture3d::calculate()
 			static_cast< float >( dimension_ ) * .5f,
 			static_cast< float >( dimension_ ) * .5f,
 			static_cast< float >( dimension_ ) * .5f);
-	sgevol::simplex_noise<float,3> noise( 64, 256 );
+	sgevol::simplex_noise<float,3> noise( 128, 256 );
 	vec3 tmp = vec3(42.f,13.f,37.f);
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
@@ -114,16 +114,16 @@ texture3d::calculate()
 				//sphere
 				alpha *= 
 					fcppt::math::clamp(
-						/*
 						1.0f -
-						fcppt::math::vector::length( tmp - center ) /
+						(0.5f + fcppt::math::vector::length( tmp - center )) /
 						(0.5f * static_cast<float>(dimension_)),
-						*/
+						/*
 						(
 							fcppt::math::vector::length(tmp - center) < 
 								0.5f * static_cast<float>(dimension_) ?
 								1.f :
 								0.f ),
+						*/
 						0.f,
 						1.f
 					);
