@@ -271,7 +271,7 @@ try
 	}
 	t.join();
 
-	shader.update_texture( "tex",
+	shader->update_texture( "tex",
 				sge::renderer::texture::create_volume_from_view(
 					rend,
 					mytex.view(),
@@ -288,7 +288,7 @@ try
 	std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const buffer_and_declaration =
 		create_cube(
 			rend,
-			shader);
+			*shader);
 
 	bool running = true;
 
@@ -341,7 +341,7 @@ try
 		// Shader aktivieren
 		{
 		sge::shader::scoped scoped_shader(
-			shader);
+			*shader);
 
 		// Vertexbuffer aktivieren. Muss man machen
 		sge::renderer::scoped_vertex_declaration const decl_context(
@@ -390,23 +390,23 @@ try
 					sge::renderer::state::cull_mode::front));
 
 			// mvp updaten
-			shader.update_uniform(
+			shader->update_uniform(
 				"mvp",
 				cam.mvp());
 
-			shader.update_uniform(
+			shader->update_uniform(
 				"camera",
 				cam.gizmo().position());
 
-			shader.update_uniform(
+			shader->update_uniform(
 				"offset",
 				offset);
 
-			shader.update_uniform(
+			shader->update_uniform(
 				"light",
 				light);
 
-			shader.update_uniform(
+			shader->update_uniform(
 				"mv",
 				cam.world());
 		}

@@ -14,7 +14,8 @@ create_shader(
 	sge::renderer::device &rend,
 	fcppt::filesystem::path const &fragmentpath)
 {
-	return sge::shader::object(
+	return fcppt::shared_ptr<sge::shader::object>(
+		new sge::shader::object(
 		rend,
 		// Vertexshader, liegen in unserem Fall im sge-Mediapath
 		sgevol::media_path()
@@ -72,6 +73,6 @@ create_shader(
 				// Man muss bei 3D-Texturen noch angeben, dass die 3 Dimensionen hat.
 				// Das kann er aus dem obigen create_volume_texture leider nicht
 				// ableiten (ein TODO für Freundlich?)
-				)));
+				))));
 }
 }
