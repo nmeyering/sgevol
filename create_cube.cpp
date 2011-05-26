@@ -31,9 +31,9 @@ create_cube(
 			*decl,
 			// copypaste
 			sge::renderer::vf::dynamic::part_index(0u),
-			// Two triangles per slice
+			// Two triangles per face
 			static_cast<sge::renderer::size_type>(
-				6 * 6 ),
+				2 * 3 * 6 ),
 			// Hier kann man angeben, ob der Vertexbuffer "dynamic" sein soll, oder
 			// nicht. Dynamische Vertexbuffer sind solche, die man oft (jedes Frame
 			// z.B.) neu setzen will. Hier brauchen wir das aber offenbar nicht.

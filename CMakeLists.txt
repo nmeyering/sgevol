@@ -76,6 +76,7 @@ TARGET_LINK_LIBRARIES(
 ADD_EXECUTABLE(
 	app
 	create_cube.cpp
+	create_shader.cpp
 	main.cpp
   media_path.cpp
   texture3d.cpp
