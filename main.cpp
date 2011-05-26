@@ -63,9 +63,6 @@ try
 	// systems::instance ist eine Hilfsklasse, die es einem abnimmt, alle
 	// Plugins, die man so braucht, manuell zu laden und zusammenzustecken.
 	// Später arbeitet man nur noch mit sys.renderer(), sys.image_loader() usw.
-	//
-	// Das sind alles shared_ptr, d.h. man muss auf die Methoden mit
-	// sys.renderer()->bla zugreifen statt sys.renderer().bla
 
 	sge::window::dim const dimensions(
 		1024,
@@ -162,7 +159,7 @@ try
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
-			/ FCPPT_TEXT("local"));
+			/ FCPPT_TEXT("local.glsl"));
 
 	// Kamera sollte bekannt sein
 	sge::camera::object cam(
@@ -239,7 +236,6 @@ try
 			)
 		)
 	);
-
 
 	sge::time::timer accesstimer(sge::time::millisecond(100));
 	float p = 0.f;
