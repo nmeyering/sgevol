@@ -1,3 +1,5 @@
+#ifndef TO_PPM_HPP_INCLUDED
+#define TO_PPM_HPP_INCLUDED
 #include <fcppt/container/grid/object.hpp>
 #include <fcppt/math/dim/basic_impl.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -34,3 +36,5 @@ to_ppm(
 		s << s.widen('\n');
 	}
 }
+
+#endif

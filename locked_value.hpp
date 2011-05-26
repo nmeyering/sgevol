@@ -1,3 +1,6 @@
+#ifndef LOCKED_VALUE_HPP_INCLUDED
+#define LOCKED_VALUE_HPP_INCLUDED
+
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/locks.hpp>
 #include <fcppt/noncopyable.hpp>
@@ -54,3 +57,4 @@ private:
 	mutable lockable mutex_;
 };
 
+#endif
