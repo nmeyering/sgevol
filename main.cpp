@@ -30,7 +30,7 @@
 #include <sge/window/instance.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/exception.hpp>
-#include <fcppt/io/cerr.hpp>
+#include <fcppt/format.hpp>
 #include <fcppt/io/cerr.hpp>
 #include <fcppt/io/cifstream.hpp>
 #include <fcppt/math/box/structure_cast.hpp>
@@ -57,8 +57,11 @@ main(int argc, char **argv)
 try
 {
 	std::size_t texture_size = 128;
-	if( argc == 2 )
-		 texture_size = boost::lexical_cast<std::size_t>(argv[1]);
+	fcppt::string shader_file = FCPPT_TEXT("local");
+	if( argc > 1 )
+		texture_size = boost::lexical_cast<std::size_t>(argv[1]);
+	if( argc > 2 )
+		shader_file = FCPPT_TEXT(argv[2]);
 
 	// systems::instance ist eine Hilfsklasse, die es einem abnimmt, alle
 	// Plugins, die man so braucht, manuell zu laden und zusammenzustecken.
@@ -159,7 +162,7 @@ try
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
-			/ FCPPT_TEXT("local.glsl"));
+			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str());
 
 	// Kamera sollte bekannt sein
 	sge::camera::object cam(
@@ -175,10 +178,8 @@ try
 			// Maus und Keyboard
 			sge::camera::gizmo_type().position(
 				sge::renderer::vector3(
-					1.0f,
-					//1.f,
-					0.5f,
-					//3.f
+					0.0f,
+					0.0f,
 					3.0f
 					)
 				).forward(

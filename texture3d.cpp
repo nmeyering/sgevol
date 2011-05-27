@@ -102,6 +102,7 @@ texture3d::calculate()
 				
 				float const scale = 0.5f;
 
+				/*
 				alpha = 
 					fcppt::math::clamp(
 						0.0625f * noise.sample( scale * 0.2f * tmp ) +
@@ -110,7 +111,22 @@ texture3d::calculate()
 						0.5f * noise.sample( scale * 0.025f * tmp )
 						,0.f
 						,1.f);
+				*/
+				alpha = fcppt::math::clamp(
+					1.0f - 
+					8.f * tmp[1] / static_cast<float>(dimension_),
+					0.f,
+					1.f
+				);
 
+				alpha += fcppt::math::clamp(
+					1.0f - 
+					fcppt::math::vector::length(tmp - center) / 
+					(0.3f * static_cast<float>(dimension_)),
+					0.f,
+					1.f
+				);
+				#if 0
 				//sphere
 				alpha *= 
 					fcppt::math::clamp(
@@ -127,6 +143,7 @@ texture3d::calculate()
 						0.f,
 						1.f
 					);
+				#endif
 					
 				view_[ v::dim_type(x,y,z) ] = 
 					sge::image::color::rgba8(
