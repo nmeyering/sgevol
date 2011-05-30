@@ -353,14 +353,15 @@ try
 			light = (light > 0.5f) ? 0.0f : 1.0f;
 
 		// Rendern (copypaste)
-		rend.render(
+		rend.render_nonindexed(
 			sge::renderer::first_vertex(0),
 			sge::renderer::vertex_count(buffer_and_declaration.first->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
-			if (offset_timer.update_b())
-				offset += fcppt::math::pi<float>()/50.f;
-				if (offset > fcppt::math::twopi<float>())
-					offset = 0.f;
+
+		if (offset_timer.update_b())
+			offset += fcppt::math::pi<float>()/50.f;
+			if (offset > fcppt::math::twopi<float>())
+				offset = 0.f;
 		
 			/*
 			if(
