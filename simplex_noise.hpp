@@ -209,9 +209,9 @@ simplex_noise<Float,N>::sample(
 {
 	Float res = static_cast<Float>(0);
 	vector tmp = stretch_m() * in;
-	BOOST_FOREACH(typename vector::reference i, tmp)
+	for(typename vector::iterator it = tmp.begin(); it != tmp.end(); ++it)
 	{
-		i = std::floor(i);
+		*it = std::floor(*it);
 	}
 	vector floored(tmp);
 	tmp = inv_m() * tmp;
@@ -220,11 +220,11 @@ simplex_noise<Float,N>::sample(
 	tmp = stretch_m() * tmp;
 
 	corner_array c = corners(tmp);
-	BOOST_FOREACH(vector &v, c)
+	for (typename corner_array::const_iterator v = c.begin(); v != c.end(); ++v)
 	{
-		vector t(in - inv_m() * (floored + v));
+		vector t(in - inv_m() * (floored + *v));
 		res +=
-			contrib(t, floored + v);
+			contrib(t, floored + *v);
 	}
 
 	return 40.f * res;
