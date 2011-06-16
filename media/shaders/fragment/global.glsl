@@ -38,10 +38,8 @@ main()
 	// scaling factor for uniform cloud data
 	float factor = 1.0;
 
-	vec3 skycolor = vec3(0.8,0.85,1.0);
 	vec3 suncolor = 0.5 * vec3(1.0,1.0,0.8);
-	vec3 sun = normalize(vec3(sin(offset),0.0,cos(offset)));
-	vec3 sky = vec3(0.0,-1.0,0.0);
+	// vec3 sun = normalize(vec3(sin(offset),0.0,cos(offset)));
 
 	position = (position_interp + 1.0) * 0.5;
 
@@ -72,7 +70,7 @@ main()
 				break;
 		}
 
-		light *= 0.050;
+		light *= 0.1;
 		// dst += (1.0 - dst.a) * factor * value * vec4(suncolor * (1.0 - occlusion),1.0);
 		vec3 col = light * suncolor;
 		dst += (1.0 - dst.a) * factor * value * vec4(col, 1.0);

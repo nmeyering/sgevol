@@ -5,20 +5,14 @@
 #include <sge/camera/projection/update_perspective_from_viewport.hpp>
 #include <sge/config/media_path.hpp>
 #include <sge/exception.hpp>
-#include <sge/font/metrics.hpp>
-#include <sge/font/system.hpp>
-#include <sge/font/text/draw.hpp>
-#include <sge/font/text/drawer_3d.hpp>
-#include <sge/font/text/flags_none.hpp>
-#include <sge/font/text/from_fcppt_string.hpp>
-#include <sge/font/text/lit.hpp>
-#include <sge/font/text/part.hpp>
+#include <sge/font/font.hpp>
 #include <sge/image/color/color.hpp>
 #include <sge/image/colors.hpp>
 #include <sge/input/keyboard/action.hpp>
 #include <sge/input/keyboard/device.hpp>
 #include <sge/renderer/renderer.hpp>
 #include <sge/shader/shader.hpp>
+#include <sge/shader/activate_everything.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
 #include <sge/time/frames_counter.hpp>
@@ -156,9 +150,14 @@ try
 				(sge::image::color::init::alpha %= 1.0)
 				)));
 
+	std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const buffer_and_declaration =
+		create_cube(
+			rend);
+
 	fcppt::shared_ptr<sge::shader::object> shader =
 	sgevol::create_shader(
 		rend,
+		buffer_and_declaration.second,
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
@@ -282,11 +281,6 @@ try
 					sge::renderer::resource_flags::none)
 					);
 
-	std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const buffer_and_declaration =
-		create_cube(
-			rend,
-			*shader);
-
 	bool running = true;
 
 	// Registriert einen Keyboard-Listener, der auf Escape wartet und dann das
@@ -338,7 +332,8 @@ try
 		// Shader aktivieren
 		{
 		sge::shader::scoped scoped_shader(
-			*shader);
+			*shader,
+			sge::shader::activate_everything());
 
 		// Vertexbuffer aktivieren. Muss man machen
 		sge::renderer::scoped_vertex_declaration const decl_context(

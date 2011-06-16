@@ -1,74 +1,90 @@
-cmake_minimum_required(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-project(sgevol)
+PROJECT(sgevol)
 
-include(FcpptCMakeUtils)
+INCLUDE(FcpptCMakeUtils)
 
 # boost begin
-find_package(
+FIND_PACKAGE(
 	Boost 1.45.0 REQUIRED COMPONENTS
 	system
   )
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+
+INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 # boost end
 
 # fcppt begin
-find_package(
+FIND_PACKAGE(
 	Fcppt REQUIRED)
-
-include_directories(${Fcppt_INCLUDE_DIRS})
-add_definitions(${Fcppt_DEFINITIONS})
+INCLUDE_DIRECTORIES(${Fcppt_INCLUDE_DIRS})
+ADD_DEFINITIONS(${Fcppt_DEFINITIONS})
 # fcppt end
 
 # awl begin
-find_package(Awl REQUIRED)
-include_directories(${Awl_INCLUDE_DIRS})
+FIND_PACKAGE(Awl REQUIRED)
+INCLUDE_DIRECTORIES(${Awl_INCLUDE_DIRS})
+ADD_DEFINITIONS(${Awl_DEFINITIONS})
 #awl end
 
 # mizuiro begin
-find_package(Mizuiro REQUIRED)
-include_directories(${Mizuiro_INCLUDE_DIRS})
+FIND_PACKAGE(Mizuiro REQUIRED)
+INCLUDE_DIRECTORIES(${Mizuiro_INCLUDE_DIRS})
+ADD_DEFINITIONS(${Mizuiro_DEFINITIONS})
 #mizuiro end
 
 # sge begin
-find_package(
+FIND_PACKAGE(
 	SGE REQUIRED COMPONENTS
-	shader config time systems camera fonttext)
-include_directories(${SGE_INCLUDE_DIRS})
-add_definitions(${SGE_CFLAGS})
+	camera
+	config
+	fonttext
+	image
+	image3d
+	input
+	renderer
+	shader 
+	systems
+	texture
+	time
+	window
+	viewport)
+
+INCLUDE_DIRECTORIES(${SGE_INCLUDE_DIRS})
+ADD_DEFINITIONS(${SGE_CFLAGS})
 # sge end
 
 # TODO
-set(
+SET(
 	media_path
 	${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME})
 
 # TODO
-set_source_files_properties(
+SET_SOURCE_FILES_PROPERTIES(
 	media_path.cpp
 	PROPERTIES
 	COMPILE_FLAGS
 	-DMEDIA_PATH="\\\"${media_path}\\\""
 )
 
-set_source_files_properties(
+SET_SOURCE_FILES_PROPERTIES(
 	media_path.cpp
 	PROPERTIES
 	COMPILE_FLAGS
 	-DMEDIA_PATH="\\\"${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME}/media\\\""
 )
 
-add_executable(
+ADD_EXECUTABLE(
 	test
 	test.cpp
 )
 
-target_link_libraries(
+TARGET_LINK_LIBRARIES(
 	test
 	${Fcppt_LIBRARIES}
 )
 
-add_executable(
+ADD_EXECUTABLE(
 	app
 	create_cube.cpp
 	create_shader.cpp
@@ -77,7 +93,7 @@ add_executable(
   texture3d.cpp
 )
 
-target_link_libraries(
+TARGET_LINK_LIBRARIES(
 	app
 	${Boost_LIBRARIES}
 	${Fcppt_LIBRARIES}
