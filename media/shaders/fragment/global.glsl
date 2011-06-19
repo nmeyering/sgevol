@@ -5,8 +5,8 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
-uniform float stepsize = 0.01;
-uniform int steps = 600;
+uniform float stepsize = 0.02;
+uniform int steps = 300;
 uniform float delta = 0.04;
 
 vec3
@@ -35,10 +35,10 @@ main()
   vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
 	vec3 direction = normalize( position_interp - camera );
   vec3 position;
-	// scaling factor for uniform cloud data
+	// scaling factor for uniform (cloud) data
 	float factor = 1.0;
 
-	vec3 suncolor = 0.5 * vec3(1.0,1.0,0.8);
+	vec3 suncolor = 0.5 * vec3(0.0,1.0,0.0);
 	// vec3 sun = normalize(vec3(sin(offset),0.0,cos(offset)));
 
 	position = (position_interp + 1.0) * 0.5;
@@ -50,15 +50,16 @@ main()
 
 		float light = 1.0;
 		vec3 occ_pos = position;
-		vec3 occ_dir = vec3(0.0,-1.0,0.0);
+		vec3 occ_dir = vec3(0.0,1.0,0.0);
 
+		float absorption_factor = 20.0;
 		// volume shadow loop
 		for (int j = 0; j < steps; j++)
 		{
 			occ_pos += occ_dir * stepsize;
-			light -= texture(tex, position).a;
+			light -= texture(tex, occ_pos).a * absorption_factor;
 
-			if (light < 0.05)
+			if (light < 0.01)
 				break;
 
 			vec3 temp1 = sign( occ_pos );
@@ -70,10 +71,9 @@ main()
 				break;
 		}
 
-		light *= 0.1;
-		// dst += (1.0 - dst.a) * factor * value * vec4(suncolor * (1.0 - occlusion),1.0);
+		dst += (1.0 - dst.a) * factor * value * vec4(suncolor * light,1.0);
 		vec3 col = light * suncolor;
-		dst += (1.0 - dst.a) * factor * value * vec4(col, 1.0);
+		// dst += (1.0 - dst.a) * factor * value * vec4(col, 1.0);
 
 		if( dst.a > 0.95 )
 			break;
