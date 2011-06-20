@@ -37,6 +37,7 @@
 #include <boost/thread.hpp>
 #include <exception>
 #include <iostream>
+#include <cstdlib>
 #include "create_cube.hpp"
 #include "create_shader.hpp"
 #include "media_path.hpp"
@@ -239,9 +240,20 @@ try
 		)
 	);
 
+	bool aborted = false;
+
+	fcppt::signal::scoped_connection cb(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::escape,
+				boost::phoenix::ref(aborted) = true
+			)
+		)
+	);
+
 	sge::time::timer accesstimer(sge::time::millisecond(100));
 	float p = 0.f;
-	while( true )
+	while( !aborted )
 	{
 		
 		if( accesstimer.update_b() )
@@ -267,6 +279,10 @@ try
 		);
 	
 	}
+
+	if (aborted)
+		std::exit(0);
+
 	t.join();
 
 	shader->update_texture( "tex",
@@ -285,16 +301,11 @@ try
 
 	bool running = true;
 
-	// Registriert einen Keyboard-Listener, der auf Escape wartet und dann das
-	// obige "running" auf false setzt.
-	fcppt::signal::scoped_connection const cb(
+	cb.take(
 		sys.keyboard_collector().key_callback(
 			sge::input::keyboard::action(
 				sge::input::keyboard::key_code::escape,
-				boost::phoenix::ref(running) = false
-			)
-		)
-	);
+				boost::phoenix::ref(running) = false)));
 
 	sge::time::timer frame_timer(
 		sge::time::second(
