@@ -5,21 +5,21 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
-uniform float stepsize = 0.010;
+uniform float stepsize = 0.005;
 uniform int steps = 600;
-uniform float delta = 0.040;
+uniform float delta = 0.080;
 
 vec3
 gradient(vec3 point)
 {
 	vec3 sample1, sample2, res;
 
-	sample1.x = texture(tex, point - vec3(delta,0.0,0.0)).a;
-	sample2.x = texture(tex, point + vec3(delta,0.0,0.0)).a;
-	sample1.y = texture(tex, point - vec3(0.0,delta,0.0)).a;
-	sample2.y = texture(tex, point + vec3(0.0,delta,0.0)).a;
-	sample1.z = texture(tex, point - vec3(0.0,0.0,delta)).a;
-	sample2.z = texture(tex, point + vec3(0.0,0.0,delta)).a;
+	sample1.x = texture(tex, point - vec3(delta,0.0,0.0)).r;
+	sample2.x = texture(tex, point + vec3(delta,0.0,0.0)).r;
+	sample1.y = texture(tex, point - vec3(0.0,delta,0.0)).r;
+	sample2.y = texture(tex, point + vec3(0.0,delta,0.0)).r;
+	sample1.z = texture(tex, point - vec3(0.0,0.0,delta)).r;
+	sample2.z = texture(tex, point + vec3(0.0,0.0,delta)).r;
 
 	res = sample2 - sample1;
 	if (length(res) < 0.02)
@@ -31,7 +31,6 @@ gradient(vec3 point)
 void
 main()
 {
-  vec4 value;
   vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
 	vec3 direction = normalize( position_interp - camera );
   vec3 position;
@@ -62,17 +61,17 @@ main()
 
   for( int i = 0; i < steps; i++ )
   {
-		vec4 value = texture( tex, position );
+		float value = texture(tex, position).r;
 
 		if (light > 0.5f)
 		{
 			float sunlight = max(0.0, dot(gradient(position),sun));
 			vec3 col = min(sunlight * suncolor, 1.0);
-			dst += (1.0 - dst.a) * factor * value * vec4(col,1.0);
+			dst += (1.0 - dst.a) * factor * vec4(1.0,1.0,1.0,value) * vec4(col,1.0);
 		}
 		else
 		{
-			dst += (1.0 - dst.a) * factor * value;
+			dst += (1.0 - dst.a) * factor * vec4(1.0,1.0,1.0,value);
 		}
 
 		if( dst.a > 0.95 )

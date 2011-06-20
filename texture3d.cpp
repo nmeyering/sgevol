@@ -5,6 +5,11 @@
 #include <sge/image3d/view/view.hpp>
 #include <mizuiro/image/view.hpp>
 #include <fcppt/container/raw_vector.hpp>
+#include <fcppt/io/cofstream.hpp>
+#include <fcppt/io/cifstream.hpp>
+#include <fcppt/filesystem/file_size.hpp>
+#include <fcppt/filesystem/path.hpp>
+#include <fcppt/format.hpp>
 #include <fcppt/make_shared_ptr.hpp>
 #include <fcppt/math/clamp.hpp>
 #include <fcppt/math/dim/dim.hpp>
@@ -30,8 +35,7 @@ texture3d::texture3d(
 	)
 :
 	dimension_(
-		_dimension
-		),
+		_dimension),
 	store_(
 		store::dim_type(
 			_dimension,
@@ -43,14 +47,80 @@ texture3d::texture3d(
 	progress_.value(0.0f);
 }
 
+texture3d::texture3d(
+	v::dim_type::value_type const _dimension,
+	fcppt::filesystem::path const &_filename)
+:
+	dimension_(
+		_dimension),
+	store_(
+		store::dim_type(
+			_dimension,
+			_dimension,
+			_dimension)),
+	view_(
+		store_.view())
+{
+	progress_.value(100.0f);
+
+	fcppt::io::cifstream file(
+		_filename);
+
+	fcppt::io::cifstream::pos_type size =
+		sge::image3d::view::dim(
+				view()
+			).content() *
+			sge::image::color::format_stride(
+				sge::image3d::view::format(
+					view()));
+	
+	fcppt::io::cifstream::pos_type actual_size =
+		fcppt::filesystem::file_size(_filename);
+	
+	if (size != actual_size)
+	{
+		throw fcppt::exception(
+			(fcppt::format(
+				FCPPT_TEXT("Texture file size %1%")
+				FCPPT_TEXT("didn't match expected size %2%."))
+				%	actual_size
+				%	size
+			).str());
+	}
+
+	if (file.is_open())
+	{
+    file.read(
+			reinterpret_cast<
+				char *
+			>(
+				sge::image3d::view::data(
+					view())),
+			size);
+    file.close();
+	}
+	else
+	{
+		throw fcppt::exception(
+			FCPPT_TEXT("Failed to open texture file!"));
+	}
+}
+
 sge::image3d::view::const_object const
-texture3d::view() const
+texture3d::const_view() const
 {
 	// Das hier macht aus einer Sammlung von Bytes eine Struktur, nämlich ein
 	// mizuiro::view. Das braucht der Renderer, um eine Textur draus zu
 	// generieren. Sollte alles selbsterklärend sein (ausnahmsweise)
 	return 
 		sge::image3d::view::to_const( view_ );
+}
+
+sge::image3d::view::object
+texture3d::view()
+{
+	return 
+		sge::image3d::view::object( view_ );
 }
 
 float 
@@ -60,13 +130,34 @@ texture3d::progress()
 }
 
 void
+texture3d::dump(
+	fcppt::filesystem::path const &_filename)
+{
+	fcppt::io::cofstream file(
+		_filename);
+
+	sge::image3d::dim::value_type size = sge::image3d::view::dim(
+			const_view()
+		).content() *
+		sge::image::color::format_stride(
+			sge::image3d::view::format(
+				const_view()));
+
+	file.write(
+		reinterpret_cast<
+			char const *
+		>(
+			sge::image3d::view::data(
+				const_view())),
+		size);
+
+	file.close();
+}
+
+void
 texture3d::calculate()
 {
-	double red = 1.0;
-	double green = 1.0;
-	double blue = 1.0;
-	double alpha = 0.0;
-	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
+	double alpha = 1.0;
 	typedef v::dim_type::value_type dimtype;
 	vec3 center(
 			static_cast< float >( dimension_ ) * .5f,
@@ -123,21 +214,24 @@ texture3d::calculate()
 					1.f
 				);
 
-				alpha += fcppt::math::clamp(
-					1.0f - 
-					fcppt::math::vector::length(tmp - center) / 
-					(0.3f * static_cast<float>(dimension_)),
-					0.f,
-					1.f
-				);
+				alpha +=
+					(fcppt::math::vector::length(tmp -
+						1.5f * center) / 
+					(0.2f * static_cast<float>(dimension_))) < 1.f ?
+						1.f:
+						0.f;
+
+				alpha +=
+					(fcppt::math::vector::length(tmp -
+						0.5f * center) / 
+					(0.2f * static_cast<float>(dimension_))) < 1.f ?
+						1.f:
+						0.f;
 				#endif
 					
 				view_[ v::dim_type(x,y,z) ] = 
-					sge::image::color::rgba8(
-						(sge::image::color::init::red %= red)
-						(sge::image::color::init::green %= green)
-						(sge::image::color::init::blue %= blue)
-						(sge::image::color::init::alpha %= alpha));
+					sge::image::color::gray8(
+						(sge::image::color::init::luminance %= alpha));
 			}
 	}
 }

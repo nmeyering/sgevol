@@ -31,10 +31,10 @@
 #include <fcppt/math/deg_to_rad.hpp>
 #include <fcppt/math/twopi.hpp>
 #include <fcppt/ref.hpp>
+#include <fcppt/thread/thread.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
-#include <boost/thread.hpp>
 #include <exception>
 #include <iostream>
 #include <cstdlib>
@@ -122,11 +122,23 @@ try
 	);
 	
 	texture3d mytex(
-		static_cast<std::size_t>( texture_size )
+		static_cast<std::size_t>(
+			texture_size),
+			fcppt::filesystem::path(
+				FCPPT_TEXT("dump.tex")
+			)
 		);
 
-	boost::thread t( boost::bind( &texture3d::calculate, &mytex) );
+	// threaded
+	// fcppt::thread::object load_thread(boost::bind( &texture3d::calculate, &mytex));
+	// non-threaded
+	// mytex.calculate();
 
+	/*
+	mytex.dump(
+		fcppt::filesystem::path(
+		FCPPT_TEXT("dump.tex")));
+	*/
 	// Renderstates!
 	rend.state(
 		sge::renderer::state::list
@@ -173,7 +185,7 @@ try
 			sge::camera::projection::object(),
 			// movementspeed
 			static_cast<sge::renderer::scalar>(
-				1.0),
+				2.0),
 			// mousespeed
 			static_cast<sge::renderer::scalar>(
 				400.0),
@@ -283,12 +295,12 @@ try
 	if (aborted)
 		std::exit(0);
 
-	t.join();
+	// t.join();
 
 	shader->update_texture( "tex",
 				sge::renderer::texture::create_volume_from_view(
 					rend,
-					mytex.view(),
+					mytex.const_view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
 					// sogar anisotropisch, aber das ist ungetestet)
 					sge::renderer::texture::filter::trilinear,
