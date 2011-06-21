@@ -10,6 +10,7 @@
 #include <sge/image/colors.hpp>
 #include <sge/input/keyboard/action.hpp>
 #include <sge/input/keyboard/device.hpp>
+#include <sge/parse/json/json.hpp>
 #include <sge/renderer/renderer.hpp>
 #include <sge/shader/shader.hpp>
 #include <sge/shader/activate_everything.hpp>
@@ -30,14 +31,18 @@
 #include <fcppt/math/box/structure_cast.hpp>
 #include <fcppt/math/deg_to_rad.hpp>
 #include <fcppt/math/twopi.hpp>
+#include <fcppt/make_unique_ptr.hpp>
 #include <fcppt/ref.hpp>
 #include <fcppt/thread/thread.hpp>
+#include <fcppt/scoped_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
 #include <exception>
 #include <iostream>
 #include <cstdlib>
+#include "json/find_member.hpp"
+#include "config_wrapper.hpp"
 #include "create_cube.hpp"
 #include "create_shader.hpp"
 #include "media_path.hpp"
@@ -51,12 +56,36 @@ int
 main(int argc, char **argv)
 try
 {
-	std::size_t texture_size = 128;
-	fcppt::string shader_file = FCPPT_TEXT("local");
-	if( argc > 1 )
-		texture_size = boost::lexical_cast<std::size_t>(argv[1]);
-	if( argc > 2 )
-		shader_file = FCPPT_TEXT(argv[2]);
+	
+	sge::parse::json::object config_file(
+		sgevol::config_wrapper(
+			argc,
+			argv));
+
+	std::size_t texture_size =
+		sgevol::json::find_member<std::size_t>(
+			config_file,
+			FCPPT_TEXT("texture-size"));
+	fcppt::string shader_file = 
+		sgevol::json::find_member<fcppt::string>(
+			config_file,
+			FCPPT_TEXT("shader-file"));
+	fcppt::string dump_path = 
+		sgevol::json::find_member<fcppt::string>(
+			config_file,
+			FCPPT_TEXT("dump-path"));
+	bool load_texture =
+		sgevol::json::find_member<bool>(
+			config_file,
+			FCPPT_TEXT("load-texture"));
+	bool save_texture =
+		sgevol::json::find_member<bool>(
+			config_file,
+			FCPPT_TEXT("save-texture"));
+	// nonsensical...
+	if (load_texture)
+		save_texture = false;
+	
 
 	// systems::instance ist eine Hilfsklasse, die es einem abnimmt, alle
 	// Plugins, die man so braucht, manuell zu laden und zusammenzustecken.
@@ -121,24 +150,28 @@ try
 			sge::image::colors::white()
 	);
 	
-	texture3d mytex(
-		static_cast<std::size_t>(
-			texture_size),
-			fcppt::filesystem::path(
-				FCPPT_TEXT("dump.tex")
-			)
-		);
+	typedef fcppt::scoped_ptr<texture3d> texture_scoped_ptr;
 
+	texture_scoped_ptr mytex(
+		load_texture ?
+			fcppt::make_unique_ptr<texture3d>(
+					texture_size,
+					fcppt::filesystem::path(
+						FCPPT_TEXT("dump.tex"))) :
+			fcppt::make_unique_ptr<texture3d>(
+					texture_size));
+				
+	if (!load_texture)
+		mytex->calculate();
+
+	if (save_texture)
+		mytex->dump(
+			fcppt::filesystem::path(
+			dump_path));
+		
 	// threaded
 	// fcppt::thread::object load_thread(boost::bind( &texture3d::calculate, &mytex));
-	// non-threaded
-	// mytex.calculate();
 
-	/*
-	mytex.dump(
-		fcppt::filesystem::path(
-		FCPPT_TEXT("dump.tex")));
-	*/
 	// Renderstates!
 	rend.state(
 		sge::renderer::state::list
@@ -269,7 +302,7 @@ try
 	{
 		
 		if( accesstimer.update_b() )
-			if( (p = mytex.progress()) >= 99.f )
+			if( (p = mytex->progress()) >= 99.f )
 				break;
 
 		sys.window().dispatch();
@@ -300,7 +333,7 @@ try
 	shader->update_texture( "tex",
 				sge::renderer::texture::create_volume_from_view(
 					rend,
-					mytex.const_view(),
+					mytex->const_view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
 					// sogar anisotropisch, aber das ist ungetestet)
 					sge::renderer::texture::filter::trilinear,

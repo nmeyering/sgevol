@@ -59,6 +59,7 @@ FIND_PACKAGE(
 	image
 	image3d
 	input
+	parse
 	renderer
 	shader 
 	systems
@@ -80,7 +81,7 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 SET_SOURCE_FILES_PROPERTIES(
-	media_path.cpp
+	src/media_path.cpp
 	PROPERTIES
 	COMPILE_FLAGS
 	-DMEDIA_PATH="\\\"${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME}/media\\\""
@@ -88,7 +89,7 @@ SET_SOURCE_FILES_PROPERTIES(
 
 ADD_EXECUTABLE(
 	test
-	test.cpp
+	src/test.cpp
 )
 
 TARGET_LINK_LIBRARIES(
@@ -98,11 +99,18 @@ TARGET_LINK_LIBRARIES(
 
 ADD_EXECUTABLE(
 	app
-	create_cube.cpp
-	create_shader.cpp
-	main.cpp
-  media_path.cpp
-  texture3d.cpp
+	src/config_wrapper.cpp
+	src/create_cube.cpp
+	src/create_shader.cpp
+	src/json/is_null.cpp
+	src/json/merge_trees.cpp
+	src/json/parse_rgba8_color.cpp
+	src/json/process_option.cpp
+	src/json/string_to_value.cpp
+	src/name.cpp
+	src/main.cpp
+  src/media_path.cpp
+  src/texture3d.cpp
 )
 
 TARGET_LINK_LIBRARIES(

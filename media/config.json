@@ -1,0 +1,7 @@
+{
+	"texture-size" : 128,
+	"shader-file" : "local",
+	"dump-path" : "dump.tex",
+	"load-texture" : false,
+	"save-texture" : false
+}
