@@ -56,7 +56,6 @@ int
 main(int argc, char **argv)
 try
 {
-	
 	sge::parse::json::object config_file(
 		sgevol::config_wrapper(
 			argc,
@@ -70,10 +69,14 @@ try
 		sgevol::json::find_member<fcppt::string>(
 			config_file,
 			FCPPT_TEXT("shader-file"));
-	fcppt::string dump_path = 
+	fcppt::string save_path = 
 		sgevol::json::find_member<fcppt::string>(
 			config_file,
-			FCPPT_TEXT("dump-path"));
+			FCPPT_TEXT("save-path"));
+	fcppt::string load_path = 
+		sgevol::json::find_member<fcppt::string>(
+			config_file,
+			FCPPT_TEXT("load-path"));
 	bool load_texture =
 		sgevol::json::find_member<bool>(
 			config_file,
@@ -150,27 +153,27 @@ try
 			sge::image::colors::white()
 	);
 	
-	typedef fcppt::scoped_ptr<texture3d> texture_scoped_ptr;
+	// typedef fcppt::scoped_ptr<texture3d> texture_scoped_ptr;
 
-	texture_scoped_ptr mytex(
-		load_texture ?
-			fcppt::make_unique_ptr<texture3d>(
-					texture_size,
-					fcppt::filesystem::path(
-						FCPPT_TEXT("dump.tex"))) :
-			fcppt::make_unique_ptr<texture3d>(
-					texture_size));
-				
-	if (!load_texture)
-		mytex->calculate();
+	texture3d mytex(
+		texture_size);
 
-	if (save_texture)
-		mytex->dump(
-			fcppt::filesystem::path(
-			dump_path));
-		
-	// threaded
-	// fcppt::thread::object load_thread(boost::bind( &texture3d::calculate, &mytex));
+	boost::function<void()> tex_action;
+
+	if (load_texture)
+		tex_action =
+			boost::bind(
+				&texture3d::load,
+				&mytex,
+				fcppt::filesystem::path(load_path));
+	else
+		tex_action =
+			boost::bind(
+				&texture3d::calculate,
+				&mytex);
+
+	fcppt::thread::object load_thread(
+		tex_action);
 
 	// Renderstates!
 	rend.state(
@@ -302,7 +305,7 @@ try
 	{
 		
 		if( accesstimer.update_b() )
-			if( (p = mytex->progress()) >= 99.f )
+			if( (p = mytex.progress()) >= 99.f )
 				break;
 
 		sys.window().dispatch();
@@ -324,16 +327,20 @@ try
 		);
 	
 	}
-
 	if (aborted)
 		std::exit(0);
 
-	// t.join();
+	load_thread.join();
+
+	if (save_texture)
+		mytex.save(
+			fcppt::filesystem::path(
+			save_path));
 
 	shader->update_texture( "tex",
 				sge::renderer::texture::create_volume_from_view(
 					rend,
-					mytex->const_view(),
+					mytex.const_view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
 					// sogar anisotropisch, aber das ist ungetestet)
 					sge::renderer::texture::filter::trilinear,
@@ -358,13 +365,9 @@ try
 	sge::time::timer offset_timer(
 		sge::time::millisecond(
 			50));
-	sge::time::timer light_timer(
-		sge::time::second(
-			5));
 	sge::time::frames_counter fps_counter;
 
 	sge::renderer::scalar offset = 0.0f;
-	sge::renderer::scalar light = 0.0f;
 
 	sge::font::metrics_ptr const fps_metrics(
 		sys.font_system().create_font(
@@ -401,9 +404,6 @@ try
 		sge::renderer::scoped_vertex_buffer const vb_context(
 			rend,
 			*buffer_and_declaration.first);
-
-		if (light_timer.update_b())
-			light = (light > 0.5f) ? 0.0f : 1.0f;
 
 		// Rendern (copypaste)
 		rend.render_nonindexed(
@@ -452,10 +452,6 @@ try
 			shader->update_uniform(
 				"offset",
 				offset);
-
-			shader->update_uniform(
-				"light",
-				light);
 
 			shader->update_uniform(
 				"mv",

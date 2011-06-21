@@ -36,7 +36,7 @@ public:
 	calculate();
 
 	void
-	dump(
+	save(
 		fcppt::filesystem::path const &);
 
 	void

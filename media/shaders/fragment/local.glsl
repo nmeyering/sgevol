@@ -63,16 +63,15 @@ main()
   {
 		float value = texture(tex, position).r;
 
-		if (light > 0.5f)
-		{
-			float sunlight = max(0.0, dot(gradient(position),sun));
-			vec3 col = min(sunlight * suncolor, 1.0);
-			dst += (1.0 - dst.a) * factor * vec4(1.0,1.0,1.0,value) * vec4(col,1.0);
-		}
+		float sunlight = max(0.0, dot(gradient(position),sun));
+		vec3 col = min(sunlight * suncolor, 1.0);
+		dst += (1.0 - dst.a) * factor * vec4(1.0,1.0,1.0,value) * vec4(col,1.0);
+		/*
 		else
 		{
 			dst += (1.0 - dst.a) * factor * vec4(1.0,1.0,1.0,value);
 		}
+		*/
 
 		if( dst.a > 0.95 )
 			break;

@@ -61,7 +61,13 @@ texture3d::texture3d(
 	view_(
 		store_.view())
 {
-	progress_.value(100.0f);
+	load(_filename);
+}
+
+void texture3d::load(
+		fcppt::filesystem::path const &_filename)
+{
+	progress_.value(0.0f);
 
 	fcppt::io::cifstream file(
 		_filename);
@@ -90,6 +96,7 @@ texture3d::texture3d(
 
 	if (file.is_open())
 	{
+		progress_.value(50.0f);
     file.read(
 			reinterpret_cast<
 				char *
@@ -98,6 +105,7 @@ texture3d::texture3d(
 					view())),
 			size);
     file.close();
+		progress_.value(100.0f);
 	}
 	else
 	{
@@ -130,7 +138,7 @@ texture3d::progress()
 }
 
 void
-texture3d::dump(
+texture3d::save(
 	fcppt::filesystem::path const &_filename)
 {
 	fcppt::io::cofstream file(
@@ -179,8 +187,6 @@ texture3d::calculate()
 					static_cast< float >( z );
 				
 				float const scale = 0.5f;
-
-
 				#if 1
 				alpha = 
 					fcppt::math::clamp(
