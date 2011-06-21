@@ -61,14 +61,13 @@ texture3d::texture3d(
 	view_(
 		store_.view())
 {
+	progress_.value(0.0f);
 	load(_filename);
 }
 
 void texture3d::load(
 		fcppt::filesystem::path const &_filename)
 {
-	progress_.value(0.0f);
-
 	fcppt::io::cifstream file(
 		_filename);
 
@@ -117,9 +116,6 @@ void texture3d::load(
 sge::image3d::view::const_object const
 texture3d::const_view() const
 {
-	// Das hier macht aus einer Sammlung von Bytes eine Struktur, nämlich ein
-	// mizuiro::view. Das braucht der Renderer, um eine Textur draus zu
-	// generieren. Sollte alles selbsterklärend sein (ausnahmsweise)
 	return 
 		sge::image3d::view::to_const( view_ );
 }

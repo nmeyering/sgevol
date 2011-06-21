@@ -42,6 +42,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "json/find_member.hpp"
+#include "json/parse_color.hpp"
 #include "config_wrapper.hpp"
 #include "create_cube.hpp"
 #include "create_shader.hpp"
@@ -50,7 +51,6 @@
 #include "vf.hpp"
 
 using sgevol::texture3d;
-using sgevol::create_cube;
 
 int 
 main(int argc, char **argv)
@@ -77,6 +77,11 @@ try
 		sgevol::json::find_member<fcppt::string>(
 			config_file,
 			FCPPT_TEXT("load-path"));
+	sge::image::color::rgba8 background_color =
+		sgevol::json::parse_color<sge::image::color::rgba8>(
+			sgevol::json::find_member<sge::parse::json::value>(
+				config_file,
+				FCPPT_TEXT("background-color")));
 	bool load_texture =
 		sgevol::json::find_member<bool>(
 			config_file,
@@ -126,7 +131,7 @@ try
 					sge::systems::input_helper::keyboard_collector) |
 					sge::systems::input_helper::mouse_collector,
 				sge::systems::cursor_option_field(
-					sge::systems::cursor_option::confine) |
+					sge::systems::cursor_option::grab) |
 					sge::systems::cursor_option::hide
 			)
 		)
@@ -194,15 +199,18 @@ try
 			(sge::renderer::state::depth_func::off)
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
 			(sge::renderer::state::float_::depth_buffer_clear_val = 1.f)
-			(sge::renderer::state::color::back_buffer_clear_color = sge::image::color::rgba8(
+			(sge::renderer::state::color::back_buffer_clear_color = background_color));
+			/*
+			sge::image::color::rgba8(
 				(sge::image::color::init::red %= 0.5)
 				(sge::image::color::init::green %= 0.5)
 				(sge::image::color::init::blue %= 1.0)
-				(sge::image::color::init::alpha %= 1.0)
+				(sge::image::color::init::alpha %= 0.5)
 				)));
+			*/
 
 	std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const buffer_and_declaration =
-		create_cube(
+		sgevol::create_cube(
 			rend);
 
 	fcppt::shared_ptr<sge::shader::object> shader =
@@ -472,7 +480,6 @@ try
 			sge::font::text::align_v::top,
 			sge::font::text::flags::none
 		);
-
 	}
 }
 catch(sge::exception const &e)
