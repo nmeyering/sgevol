@@ -55,6 +55,7 @@ FIND_PACKAGE(
 	SGE REQUIRED COMPONENTS
 	camera
 	config
+	console
 	fonttext
 	image
 	image3d

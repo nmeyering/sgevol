@@ -4,6 +4,7 @@
 #include <sge/camera/projection/perspective.hpp>
 #include <sge/camera/projection/update_perspective_from_viewport.hpp>
 #include <sge/config/media_path.hpp>
+#include <sge/console/console.hpp>
 #include <sge/exception.hpp>
 #include <sge/font/font.hpp>
 #include <sge/image/color/color.hpp>
@@ -12,8 +13,10 @@
 #include <sge/input/keyboard/device.hpp>
 #include <sge/parse/json/json.hpp>
 #include <sge/renderer/renderer.hpp>
-#include <sge/shader/shader.hpp>
 #include <sge/shader/activate_everything.hpp>
+#include <sge/shader/shader.hpp>
+#include <sge/sprite/parameters.hpp>
+#include <sge/sprite/object_impl.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
 #include <sge/time/frames_counter.hpp>
@@ -51,6 +54,18 @@
 #include "vf.hpp"
 
 using sgevol::texture3d;
+
+namespace
+{
+
+void
+toggle_active(
+	sge::console::gfx &c)
+{
+	c.active(!c.active());
+}
+
+}
 
 int 
 main(int argc, char **argv)
@@ -93,6 +108,8 @@ try
 	// nonsensical...
 	if (load_texture)
 		save_texture = false;
+
+	bool running = false;
 	
 
 	// systems::instance ist eine Hilfsklasse, die es einem abnimmt, alle
@@ -143,6 +160,67 @@ try
 	sge::renderer::device& rend(
 		sys.renderer());
 
+	// console begin
+	sge::console::object console(
+		SGE_FONT_TEXT_LIT('/')
+	);
+
+	fcppt::signal::scoped_connection const quit_conn(
+		console.insert(
+			SGE_FONT_TEXT_LIT("quit"),
+			boost::phoenix::ref(running) = false,
+			SGE_FONT_TEXT_LIT("quit demo")
+		)
+	);
+
+	sge::font::metrics_ptr const console_metrics(
+		sys.font_system().create_font(
+				sge::config::media_path() 
+				/ FCPPT_TEXT("fonts") 
+				/ FCPPT_TEXT("default.ttf"),
+				static_cast<sge::font::size_type>(16)
+		)
+	);
+
+	sge::console::gfx gfx(
+		console,
+		sys.renderer(),
+		sge::image::colors::black(),
+		*console_metrics,
+		sys.keyboard_collector(),
+		sge::console::sprite_object(
+			sge::console::sprite_parameters()
+			.pos(
+				sge::console::sprite_object::vector::null()
+			)
+			.texture(
+				sge::texture::part_ptr()
+			)
+			.size(
+				sge::console::sprite_object::dim(400,300)
+			)
+			.elements()
+		),
+		static_cast<
+			sge::console::output_line_limit
+		>(
+			100
+		)
+	);
+
+	fcppt::signal::scoped_connection console_cb(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::f1,
+				std::tr1::bind(
+					&toggle_active,
+					fcppt::ref(
+						gfx)))));
+
+	gfx.active(false);
+
+	// console end
+
 	sge::font::metrics_ptr const metrics(
 		sys.font_system().create_font(
 				sge::config::media_path() 
@@ -166,13 +244,13 @@ try
 
 	if (load_texture)
 		tex_action =
-			boost::bind(
+			std::tr1::bind(
 				&texture3d::load,
 				&mytex,
 				fcppt::filesystem::path(load_path));
 	else
 		tex_action =
-			boost::bind(
+			std::tr1::bind(
 				&texture3d::calculate,
 				&mytex);
 
@@ -233,31 +311,12 @@ try
 			static_cast<sge::renderer::scalar>(
 				400.0),
 			// Maus und Keyboard
-			sge::camera::gizmo_type().position(
+			sge::camera::identity_gizmo().position(
 				sge::renderer::vector3(
 					0.0f,
 					0.0f,
 					3.0f
-					)
-				).forward(
-				sge::renderer::vector3(
-					0.f,
-					0.f,
-					1.f
-					)
-				).right(
-				sge::renderer::vector3(
-					1.f,
-					0.f,
-					0.f
-					)
-				).up(
-				sge::renderer::vector3(
-					0.f,
-					1.f,
-					0.f
-					)
-				),
+					)),
 			sys.keyboard_collector(),
 			sys.mouse_collector(),
 			sge::camera::activation_state::active
@@ -335,7 +394,7 @@ try
 	
 	}
 	if (aborted)
-		std::exit(0);
+		return EXIT_FAILURE;
 
 	load_thread.join();
 
@@ -358,7 +417,7 @@ try
 					sge::renderer::resource_flags::none)
 					);
 
-	bool running = true;
+	running = true;
 
 	cb.take(
 		sys.keyboard_collector().key_callback(
@@ -401,7 +460,8 @@ try
 		{
 		sge::shader::scoped scoped_shader(
 			*shader,
-			sge::shader::activate_everything());
+			sge::shader::activation_method_field(
+				sge::shader::activation_method::textures));
 
 		// Vertexbuffer aktivieren. Muss man machen
 		sge::renderer::scoped_vertex_declaration const decl_context(
@@ -417,6 +477,7 @@ try
 			sge::renderer::first_vertex(0),
 			sge::renderer::vertex_count(buffer_and_declaration.first->size()),
 			sge::renderer::nonindexed_primitive_type::triangle);
+
 
 		if (offset_timer.update_b())
 			offset += fcppt::math::pi<float>()/50.f;
@@ -466,6 +527,9 @@ try
 		}
 
 		fps_counter.update();
+
+		if (gfx.active())
+			gfx.draw();
 
 		sge::font::text::draw(
 			*fps_metrics,
