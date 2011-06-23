@@ -32,6 +32,19 @@ public:
 	sge::image3d::view::object
 	view();
 
+	v::dim_type::value_type const
+	dimension() const;
+
+	float const
+	progress() const;
+
+	void
+	progress(
+		float const);
+
+	v
+	store_view();
+
 	void
 	calculate();
 
@@ -43,8 +56,6 @@ public:
 	load(
 		fcppt::filesystem::path const &);
 
-	float
-	progress();
 private:
 	v::dim_type::value_type dimension_;
 	store store_;

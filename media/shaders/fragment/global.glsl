@@ -9,6 +9,8 @@ uniform float stepsize = 0.02;
 uniform int steps = 300;
 uniform float delta = 0.04;
 
+uniform vec3 sundir = vec3(1.0,0.0,0.0);
+
 vec3
 gradient(vec3 point)
 {
@@ -38,7 +40,7 @@ main()
 	// scaling factor for uniform (cloud) data
 	float factor = 1.0;
 
-	vec3 suncolor = 0.5 * vec3(0.0,1.0,0.0);
+	vec3 suncolor = 0.5 * vec3(1.0,1.0,1.0);
 	// vec3 sun = normalize(vec3(sin(offset),0.0,cos(offset)));
 
 	position = (position_interp + 1.0) * 0.5;
@@ -50,9 +52,9 @@ main()
 
 		float light = 1.0;
 		vec3 occ_pos = position;
-		vec3 occ_dir = vec3(0.0,1.0,0.0);
+		vec3 occ_dir = sundir;
 
-		float absorption_factor = 20.0;
+		float absorption_factor = 0.1;
 		// volume shadow loop
 		for (int j = 0; j < steps; j++)
 		{
@@ -71,7 +73,7 @@ main()
 				break;
 		}
 
-		dst += (1.0 - dst.a) * factor * value * vec4(suncolor * light,1.0);
+		dst += (1.0 - dst.a) * factor * vec4(1.0,1.0,1.0,value) * vec4(suncolor * light,1.0);
 		vec3 col = light * suncolor;
 		// dst += (1.0 - dst.a) * factor * value * vec4(col, 1.0);
 

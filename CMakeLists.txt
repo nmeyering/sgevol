@@ -111,6 +111,7 @@ ADD_EXECUTABLE(
 	src/name.cpp
 	src/main.cpp
   src/media_path.cpp
+	src/shadow_volume.cpp
   src/texture3d.cpp
 )
 

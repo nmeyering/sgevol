@@ -51,9 +51,8 @@
 #include "create_shader.hpp"
 #include "media_path.hpp"
 #include "texture3d.hpp"
+#include "shadow_volume.hpp"
 #include "vf.hpp"
-
-using sgevol::texture3d;
 
 namespace
 {
@@ -126,7 +125,7 @@ try
 			sge::systems::window(
 				sge::window::simple_parameters(
 					// Fenstertitel offenbar
-					FCPPT_TEXT("sge test for 3d textures"),
+					FCPPT_TEXT("sgevol: cloud volume rendering demo"),
 					dimensions
 				)
 			)
@@ -237,22 +236,34 @@ try
 	
 	// typedef fcppt::scoped_ptr<texture3d> texture_scoped_ptr;
 
-	texture3d mytex(
+	sgevol::texture3d mytex(
 		texture_size);
+
+	mytex.calculate();
+
+	sgevol::shadow_volume shadowtex(
+		texture_size,
+		mytex.const_view());
 
 	boost::function<void()> tex_action;
 
+	/*
 	if (load_texture)
 		tex_action =
 			std::tr1::bind(
-				&texture3d::load,
+				&sgevol::texture3d::load,
 				&mytex,
 				fcppt::filesystem::path(load_path));
 	else
 		tex_action =
 			std::tr1::bind(
-				&texture3d::calculate,
+				&sgevol::texture3d::calculate,
 				&mytex);
+	*/
+	tex_action = 
+		std::tr1::bind(
+			&sgevol::shadow_volume::calculate,
+			&shadowtex);
 
 	fcppt::thread::object load_thread(
 		tex_action);
@@ -409,7 +420,21 @@ try
 					mytex.const_view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
 					// sogar anisotropisch, aber das ist ungetestet)
-					sge::renderer::texture::filter::trilinear,
+					sge::renderer::texture::filter::point,
+					sge::renderer::texture::address_mode3(
+						sge::renderer::texture::address_mode::clamp),
+					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
+					// man die unbedingt wieder auslesen will
+					sge::renderer::resource_flags::none)
+					);
+
+	shader->update_texture( "shadowtex",
+				sge::renderer::texture::create_volume_from_view(
+					rend,
+					shadowtex.const_view(),
+					// Lineare Filterung. trilinear und point sind auch möglich (und
+					// sogar anisotropisch, aber das ist ungetestet)
+					sge::renderer::texture::filter::point,
 					sge::renderer::texture::address_mode3(
 						sge::renderer::texture::address_mode::clamp),
 					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn

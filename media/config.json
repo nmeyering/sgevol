@@ -1,6 +1,6 @@
 {
-	"texture-size" : 128,
-	"shader-file" : "simple",
+	"texture-size" : 64,
+	"shader-file" : "shadowmap",
 	"save-path" : "dump.tex",
 	"load-path" : "dump.tex",
 	"load-texture" : false,

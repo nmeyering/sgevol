@@ -9,25 +9,6 @@ uniform float stepsize = 0.005;
 uniform int steps = 600;
 uniform float delta = 0.080;
 
-vec3
-gradient(vec3 point)
-{
-	vec3 sample1, sample2, res;
-
-	sample1.x = texture(tex, point - vec3(delta,0.0,0.0)).r;
-	sample2.x = texture(tex, point + vec3(delta,0.0,0.0)).r;
-	sample1.y = texture(tex, point - vec3(0.0,delta,0.0)).r;
-	sample2.y = texture(tex, point + vec3(0.0,delta,0.0)).r;
-	sample1.z = texture(tex, point - vec3(0.0,0.0,delta)).r;
-	sample2.z = texture(tex, point + vec3(0.0,0.0,delta)).r;
-
-	res = sample2 - sample1;
-	if (length(res) < 0.02)
-		return vec3(0.,0.,0.);
-	else
-		return normalize(res);
-}
-
 void
 main()
 {
@@ -37,28 +18,14 @@ main()
 	// scaling factor for uniform cloud data
 	float factor = 0.20;
 
-	/*
-	if(
-		abs( camera.x ) < 1.0 ||
-		abs( camera.y ) < 1.0 ||
-		abs( camera.z ) < 1.0
-		)
-	{
-		position = camera;
-	}
-	else
-	{
-  	position = position_interp;
-	}
-	position = (position + 1.0) * 0.5;
-	*/
 	position = (position_interp + 1.0) * 0.5;
 
   for( int i = 0; i < steps; i++ )
   {
 		float value = texture(tex, position).r;
-
-		dst += (1.0 - dst.a) * factor * vec4(1.0 - position.y,1.0,position.y,value);
+		float shadow = texture(shadowtex, position).r;
+		vec3 color = vec3(1.0-shadow,1.0-shadow,1.0-shadow);
+		dst += (1.0 - dst.a) * factor * vec4(color,value);
 
 		if( dst.a > 0.95 )
 			break;

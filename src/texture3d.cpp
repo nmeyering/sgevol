@@ -44,7 +44,7 @@ texture3d::texture3d(
 	view_(
 		store_.view())
 {
-	progress_.value(0.0f);
+	progress(0.0f);
 }
 
 texture3d::texture3d(
@@ -61,7 +61,7 @@ texture3d::texture3d(
 	view_(
 		store_.view())
 {
-	progress_.value(0.0f);
+	progress(0.0f);
 	load(_filename);
 }
 
@@ -95,7 +95,7 @@ void texture3d::load(
 
 	if (file.is_open())
 	{
-		progress_.value(50.0f);
+		progress(50.0f);
     file.read(
 			reinterpret_cast<
 				char *
@@ -104,7 +104,7 @@ void texture3d::load(
 					view())),
 			size);
     file.close();
-		progress_.value(100.0f);
+		progress(100.0f);
 	}
 	else
 	{
@@ -127,10 +127,30 @@ texture3d::view()
 		sge::image3d::view::object( view_ );
 }
 
-float 
-texture3d::progress()
+texture3d::v::dim_type::value_type const
+texture3d::dimension() const
+{
+	return dimension_;
+}
+
+texture3d::v
+texture3d::store_view()
+{
+	return view_;
+}
+
+float const
+texture3d::progress() const
 {
 	return progress_.value();
+}
+
+void
+texture3d::progress(
+	float const _progress)
+{
+	progress_.value(
+		_progress);
 }
 
 void
@@ -171,7 +191,7 @@ texture3d::calculate()
 	vec3 tmp = vec3(42.f,13.f,37.f);
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
-		progress_.value( 100.0f * static_cast<float>(z+1) / static_cast<float>(dimension_) );
+		progress( 100.0f * static_cast<float>(z+1) / static_cast<float>(dimension_) );
 		for (dimtype y = 0; y < dimension_; ++y)
 			for (dimtype x = 0; x < dimension_; ++x)
 			{
