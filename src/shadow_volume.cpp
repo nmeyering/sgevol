@@ -84,7 +84,7 @@ shadow_volume::calculate()
 	float shadow;
 
 	shadow_volume::cloud_view const cloud(
-		volume_.get<
+		volume_.get().get<
 			shadow_volume::cloud_view>());
 
 	for (dimtype z = 0; z < dimension(); ++z)

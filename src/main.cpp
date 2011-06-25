@@ -285,7 +285,8 @@ try
 			(sge::renderer::state::depth_func::off)
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
 			(sge::renderer::state::float_::depth_buffer_clear_val = 1.f)
-			(sge::renderer::state::color::back_buffer_clear_color = background_color));
+			(sge::renderer::state::color::back_buffer_clear_color = 
+				sge::image::color::any::object(background_color)));
 			/*
 			sge::image::color::rgba8(
 				(sge::image::color::init::red %= 0.5)
