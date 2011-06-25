@@ -247,7 +247,6 @@ try
 
 	boost::function<void()> tex_action;
 
-	/*
 	if (load_texture)
 		tex_action =
 			std::tr1::bind(
@@ -259,8 +258,6 @@ try
 			std::tr1::bind(
 				&sgevol::texture3d::calculate,
 				&mytex);
-	*/
-	/*
 	tex_action = 
 		std::tr1::bind(
 			&sgevol::shadow_volume::calculate,
@@ -268,8 +265,6 @@ try
 
 	fcppt::thread::object load_thread(
 		tex_action);
-	*/
-	shadowtex.calculate();
 
 	// Renderstates!
 	rend.state(
@@ -410,7 +405,7 @@ try
 	if (aborted)
 		return EXIT_FAILURE;
 
-	// load_thread.join();
+	load_thread.join();
 
 	if (save_texture)
 		mytex.save(

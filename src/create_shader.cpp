@@ -71,11 +71,13 @@ create_shader(
 				// sampler (sprich Texturen), die wir im Shader brauchen (ebenfalls in $$$HEADER$$$ drin)
 				fcppt::assign::make_container<sge::shader::sampler_sequence>
 					(sge::shader::sampler(
-						"tex", sge::renderer::texture::volume_ptr()
+						"tex", sge::renderer::texture::volume_ptr()))
+					(sge::shader::sampler(
+						"shadowtex", sge::renderer::texture::volume_ptr()))
 						// Selbsterklärend
 						// Man muss bei 3D-Texturen noch angeben, dass die 3 Dimensionen hat.
 						// Das kann er aus dem obigen create_volume_texture leider nicht
 						// ableiten (ein TODO für Freundlich?)
-						)))));
+						)));
 }
 }

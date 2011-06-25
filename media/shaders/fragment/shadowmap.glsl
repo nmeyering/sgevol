@@ -16,7 +16,7 @@ main()
 	vec3 direction = normalize( position_interp - camera );
   vec3 position;
 	// scaling factor for uniform cloud data
-	float factor = 0.20;
+	float factor = 0.10;
 
 	position = (position_interp + 1.0) * 0.5;
 
@@ -26,6 +26,7 @@ main()
 		float shadow = texture(shadowtex, position).r;
 		vec3 color = vec3(1.0-shadow,1.0-shadow,1.0-shadow);
 		dst += (1.0 - dst.a) * factor * vec4(color,value);
+		// dst += (1.0 - dst.a) * factor * vec4(color, shadow);
 
 		if( dst.a > 0.95 )
 			break;

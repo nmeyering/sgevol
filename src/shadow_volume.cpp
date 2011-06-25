@@ -16,6 +16,8 @@
 #include "vf.hpp"
 
 #include <iostream>
+#include <fcppt/type_name.hpp>
+#include <mizuiro/access/homogenous_raw.hpp>
 
 namespace
 {
@@ -76,14 +78,10 @@ shadow_volume::calculate()
 	vec3 const sun(0.f, 1.f, 0.f);
 	float const stepsize = static_cast<float>(dimension()) * .01f;
 	unsigned const steps = 100;
-	float const occlusion_factor = .1f;
+	float const occlusion_factor = 1.0f;
 
 	vec3 tmp;
-	float light;
-
-	std::cout
-		 << sge::image::color::format_to_string(sge::image3d::view::format(volume_))
-		 << std::endl;
+	float shadow;
 
 	shadow_volume::cloud_view const cloud(
 		volume_.get<
@@ -91,33 +89,42 @@ shadow_volume::calculate()
 
 	for (dimtype z = 0; z < dimension(); ++z)
 	{
-		progress( 100.0f * static_cast<float>(z+1) / static_cast<float>(dimension()));
+		progress(100.0f * static_cast<float>(z+1) / static_cast<float>(dimension()));
 		for (dimtype y = 0; y < dimension(); ++y)
 			for (dimtype x = 0; x < dimension(); ++x)
 			{
-				light = 1.f;
+				shadow = 0.f;
 
 				tmp[0] = 
-					static_cast< float >( x );
+					static_cast<float>(x);
 				tmp[1] = 
-					static_cast< float >( y );
+					static_cast<float>(y);
 				tmp[2] = 
-					static_cast< float >( z );
+					static_cast<float>(z);
 				
 				for (unsigned i = 0; i < steps; ++i)
 				{
 					tmp += - sun * stepsize;
+
 					if (outside(tmp, dimension()))
 						break;
-					light -= occlusion_factor *
+
+					shadow += occlusion_factor *
 						static_cast<float>(
 							cloud[
 								dim_type_3d(tmp)].get(
 									mizuiro::color::channel::luminance()));
+
+					if (shadow > 1.f)
+						break;
 				}
+				shadow = fcppt::math::clamp(
+					shadow,
+					0.f,
+					1.f);
 				store_view()[ v::dim_type(x,y,z) ] = 
 					sge::image::color::gray8(
-						(sge::image::color::init::luminance %= light));
+						(sge::image::color::init::luminance %= shadow));
 			}
 	}
 }
