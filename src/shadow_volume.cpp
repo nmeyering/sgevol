@@ -80,8 +80,8 @@ shadow_volume::calculate()
 	float light;
 
 	shadow_volume::cloud_view const cloud(
-		volume_.get<
-			shadow_volume::cloud_view>());
+		volume_.get(
+			shadow_volume::cloud_view()));
 
 	for (dimtype z = 0; z < dimension(); ++z)
 	{
@@ -101,13 +101,13 @@ shadow_volume::calculate()
 				for (unsigned i = 0; i < steps; ++i)
 				{
 					tmp += - sun * stepsize;
-					if (outside(tmp))
+					if (outside(tmp, dimension()))
 						break;
 					light -= occlusion_factor *
 						static_cast<float>(
 							cloud[
-								dim_type_3d(tmp)].get<
-									mizuiro::color::channel::luminance>());
+								dim_type_3d(tmp)].get(
+									mizuiro::color::channel::luminance()));
 				}
 				store_view()[ v::dim_type(x,y,z) ] = 
 					sge::image::color::gray8(
