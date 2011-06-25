@@ -15,6 +15,8 @@
 #include "shadow_volume.hpp"
 #include "vf.hpp"
 
+#include <iostream>
+
 namespace
 {
 
@@ -79,9 +81,13 @@ shadow_volume::calculate()
 	vec3 tmp;
 	float light;
 
+	std::cout
+		 << sge::image::color::format_to_string(sge::image3d::view::format(volume_))
+		 << std::endl;
+
 	shadow_volume::cloud_view const cloud(
-		volume_.get(
-			shadow_volume::cloud_view()));
+		volume_.get<
+			shadow_volume::cloud_view>());
 
 	for (dimtype z = 0; z < dimension(); ++z)
 	{
