@@ -128,8 +128,8 @@ texture3d::view()
 		sge::image3d::view::object( view_ );
 }
 
-texture3d::v::dim_type::value_type const
-texture3d::dimension() const
+texture3d::v::dim_type::value_type
+texture3d::dimension()
 {
 	return dimension_;
 }
@@ -140,8 +140,8 @@ texture3d::store_view()
 	return view_;
 }
 
-float const
-texture3d::progress() const
+float
+texture3d::progress()
 {
 	return progress_.value();
 }

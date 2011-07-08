@@ -17,7 +17,6 @@
 
 #include <iostream>
 #include <fcppt/type_name.hpp>
-#include <mizuiro/access/homogenous_raw.hpp>
 
 namespace
 {

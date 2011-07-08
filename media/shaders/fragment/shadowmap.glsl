@@ -7,7 +7,6 @@ out vec4 frag_color;
 
 uniform float stepsize = 0.005;
 uniform int steps = 600;
-uniform float delta = 0.080;
 
 void
 main()
@@ -16,7 +15,7 @@ main()
 	vec3 direction = normalize( position_interp - camera );
   vec3 position;
 	// scaling factor for uniform cloud data
-	float factor = 0.10;
+	float factor = 0.04;
 
 	position = (position_interp + 1.0) * 0.5;
 

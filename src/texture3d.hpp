@@ -32,11 +32,11 @@ public:
 	sge::image3d::view::object
 	view();
 
-	v::dim_type::value_type const
-	dimension() const;
+	v::dim_type::value_type
+	dimension();
 
-	float const
-	progress() const;
+	float
+	progress();
 
 	void
 	progress(
