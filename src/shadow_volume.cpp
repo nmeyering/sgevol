@@ -6,6 +6,7 @@
 #include <mizuiro/image/view.hpp>
 #include <mizuiro/color/operators.hpp>
 #include <mizuiro/color/channel/luminance.hpp>
+#include <fcppt/io/cerr.hpp>
 #include <fcppt/math/clamp.hpp>
 #include <fcppt/math/dim/dim.hpp>
 #include <fcppt/math/vector/vector.hpp>
@@ -70,6 +71,8 @@ void
 shadow_volume::calculate()
 {
 	typedef v::dim_type::value_type dimtype;
+	try
+	{
 	vec3 const center(
 			static_cast< float >( dimension() ) * .5f,
 			static_cast< float >( dimension() ) * .5f,
@@ -125,6 +128,15 @@ shadow_volume::calculate()
 					sge::image::color::gray8(
 						(sge::image::color::init::luminance %= shadow));
 			}
+	}
+	}
+	catch(fcppt::exception const &e)
+	{
+		fcppt::io::cerr << e.string() << FCPPT_TEXT("\n");
+	}
+	catch(std::exception const &e)
+	{
+		std::cerr << e.what() << FCPPT_TEXT('\n');
 	}
 }
 

@@ -247,6 +247,7 @@ try
 
 	boost::function<void()> tex_action;
 
+	/*
 	if (load_texture)
 		tex_action =
 			std::tr1::bind(
@@ -258,6 +259,8 @@ try
 			std::tr1::bind(
 				&sgevol::texture3d::calculate,
 				&mytex);
+	*/
+
 	tex_action = 
 		std::tr1::bind(
 			&sgevol::shadow_volume::calculate,
@@ -340,29 +343,14 @@ try
 					rend),
 				fcppt::ref(
 					cam),
-				// fov
-				static_cast<
-					sge::renderer::scalar
-				>(
+				sge::renderer::projection::fov(
 					fcppt::math::deg_to_rad(
-						60.
-					)
-				),
-				// near
-				static_cast<
-					sge::renderer::scalar
-				>(
-					0.1
-				),
-				// far
-				static_cast<
-					sge::renderer::scalar
-				>(
-					1000.
-				)
-			)
-		)
-	);
+						60.f)),
+				sge::renderer::projection::near(
+					0.0f),
+				// Far plane
+				sge::renderer::projection::far(
+					1000.f))));
 
 	bool aborted = false;
 
@@ -535,7 +523,9 @@ try
 			// mvp updaten
 			shader->update_uniform(
 				"mvp",
-				cam.mvp());
+				sge::shader::matrix(
+				cam.mvp(),
+				sge::shader::matrix_flags::projection));
 
 			shader->update_uniform(
 				"camera",
@@ -547,7 +537,9 @@ try
 
 			shader->update_uniform(
 				"mv",
-				cam.world());
+				sge::shader::matrix(
+				cam.world(),
+				sge::shader::matrix_flags::none));
 		}
 
 		fps_counter.update();

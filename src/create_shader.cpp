@@ -46,14 +46,18 @@ create_shader(
 						// Typ (uniform oder const_ für Konstanten)
 						sge::shader::variable_type::uniform,
 						// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
-						sge::renderer::matrix4()))
+						sge::shader::matrix(
+							sge::renderer::matrix4::identity(),
+							sge::shader::matrix_flags::projection)))
 					(sge::shader::variable(
 						// Name der Variable
 						"mv",
 						// Typ (uniform oder const_ für Konstanten)
 						sge::shader::variable_type::uniform,
 						// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
-						sge::renderer::matrix4()))
+						sge::shader::matrix(
+							sge::renderer::matrix4::identity(),
+							sge::shader::matrix_flags::none)))
 					(sge::shader::variable(
 						"offset",
 						sge::shader::variable_type::uniform,
