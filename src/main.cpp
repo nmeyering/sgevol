@@ -261,13 +261,18 @@ try
 				&mytex);
 	*/
 
+	/*
 	tex_action = 
 		std::tr1::bind(
 			&sgevol::shadow_volume::calculate,
 			&shadowtex);
+	*/
+	shadowtex.calculate();
 
+	/*
 	fcppt::thread::object load_thread(
 		tex_action);
+	*/
 
 	// Renderstates!
 	rend.state(
@@ -315,25 +320,23 @@ try
 	// Kamera sollte bekannt sein
 	sge::camera::object cam(
 		sge::camera::parameters(
-			// Perspektivische Projektion. projection::orthogonal() wäre auch möglich
-			sge::camera::projection::object(),
 			// movementspeed
-			static_cast<sge::renderer::scalar>(
-				2.0),
+			sge::camera::movement_speed(
+				2.f),
 			// mousespeed
-			static_cast<sge::renderer::scalar>(
-				400.0),
+			sge::camera::rotation_speed(
+				400.f),
 			// Maus und Keyboard
+			sys.keyboard_collector(),
+			sys.mouse_collector()
+			).gizmo(
 			sge::camera::identity_gizmo().position(
 				sge::renderer::vector3(
 					0.0f,
 					0.0f,
 					3.0f
-					)),
-			sys.keyboard_collector(),
-			sys.mouse_collector(),
-			sge::camera::activation_state::active
-			));
+					)))
+			);
 
 	fcppt::signal::scoped_connection const viewport_connection(
 		sys.viewport_manager().manage_callback(
@@ -347,7 +350,7 @@ try
 					fcppt::math::deg_to_rad(
 						60.f)),
 				sge::renderer::projection::near(
-					0.0f),
+					0.1f),
 				// Far plane
 				sge::renderer::projection::far(
 					1000.f))));
@@ -394,7 +397,7 @@ try
 	if (aborted)
 		return EXIT_FAILURE;
 
-	load_thread.join();
+	// load_thread.join();
 
 	if (save_texture)
 		mytex.save(
@@ -407,7 +410,7 @@ try
 					mytex.const_view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
 					// sogar anisotropisch, aber das ist ungetestet)
-					sge::renderer::texture::filter::point,
+					sge::renderer::texture::mipmap::off(),
 					sge::renderer::texture::address_mode3(
 						sge::renderer::texture::address_mode::clamp),
 					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
@@ -421,7 +424,7 @@ try
 					shadowtex.const_view(),
 					// Lineare Filterung. trilinear und point sind auch möglich (und
 					// sogar anisotropisch, aber das ist ungetestet)
-					sge::renderer::texture::filter::point,
+					sge::renderer::texture::mipmap::off(),
 					sge::renderer::texture::address_mode3(
 						sge::renderer::texture::address_mode::clamp),
 					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
@@ -462,8 +465,9 @@ try
 		sys.window().dispatch();
 
 		cam.update(
-			static_cast<sge::renderer::scalar>(
-				frame_timer.reset()));
+			sge::camera::duration(
+				static_cast<sge::camera::duration::rep>(
+				frame_timer.reset())));
 
 		// Beginne Renderdurchgang
 		sge::renderer::scoped_block const block_(rend);
