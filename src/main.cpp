@@ -1,43 +1,121 @@
+#include <sge/camera/duration.hpp>
 #include <sge/camera/identity_gizmo.hpp>
+#include <sge/camera/movement_speed.hpp>
 #include <sge/camera/object.hpp>
 #include <sge/camera/parameters.hpp>
-#include <sge/camera/projection/perspective.hpp>
 #include <sge/camera/projection/update_perspective_from_viewport.hpp>
+#include <sge/camera/rotation_speed.hpp>
 #include <sge/config/media_path.hpp>
-#include <sge/console/console.hpp>
+#include <sge/console/arg_list.hpp>
+#include <sge/console/gfx.hpp>
+#include <sge/console/object.hpp>
+#include <sge/console/output_line_limit.hpp>
+#include <sge/console/sprite_object.hpp>
+#include <sge/console/sprite_parameters.hpp>
 #include <sge/exception.hpp>
-#include <sge/font/font.hpp>
-#include <sge/image/color/color.hpp>
+#include <sge/font/metrics_ptr.hpp>
+#include <sge/font/rect.hpp>
+#include <sge/font/size_type.hpp>
+#include <sge/font/system.hpp>
+#include <sge/font/text/align_h.hpp>
+#include <sge/font/text/align_v.hpp>
+#include <sge/font/text/draw.hpp>
+#include <sge/font/text/drawer_3d.hpp>
+#include <sge/font/text/flags_none.hpp>
+#include <sge/font/text/from_fcppt_string.hpp>
+#include <sge/font/text/lit.hpp>
+#include <sge/font/text/part.hpp>
+#include <sge/font/text/string.hpp>
+#include <sge/image/color/any/object.hpp>
+#include <sge/image/color/init.hpp>
+#include <sge/image/color/rgba8.hpp>
 #include <sge/image/colors.hpp>
 #include <sge/input/keyboard/action.hpp>
 #include <sge/input/keyboard/device.hpp>
-#include <sge/parse/json/json.hpp>
-#include <sge/renderer/renderer.hpp>
-#include <sge/shader/activate_everything.hpp>
-#include <sge/shader/shader.hpp>
-#include <sge/sprite/parameters.hpp>
+#include <sge/input/keyboard/key_code.hpp>
+#include <sge/parse/json/object.hpp>
+#include <sge/parse/json/value.hpp>
+#include <sge/renderer/depth_stencil_buffer.hpp>
+#include <sge/renderer/device.hpp>
+#include <sge/renderer/first_vertex.hpp>
+#include <sge/renderer/no_multi_sampling.hpp>
+#include <sge/renderer/nonindexed_primitive_type.hpp>
+#include <sge/renderer/onscreen_target.hpp>
+#include <sge/renderer/parameters.hpp>
+#include <sge/renderer/parameters.hpp>
+#include <sge/renderer/projection/far.hpp>
+#include <sge/renderer/projection/fov.hpp>
+#include <sge/renderer/projection/near.hpp>
+#include <sge/renderer/resource_flags_none.hpp>
+#include <sge/renderer/scalar.hpp>
+#include <sge/renderer/scoped_block.hpp>
+#include <sge/renderer/scoped_vertex_buffer.hpp>
+#include <sge/renderer/scoped_vertex_declaration.hpp>
+#include <sge/renderer/state/color.hpp>
+#include <sge/renderer/state/cull_mode.hpp>
+#include <sge/renderer/state/depth_func.hpp>
+#include <sge/renderer/state/dest_blend_func.hpp>
+#include <sge/renderer/state/draw_mode.hpp>
+#include <sge/renderer/state/list.hpp>
+#include <sge/renderer/state/source_blend_func.hpp>
+#include <sge/renderer/state/trampoline.hpp>
+#include <sge/renderer/texture/address_mode.hpp>
+#include <sge/renderer/texture/address_mode3.hpp>
+#include <sge/renderer/texture/create_volume_from_view.hpp>
+#include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/vector3.hpp>
+#include <sge/renderer/vertex_buffer.hpp>
+#include <sge/renderer/vertex_buffer_ptr.hpp>
+#include <sge/renderer/vertex_count.hpp>
+#include <sge/renderer/vertex_declaration_ptr.hpp>
+#include <sge/renderer/visual_depth.hpp>
+#include <sge/renderer/vsync.hpp>
+#include <sge/shader/activation_method.hpp>
+#include <sge/shader/activation_method_field.hpp>
+#include <sge/shader/matrix.hpp>
+#include <sge/shader/matrix_flags.hpp>
+#include <sge/shader/object.hpp>
+#include <sge/shader/scoped.hpp>
 #include <sge/sprite/object_impl.hpp>
+#include <sge/sprite/parameters_impl.hpp>
+#include <sge/systems/cursor_option.hpp>
+#include <sge/systems/cursor_option_field.hpp>
+#include <sge/systems/input.hpp>
+#include <sge/systems/input_helper.hpp>
+#include <sge/systems/input_helper_field.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
-#include <sge/time/frames_counter.hpp>
-#include <sge/time/millisecond.hpp>
-#include <sge/time/second.hpp>
-#include <sge/time/timer.hpp>
+#include <sge/systems/parameterless.hpp>
+#include <sge/systems/renderer.hpp>
+#include <sge/systems/window.hpp>
+#include <sge/texture/part_ptr.hpp>
+#include <sge/timer/basic.hpp>
+#include <sge/timer/elapsed.hpp>
+#include <sge/timer/frames_counter.hpp>
+#include <sge/timer/clocks/standard.hpp>
+#include <sge/timer/parameters.hpp>
+#include <sge/timer/reset_when_expired.hpp>
 #include <sge/viewport/fill_on_resize.hpp>
 #include <sge/viewport/manager.hpp>
+#include <sge/window/dim.hpp>
 #include <sge/window/instance.hpp>
-#include <fcppt/assign/make_container.hpp>
+#include <sge/window/simple_parameters.hpp>
+#include <fcppt/chrono/milliseconds.hpp>
+#include <fcppt/chrono/seconds.hpp>
 #include <fcppt/exception.hpp>
+#include <fcppt/filesystem/path.hpp>
 #include <fcppt/format.hpp>
 #include <fcppt/io/cerr.hpp>
-#include <fcppt/io/cifstream.hpp>
 #include <fcppt/math/box/structure_cast.hpp>
 #include <fcppt/math/deg_to_rad.hpp>
+#include <fcppt/math/pi.hpp>
 #include <fcppt/math/twopi.hpp>
-#include <fcppt/make_unique_ptr.hpp>
 #include <fcppt/ref.hpp>
-#include <fcppt/thread/thread.hpp>
 #include <fcppt/scoped_ptr.hpp>
+#include <fcppt/shared_ptr.hpp>
+#include <fcppt/signal/scoped_connection.hpp>
+#include <fcppt/string.hpp>
+#include <fcppt/thread/object.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
@@ -121,38 +199,25 @@ try
 	);
 	sge::systems::instance sys(
 		sge::systems::list()
-		(
-			sge::systems::window(
+		(sge::systems::window(
 				sge::window::simple_parameters(
 					// Fenstertitel offenbar
 					FCPPT_TEXT("sgevol: cloud volume rendering demo"),
-					dimensions
-				)
-			)
-		)
-		(
-			sge::systems::renderer(
+					dimensions)))
+		(sge::systems::renderer(
 				sge::renderer::parameters(
 					sge::renderer::visual_depth::depth32,
-					sge::renderer::depth_stencil_buffer::off,
+					sge::renderer::depth_stencil_buffer::d24,
 					sge::renderer::vsync::on,
-					sge::renderer::no_multi_sampling
-				),
-				sge::viewport::fill_on_resize()
-			)
-		)
-		(
-			sge::systems::input(
+					sge::renderer::no_multi_sampling),
+				sge::viewport::fill_on_resize()))
+		(sge::systems::input(
 				sge::systems::input_helper_field(
 					sge::systems::input_helper::keyboard_collector) |
 					sge::systems::input_helper::mouse_collector,
 				sge::systems::cursor_option_field(
-					sge::systems::cursor_option::exclusive)
-			)
-		)
-		(
-			sge::systems::parameterless::font
-		)
+					sge::systems::cursor_option::exclusive)))
+		(sge::systems::parameterless::font)
 	);
 
 	// Abkürzung, damit wir nicht immer sys.renderer() schreiben müssen
@@ -366,13 +431,17 @@ try
 		)
 	);
 
-	sge::time::timer accesstimer(sge::time::millisecond(100));
+	sge::timer::basic<sge::timer::clocks::standard> accesstimer(
+		sge::timer::parameters<sge::timer::clocks::standard>(
+			fcppt::chrono::milliseconds(
+				100)));
+
 	float p = 0.f;
 	while( !aborted )
 	{
 		
-		if( accesstimer.update_b() )
-			if( (p = mytex.progress()) >= 99.f )
+		if(sge::timer::reset_when_expired(accesstimer))
+			if((p = mytex.progress()) >= 99.f)
 				break;
 
 		sys.window().dispatch();
@@ -440,13 +509,17 @@ try
 				sge::input::keyboard::key_code::escape,
 				boost::phoenix::ref(running) = false)));
 
-	sge::time::timer frame_timer(
-		sge::time::second(
-			1));
-	sge::time::timer offset_timer(
-		sge::time::millisecond(
-			50));
-	sge::time::frames_counter fps_counter;
+	sge::timer::basic<sge::timer::clocks::standard> frame_timer(
+		sge::timer::parameters<sge::timer::clocks::standard>(
+			fcppt::chrono::seconds(
+				1)));
+
+	sge::timer::basic<sge::timer::clocks::standard> offset_timer(
+		sge::timer::parameters<sge::timer::clocks::standard>(
+			fcppt::chrono::milliseconds(
+				50)));
+
+	sge::timer::frames_counter fps_counter;
 
 	sge::renderer::scalar offset = 0.0f;
 
@@ -465,9 +538,8 @@ try
 		sys.window().dispatch();
 
 		cam.update(
-			sge::camera::duration(
-				static_cast<sge::camera::duration::rep>(
-				frame_timer.reset())));
+			sge::timer::elapsed<sge::camera::duration>(
+				frame_timer));
 
 		// Beginne Renderdurchgang
 		sge::renderer::scoped_block const block_(rend);
@@ -495,7 +567,7 @@ try
 			sge::renderer::nonindexed_primitive_type::triangle);
 
 
-		if (offset_timer.update_b())
+		if (sge::timer::reset_when_expired(offset_timer))
 			offset += fcppt::math::pi<float>()/50.f;
 			if (offset > fcppt::math::twopi<float>())
 				offset = 0.f;
@@ -549,7 +621,7 @@ try
 		fps_counter.update();
 
 		if (gfx.active())
-			gfx.draw();
+			gfx.render();
 
 		sge::font::text::draw(
 			*fps_metrics,

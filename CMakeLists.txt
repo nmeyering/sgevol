@@ -89,16 +89,6 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 ADD_EXECUTABLE(
-	test
-	src/test.cpp
-)
-
-TARGET_LINK_LIBRARIES(
-	test
-	${Fcppt_LIBRARIES}
-)
-
-ADD_EXECUTABLE(
 	app
 	src/config_wrapper.cpp
 	src/create_cube.cpp

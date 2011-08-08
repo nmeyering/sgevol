@@ -4,6 +4,7 @@
 #include <fcppt/string.hpp>
 #include <sge/image3d/gray8.hpp>
 #include <sge/image3d/view/const_object.hpp>
+#include <sge/image3d/view/object.hpp>
 #include <sge/image/store.hpp>
 #include "locked_value.hpp"
 
