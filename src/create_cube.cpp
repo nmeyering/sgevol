@@ -56,130 +56,33 @@ create_cube(
 	vf::position::packed_type 
 	position_vector;
 
-	// VB befüllen!
-	//	sge::renderer::scalar const z = 
-	//		1.0f - static_cast<sge::renderer::scalar>(i)/static_cast<sge::renderer::scalar>(slices);
-	// Hier setzen wir für alle Vertizes alle Attribute (in unserem Fall nur das Attribut vf::position)
-	// unten 1
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,-1,1));
-	// unten 2
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,-1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,-1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,-1));
-	// oben 1
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,1));
-	// oben 2
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,1,-1));
-	// links 1
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,1,1));
-	// links 2
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,-1));
-	// rechts 1
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,-1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,-1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,1));
-	// rechts 2
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,-1,-1));
-	// vorne 1
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,1));
-	// vorne 2
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,-1,1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,1));
-	// hinten 1
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,-1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,-1));
-	// hinten 2
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			1,1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,1,-1));
-	(*vb_it++).set<vf::position>(
-		position_vector(
-			-1,-1,-1));
+	int a = -1;
+	int b = 1;
+
+	for (int side = 0; side < 6; ++side)
+		for (int tri = 0; tri < 2; ++tri)
+			for (int i = 0; i < 3; ++i)
+			{
+				int vert = (tri == 0) ? i : 2 - i;
+				int x = side % 3;
+				int y = (vert == 0) ? a : b;
+				int z = (vert == 2) ? b : a;
+				if (
+					(side % 2 == 0) && tri == 1 ||
+					(side % 2 == 1) && tri == 0)
+				{
+					int t = y;
+					y = z;
+					z = t;
+				}
+				position_vector res(0,0,0);
+				res[x] = (side > x) ? b : a;
+				res[x == 0 ? 1 : 0] = y;
+				res[x == 2 ? 1 : 2] = z;
+
+				(*vb_it++).set<vf::position>(
+					res);
+			}
 
 	return std::make_pair(vb,decl);
 }
