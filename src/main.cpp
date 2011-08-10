@@ -387,7 +387,7 @@ try
 		sge::camera::parameters(
 			// movementspeed
 			sge::camera::movement_speed(
-				2.f),
+				0.05f),
 			// mousespeed
 			sge::camera::rotation_speed(
 				400.f),
@@ -594,7 +594,7 @@ try
 			*/
 			rend.state(
 				sge::renderer::state::list(
-					sge::renderer::state::cull_mode::front));
+					sge::renderer::state::cull_mode::back));
 
 			// mvp updaten
 			shader->update_uniform(
