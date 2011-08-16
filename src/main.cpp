@@ -18,6 +18,8 @@
 #include <sge/font/size_type.hpp>
 #include <sge/font/system.hpp>
 #include <sge/font/text/align_h.hpp>
+#include <sge/font/text/flags.hpp>
+#include <sge/renderer/resource_flags.hpp>
 #include <sge/font/text/align_v.hpp>
 #include <sge/font/text/draw.hpp>
 #include <sge/font/text/drawer_3d.hpp>
@@ -33,7 +35,12 @@
 #include <sge/input/keyboard/action.hpp>
 #include <sge/input/keyboard/device.hpp>
 #include <sge/input/keyboard/key_code.hpp>
+#include <sge/parse/json/parse_file_exn.hpp>
+#include <sge/parse/json/find_and_convert_member.hpp>
+#include <sge/parse/json/config/create_command_line_parameters.hpp>
+#include <sge/parse/json/config/merge_command_line_parameters.hpp>
 #include <sge/parse/json/object.hpp>
+#include <sge/parse/json/path.hpp>
 #include <sge/parse/json/value.hpp>
 #include <sge/renderer/depth_stencil_buffer.hpp>
 #include <sge/renderer/device.hpp>
@@ -41,7 +48,6 @@
 #include <sge/renderer/no_multi_sampling.hpp>
 #include <sge/renderer/nonindexed_primitive_type.hpp>
 #include <sge/renderer/onscreen_target.hpp>
-#include <sge/renderer/parameters.hpp>
 #include <sge/renderer/parameters.hpp>
 #include <sge/renderer/projection/far.hpp>
 #include <sge/renderer/projection/fov.hpp>
@@ -90,9 +96,9 @@
 #include <sge/systems/window.hpp>
 #include <sge/texture/part_ptr.hpp>
 #include <sge/timer/basic.hpp>
+#include <sge/timer/clocks/standard.hpp>
 #include <sge/timer/elapsed.hpp>
 #include <sge/timer/frames_counter.hpp>
-#include <sge/timer/clocks/standard.hpp>
 #include <sge/timer/parameters.hpp>
 #include <sge/timer/reset_when_expired.hpp>
 #include <sge/viewport/fill_on_resize.hpp>
@@ -122,9 +128,8 @@
 #include <exception>
 #include <iostream>
 #include <cstdlib>
-#include "json/find_member.hpp"
+#include <boost/function.hpp>
 #include "json/parse_color.hpp"
-#include "config_wrapper.hpp"
 #include "create_cube.hpp"
 #include "create_shader.hpp"
 #include "media_path.hpp"
@@ -144,50 +149,59 @@ toggle_active(
 
 }
 
-int 
+int
 main(int argc, char **argv)
 try
 {
-	sge::parse::json::object config_file(
-		sgevol::config_wrapper(
-			argc,
-			argv));
+	sge::parse::json::object const &config_file =
+		sge::parse::json::config::merge_command_line_parameters(
+			sge::parse::json::parse_file_exn(
+				sgevol::media_path()/FCPPT_TEXT("config.json")),
+			sge::parse::json::config::create_command_line_parameters(
+				argc,
+				argv));
 
-	std::size_t texture_size =
-		sgevol::json::find_member<std::size_t>(
+	int texture_size =
+		sge::parse::json::find_and_convert_member<int>(
 			config_file,
-			FCPPT_TEXT("texture-size"));
-	fcppt::string shader_file = 
-		sgevol::json::find_member<fcppt::string>(
+			sge::parse::json::path(
+				FCPPT_TEXT("texture-size")));
+	fcppt::string shader_file =
+		sge::parse::json::find_and_convert_member<fcppt::string>(
 			config_file,
-			FCPPT_TEXT("shader-file"));
-	fcppt::string save_path = 
-		sgevol::json::find_member<fcppt::string>(
+			sge::parse::json::path(
+			FCPPT_TEXT("shader-file")));
+	fcppt::string save_path =
+		sge::parse::json::find_and_convert_member<fcppt::string>(
 			config_file,
-			FCPPT_TEXT("save-path"));
-	fcppt::string load_path = 
-		sgevol::json::find_member<fcppt::string>(
+			sge::parse::json::path(
+			FCPPT_TEXT("save-path")));
+	fcppt::string load_path =
+		sge::parse::json::find_and_convert_member<fcppt::string>(
 			config_file,
-			FCPPT_TEXT("load-path"));
+			sge::parse::json::path(
+			FCPPT_TEXT("load-path")));
 	sge::image::color::rgba8 background_color =
 		sgevol::json::parse_color<sge::image::color::rgba8>(
-			sgevol::json::find_member<sge::parse::json::value>(
+			sge::parse::json::find_and_convert_member<sge::parse::json::value>(
 				config_file,
-				FCPPT_TEXT("background-color")));
+			sge::parse::json::path(
+				FCPPT_TEXT("background-color"))));
 	bool load_texture =
-		sgevol::json::find_member<bool>(
+		sge::parse::json::find_and_convert_member<bool>(
 			config_file,
-			FCPPT_TEXT("load-texture"));
+			sge::parse::json::path(
+			FCPPT_TEXT("load-texture")));
 	bool save_texture =
-		sgevol::json::find_member<bool>(
+		sge::parse::json::find_and_convert_member<bool>(
 			config_file,
-			FCPPT_TEXT("save-texture"));
+			sge::parse::json::path(
+			FCPPT_TEXT("save-texture")));
 	// nonsensical...
 	if (load_texture)
 		save_texture = false;
 
 	bool running = false;
-	
 
 	// systems::instance ist eine Hilfsklasse, die es einem abnimmt, alle
 	// Plugins, die man so braucht, manuell zu laden und zusammenzustecken.
@@ -298,7 +312,6 @@ try
 			rend,
 			sge::image::colors::white()
 	);
-	
 	// typedef fcppt::scoped_ptr<texture3d> texture_scoped_ptr;
 
 	sgevol::texture3d mytex(
@@ -327,7 +340,7 @@ try
 	*/
 
 	/*
-	tex_action = 
+	tex_action =
 		std::tr1::bind(
 			&sgevol::shadow_volume::calculate,
 			&shadowtex);
@@ -439,21 +452,20 @@ try
 	float p = 0.f;
 	while( !aborted )
 	{
-		
 		if(sge::timer::reset_when_expired(accesstimer))
 			if((p = mytex.progress()) >= 99.f)
 				break;
 
 		sys.window().dispatch();
-		
+
 		sge::renderer::scoped_block const block_(rend);
-		
+
 		sge::font::text::draw(
 			*metrics,
 			drawer,
 			boost::lexical_cast<sge::font::text::string>(
-				static_cast<int>(p) 
-			) + 
+				static_cast<int>(p)
+			) +
 			SGE_FONT_TEXT_LIT("%"),
 			fcppt::math::box::structure_cast<sge::font::rect>(
 				rend.onscreen_target().viewport().get()),
@@ -461,7 +473,7 @@ try
 			sge::font::text::align_v::center,
 			sge::font::text::flags::none
 		);
-	
+
 	}
 	if (aborted)
 		return EXIT_FAILURE;
@@ -525,8 +537,8 @@ try
 
 	sge::font::metrics_ptr const fps_metrics(
 		sys.font_system().create_font(
-				sge::config::media_path() 
-				/ FCPPT_TEXT("fonts") 
+				sge::config::media_path()
+				/ FCPPT_TEXT("fonts")
 				/ FCPPT_TEXT("default.ttf"),
 				static_cast<sge::font::size_type>(32)
 		)
@@ -543,6 +555,19 @@ try
 
 		// Beginne Renderdurchgang
 		sge::renderer::scoped_block const block_(rend);
+
+		sge::font::text::draw(
+			*fps_metrics,
+			drawer,
+			sge::font::text::from_fcppt_string(
+				fps_counter.frames_str())
+			+ SGE_FONT_TEXT_LIT(" fps"),
+			fcppt::math::box::structure_cast<sge::font::rect>(
+				rend.onscreen_target().viewport().get()),
+			sge::font::text::align_h::left,
+			sge::font::text::align_v::top,
+			sge::font::text::flags::none
+		);
 
 		// Shader aktivieren
 		{
@@ -571,7 +596,7 @@ try
 			offset += fcppt::math::pi<float>()/50.f;
 			if (offset > fcppt::math::twopi<float>())
 				offset = 0.f;
-		
+
 			/*
 			if(
 					std::abs( cam.gizmo().position().x() ) >= 1.0f ||
@@ -580,14 +605,14 @@ try
 				)
 			{
 				rend.state(
-					sge::renderer::state::list( 
+					sge::renderer::state::list(
 						sge::renderer::state::cull_mode::front
 					));
 			}
 			else
 			{
 				rend.state(
-					sge::renderer::state::list( 
+					sge::renderer::state::list(
 						sge::renderer::state::cull_mode::back
 					));
 			}
@@ -622,19 +647,6 @@ try
 
 		if (gfx.active())
 			gfx.render();
-
-		sge::font::text::draw(
-			*fps_metrics,
-			drawer,
-			sge::font::text::from_fcppt_string(
-				fps_counter.frames_str())
-			+ SGE_FONT_TEXT_LIT(" fps"),
-			fcppt::math::box::structure_cast<sge::font::rect>(
-				rend.onscreen_target().viewport().get()),
-			sge::font::text::align_h::left,
-			sge::font::text::align_v::top,
-			sge::font::text::flags::none
-		);
 	}
 }
 catch(sge::exception const &e)

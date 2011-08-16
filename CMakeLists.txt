@@ -44,7 +44,7 @@ INCLUDE(
 )
 
 SGE_CONFIG_ADD_CUSTOM_PATH(
-	sgevol	
+	sgevol
 	media
 	${CMAKE_SOURCE_DIR}/media
 	${INSTALL_MEDIA_DIR}
@@ -62,7 +62,7 @@ FIND_PACKAGE(
 	input
 	parse
 	renderer
-	shader 
+	shader
 	systems
 	texture
 	window
@@ -89,14 +89,11 @@ SET_SOURCE_FILES_PROPERTIES(
 
 ADD_EXECUTABLE(
 	app
-	src/config_wrapper.cpp
+	src/json/parse_color.hpp
+	src/json/parse_rgba8_color.hpp
+	src/json/parse_rgba8_color.cpp
 	src/create_cube.cpp
 	src/create_shader.cpp
-	src/json/is_null.cpp
-	src/json/merge_trees.cpp
-	src/json/parse_rgba8_color.cpp
-	src/json/process_option.cpp
-	src/json/string_to_value.cpp
 	src/name.cpp
 	src/main.cpp
   src/media_path.cpp
