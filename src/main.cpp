@@ -147,6 +147,21 @@ toggle_active(
 	c.active(!c.active());
 }
 
+void
+try_catch_action(
+	boost::function<void()> &f)
+{
+	try
+	{
+		f();
+	}
+	catch(fcppt::exception e)
+	{
+		std::cerr << e.string() << std::endl;
+		std::terminate();
+	}
+}
+
 }
 
 int
@@ -316,16 +331,14 @@ try
 
 	sgevol::texture3d mytex(
 		texture_size);
-
-	mytex.calculate();
-
+	/*
 	sgevol::shadow_volume shadowtex(
 		texture_size,
 		mytex.const_view());
+		*/
 
 	boost::function<void()> tex_action;
 
-	/*
 	if (load_texture)
 		tex_action =
 			std::tr1::bind(
@@ -337,7 +350,6 @@ try
 			std::tr1::bind(
 				&sgevol::texture3d::calculate,
 				&mytex);
-	*/
 
 	/*
 	tex_action =
@@ -345,12 +357,14 @@ try
 			&sgevol::shadow_volume::calculate,
 			&shadowtex);
 	*/
-	shadowtex.calculate();
 
-	/*
+	// shadowtex.calculate();
+
 	fcppt::thread::object load_thread(
-		tex_action);
-	*/
+		boost::function<void()>(
+			std::tr1::bind(
+				try_catch_action,
+				tex_action)));
 
 	// Renderstates!
 	rend.state(
@@ -412,7 +426,7 @@ try
 				sge::renderer::vector3(
 					0.0f,
 					0.0f,
-					3.0f
+					-3.0f
 					)))
 			);
 
@@ -478,7 +492,7 @@ try
 	if (aborted)
 		return EXIT_FAILURE;
 
-	// load_thread.join();
+	load_thread.join();
 
 	if (save_texture)
 		mytex.save(
@@ -499,6 +513,7 @@ try
 					sge::renderer::resource_flags::none)
 					);
 
+	/*
 	shader->update_texture( "shadowtex",
 				sge::renderer::texture::create_volume_from_view(
 					rend,
@@ -512,6 +527,7 @@ try
 					// man die unbedingt wieder auslesen will
 					sge::renderer::resource_flags::none)
 					);
+	*/
 
 	running = true;
 
