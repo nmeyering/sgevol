@@ -118,14 +118,14 @@ texture3d::const_view() const
 {
 	return
 		sge::image3d::view::to_const(
-			sge::image3d::view::object( view_ ));
+			sge::image3d::view::object( store_.wrapped_view() ));
 }
 
 sge::image3d::view::object
 texture3d::view()
 {
 	return
-		sge::image3d::view::object( view_ );
+		sge::image3d::view::object( store_.wrapped_view() );
 }
 
 texture3d::v::dim::value_type
