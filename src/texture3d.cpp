@@ -75,9 +75,9 @@ void texture3d::load(
 		sge::image3d::view::dim(
 				view()
 			).content() *
-			sge::image::color::format_stride(
-				sge::image3d::view::format(
-					view()));
+				sge::image::color::format_stride(
+					sge::image3d::view::format(
+						view()));
 
 	fcppt::io::cifstream::pos_type actual_size =
 		fcppt::filesystem::file_size(_filename);

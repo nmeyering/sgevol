@@ -176,8 +176,8 @@ try
 				argc,
 				argv));
 
-	int texture_size =
-		sge::parse::json::find_and_convert_member<int>(
+	std::size_t texture_size =
+		sge::parse::json::find_and_convert_member<std::size_t>(
 			config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("texture-size")));

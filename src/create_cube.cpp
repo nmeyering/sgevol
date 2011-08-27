@@ -52,8 +52,8 @@ create_cube(
 		vertices.begin());
 
 	// copypaste (macht aus vf::vector einen fcppt::math::vector)
-	typedef 
-	vf::position::packed_type 
+	typedef
+	vf::position::packed_type
 	position_vector;
 
 	int a = -1;
@@ -68,17 +68,20 @@ create_cube(
 				int y = (vert == 0) ? a : b;
 				int z = (vert == 2) ? b : a;
 				if (
-					(side % 2 == 0) && tri == 1 ||
-					(side % 2 == 1) && tri == 0)
+					((side % 2 == 0) && tri == 1) ||
+					((side % 2 == 1) && tri == 0))
 				{
 					int t = y;
 					y = z;
 					z = t;
 				}
 				position_vector res(0,0,0);
-				res[x] = (side > x) ? b : a;
-				res[x == 0 ? 1 : 0] = y;
-				res[x == 2 ? 1 : 2] = z;
+				res[x] = static_cast<position_vector::value_type>(
+					(side > x) ? b : a);
+				res[x == 0 ? 1 : 0] = static_cast<position_vector::value_type>(
+					y);
+				res[x == 2 ? 1 : 2] = static_cast<position_vector::value_type>(
+					z);
 
 				(*vb_it++).set<vf::position>(
 					res);
