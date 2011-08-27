@@ -157,7 +157,7 @@ try_catch_action(
 	}
 	catch(fcppt::exception e)
 	{
-		std::cerr << e.string() << std::endl;
+		fcppt::io::cerr << e.string() << std::endl;
 		std::terminate();
 	}
 }
