@@ -25,7 +25,7 @@ namespace
 bool
 outside(
 		sgevol::shadow_volume::vec3 const &p,
-		sgevol::shadow_volume::cloud_view::dim_type::value_type const &dim
+		sgevol::shadow_volume::cloud_view::dim::value_type const &dim
 	)
 {
 	float const fdim = static_cast<float>(dim);
@@ -38,14 +38,14 @@ outside(
 		p.z() > fdim;
 }
 
-sgevol::shadow_volume::cloud_view::dim_type
-dim_type_3d(
+sgevol::shadow_volume::cloud_view::dim
+dim_3d(
 	sgevol::shadow_volume::vec3 const &p)
 {
 	typedef sgevol::shadow_volume::cloud_view cloud_view;
-	typedef cloud_view::dim_type::value_type value_type;
+	typedef cloud_view::dim::value_type value_type;
 
-	return cloud_view::dim_type(
+	return cloud_view::dim(
 		static_cast<value_type>(p.x()),
 		static_cast<value_type>(p.y()),
 		static_cast<value_type>(p.z()));
@@ -70,7 +70,7 @@ volume_(
 void
 shadow_volume::calculate()
 {
-	typedef v::dim_type::value_type dimtype;
+	typedef v::dim::value_type dimtype;
 	try
 	{
 	vec3 const center(
@@ -114,7 +114,7 @@ shadow_volume::calculate()
 					shadow += occlusion_factor *
 						static_cast<float>(
 							cloud[
-								dim_type_3d(tmp)].get(
+								dim_3d(tmp)].get(
 									mizuiro::color::channel::luminance()));
 
 					if (shadow > 1.f)
@@ -124,7 +124,7 @@ shadow_volume::calculate()
 					shadow,
 					0.f,
 					1.f);
-				store_view()[ v::dim_type(x,y,z) ] = 
+				store_view()[ v::dim(x,y,z) ] = 
 					sge::image::color::gray8(
 						(sge::image::color::init::luminance %= shadow));
 			}

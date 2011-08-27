@@ -31,13 +31,13 @@
 namespace sgevol
 {
 texture3d::texture3d(
-	v::dim_type::value_type const _dimension
+	v::dim::value_type const _dimension
 	)
 :
 	dimension_(
 		_dimension),
 	store_(
-		store::dim_type(
+		store::dim(
 			_dimension,
 			_dimension,
 			_dimension)),
@@ -48,13 +48,13 @@ texture3d::texture3d(
 }
 
 texture3d::texture3d(
-	v::dim_type::value_type const _dimension,
+	v::dim::value_type const _dimension,
 	fcppt::filesystem::path const &_filename)
 :
 	dimension_(
 		_dimension),
 	store_(
-		store::dim_type(
+		store::dim(
 			_dimension,
 			_dimension,
 			_dimension)),
@@ -78,10 +78,10 @@ void texture3d::load(
 			sge::image::color::format_stride(
 				sge::image3d::view::format(
 					view()));
-	
+
 	fcppt::io::cifstream::pos_type actual_size =
 		fcppt::filesystem::file_size(_filename);
-	
+
 	if (size != actual_size)
 	{
 		throw fcppt::exception(
@@ -116,7 +116,7 @@ void texture3d::load(
 sge::image3d::view::const_object const
 texture3d::const_view() const
 {
-	return 
+	return
 		sge::image3d::view::to_const(
 			sge::image3d::view::object( view_ ));
 }
@@ -124,11 +124,11 @@ texture3d::const_view() const
 sge::image3d::view::object
 texture3d::view()
 {
-	return 
+	return
 		sge::image3d::view::object( view_ );
 }
 
-texture3d::v::dim_type::value_type
+texture3d::v::dim::value_type
 texture3d::dimension()
 {
 	return dimension_;
@@ -183,7 +183,7 @@ void
 texture3d::calculate()
 {
 	double alpha = 1.0;
-	typedef v::dim_type::value_type dimtype;
+	typedef v::dim::value_type dimtype;
 	vec3 center(
 			static_cast< float >( dimension_ ) * .5f,
 			static_cast< float >( dimension_ ) * .5f,
@@ -196,16 +196,16 @@ texture3d::calculate()
 		for (dimtype y = 0; y < dimension_; ++y)
 			for (dimtype x = 0; x < dimension_; ++x)
 			{
-				tmp[0] = 
+				tmp[0] =
 					static_cast< float >( x );
-				tmp[1] = 
+				tmp[1] =
 					static_cast< float >( y );
-				tmp[2] = 
+				tmp[2] =
 					static_cast< float >( z );
-				
+
 				float const scale = 0.5f;
 				#if 1
-				alpha = 
+				alpha =
 					fcppt::math::clamp(
 						0.0625f * noise.sample( scale * 0.2f * tmp ) +
 						0.125f * noise.sample( scale * 0.10f * tmp ) +
@@ -214,14 +214,14 @@ texture3d::calculate()
 						,0.f
 						,1.f);
 				//sphere
-				alpha *= 
+				alpha *=
 					fcppt::math::clamp(
 						1.0f -
 						(0.5f + fcppt::math::vector::length( tmp - center )) /
 						(0.5f * static_cast<float>(dimension_)),
 						/*
 						(
-							fcppt::math::vector::length(tmp - center) < 
+							fcppt::math::vector::length(tmp - center) <
 								0.5f * static_cast<float>(dimension_) ?
 								1.f :
 								0.f ),
@@ -231,7 +231,7 @@ texture3d::calculate()
 					);
 				#else
 				alpha = fcppt::math::clamp(
-					1.0f - 
+					1.0f -
 					8.f * tmp[1] / static_cast<float>(dimension_),
 					0.f,
 					1.f
@@ -239,20 +239,20 @@ texture3d::calculate()
 
 				alpha +=
 					(fcppt::math::vector::length(tmp -
-						1.5f * center) / 
+						1.5f * center) /
 					(0.2f * static_cast<float>(dimension_))) < 1.f ?
 						1.f:
 						0.f;
 
 				alpha +=
 					(fcppt::math::vector::length(tmp -
-						0.5f * center) / 
+						0.5f * center) /
 					(0.2f * static_cast<float>(dimension_))) < 1.f ?
 						1.f:
 						0.f;
 				#endif
-					
-				view_[ v::dim_type(x,y,z) ] = 
+
+				view_[ v::dim(x,y,z) ] =
 					sge::image::color::gray8(
 						(sge::image::color::init::luminance %= alpha));
 			}

@@ -268,8 +268,8 @@ try
 
 	sge::font::metrics_ptr const console_metrics(
 		sys.font_system().create_font(
-				sge::config::media_path() 
-				/ FCPPT_TEXT("fonts") 
+				sge::config::media_path()
+				/ FCPPT_TEXT("fonts")
 				/ FCPPT_TEXT("default.ttf"),
 				static_cast<sge::font::size_type>(16)
 		)
@@ -316,8 +316,8 @@ try
 
 	sge::font::metrics_ptr const metrics(
 		sys.font_system().create_font(
-				sge::config::media_path() 
-				/ FCPPT_TEXT("fonts") 
+				sge::config::media_path()
+				/ FCPPT_TEXT("fonts")
 				/ FCPPT_TEXT("default.ttf"),
 				static_cast<sge::font::size_type>(96)
 		)

@@ -33,7 +33,7 @@ public:
 	sge::image3d::view::object
 	view();
 
-	v::dim_type::value_type
+	v::dim::value_type
 	dimension();
 
 	float
@@ -58,7 +58,7 @@ public:
 		fcppt::filesystem::path const &);
 
 private:
-	v::dim_type::value_type dimension_;
+	v::dim::value_type dimension_;
 	store store_;
 	v view_;
 	locked_value<float> progress_;
