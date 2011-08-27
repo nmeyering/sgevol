@@ -117,8 +117,7 @@ sge::image3d::view::const_object const
 texture3d::const_view() const
 {
 	return
-		sge::image3d::view::to_const(
-			sge::image3d::view::object( store_.wrapped_view() ));
+		sge::image3d::view::const_object( store_.wrapped_view() );
 }
 
 sge::image3d::view::object
