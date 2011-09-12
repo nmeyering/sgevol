@@ -252,7 +252,7 @@ texture3d::calculate()
 				#endif
 
 				view_[ v::dim(x,y,z) ] =
-					sge::image::color::gray8(
+					sge::image::color::l8(
 						(sge::image::color::init::luminance %= alpha));
 			}
 	}
