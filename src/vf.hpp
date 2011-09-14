@@ -24,7 +24,7 @@ namespace vf
 // in <Typ> <Name>;
 namespace tags
 {
-SGE_RENDERER_VF_MAKE_UNSPECIFIED_TAG(position)
+SGE_RENDERER_VF_MAKE_UNSPECIFIED_TAG(position);
 }
 
 typedef 

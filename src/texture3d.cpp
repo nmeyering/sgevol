@@ -72,7 +72,7 @@ void texture3d::load(
 		_filename);
 
 	fcppt::io::cifstream::pos_type size =
-		sge::image3d::view::dim(
+		sge::image3d::view::size(
 				view()
 			).content() *
 				sge::image::color::format_stride(
@@ -160,7 +160,7 @@ texture3d::save(
 	fcppt::io::cofstream file(
 		_filename);
 
-	sge::image3d::dim::value_type size = sge::image3d::view::dim(
+	sge::image3d::dim::value_type size = sge::image3d::view::size(
 			const_view()
 		).content() *
 		sge::image::color::format_stride(
