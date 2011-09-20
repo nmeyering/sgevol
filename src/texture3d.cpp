@@ -202,7 +202,7 @@ texture3d::calculate()
 				tmp[2] =
 					static_cast< float >( z );
 
-				float const scale = 0.5f;
+				float const scale = 2.0f;
 				#if 1
 				alpha =
 					fcppt::math::clamp(

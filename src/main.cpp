@@ -275,7 +275,7 @@ try
 		)
 	);
 
-	sge::console::gfx gfx(
+	sge::console::gfx console_gfx(
 		console,
 		sys.renderer(),
 		sge::image::colors::black(),
@@ -308,9 +308,9 @@ try
 				std::tr1::bind(
 					&toggle_active,
 					fcppt::ref(
-						gfx)))));
+						console_gfx)))));
 
-	gfx.active(false);
+	console_gfx.active(false);
 
 	// console end
 
@@ -661,8 +661,8 @@ try
 
 		fps_counter.update();
 
-		if (gfx.active())
-			gfx.render();
+		if (console_gfx.active())
+			console_gfx.render();
 	}
 }
 catch(sge::exception const &e)
