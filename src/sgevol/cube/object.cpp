@@ -1,7 +1,5 @@
 #include <sge/camera/object.hpp>
 #include <sge/image3d/view/const_object.hpp>
-#include <sge/renderer/texture/address_mode.hpp>
-#include <sge/renderer/texture/address_mode3.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
 #include <sge/renderer/lock_mode.hpp>
@@ -13,11 +11,14 @@
 #include <sge/renderer/scoped_vertex_lock.hpp>
 #include <sge/renderer/size_type.hpp>
 #include <sge/renderer/state/cull_mode.hpp>
+#include <sge/renderer/state/list.hpp>
+#include <sge/renderer/texture/address_mode.hpp>
+#include <sge/renderer/texture/address_mode3.hpp>
 #include <sge/renderer/texture/create_volume_from_view.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
-#include <sge/renderer/state/list.hpp>
-#include <sge/renderer/vertex_count.hpp>
+#include <sge/renderer/vector3.hpp>
 #include <sge/renderer/vertex_buffer.hpp>
+#include <sge/renderer/vertex_count.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/renderer/vf/dynamic/part_index.hpp>
 #include <sge/shader/activation_method.hpp>
@@ -25,15 +26,18 @@
 #include <sge/shader/matrix.hpp>
 #include <sge/shader/matrix_flags.hpp>
 #include <sge/shader/object.hpp>
+#include <sge/shader/object_parameters.hpp>
 #include <sge/shader/scoped.hpp>
+#include <sge/shader/variable_sequence.hpp>
+#include <sge/shader/vf_to_string.hpp>
 #include <sge/timer/reset_when_expired.hpp>
+#include <fcppt/assign/make_container.hpp>
 #include <fcppt/noncopyable.hpp>
 #include <fcppt/filesystem/path.hpp>
 #include <fcppt/format.hpp>
 #include <fcppt/math/pi.hpp>
 #include <fcppt/math/twopi.hpp>
 #include <sgevol/media_path.hpp>
-#include <sgevol/create_shader.hpp>
 #include <sgevol/cube/vf.hpp>
 #include <sgevol/cube/object.hpp>
 
@@ -117,9 +121,7 @@ tex_(
 					res);
 			}
 
-	shader_ =	sgevol::create_shader(
-		renderer_,
-		vd_,
+	shader_ =	create_shader(
 		_shader_file);
 
 	shader_->update_texture("tex",
@@ -211,4 +213,76 @@ sgevol::cube::object::render()
 		sge::shader::matrix(
 		cam_.world(),
 		sge::shader::matrix_flags::none));
+}
+
+fcppt::shared_ptr<sge::shader::object>
+sgevol::cube::object::create_shader(
+	fcppt::filesystem::path const &fragment_path)
+{
+	return fcppt::shared_ptr<sge::shader::object>(
+		new sge::shader::object(
+			sge::shader::object_parameters(
+				renderer_,
+				*vd_,
+				// Vertexshader, liegen in unserem Fall im sge-Mediapath
+				sgevol::media_path()
+					/ FCPPT_TEXT("shaders")
+					/ FCPPT_TEXT("vertex")
+					/ FCPPT_TEXT("vertex.glsl"),
+				// Fragmentshader
+				fragment_path,
+				// Das hier nimmt sich das Vertexformat (vf::format) und macht das zu einer
+				// glsl-Deklaration aller Variablen, d.h. in unserem Fall erstellt das
+				// automatisch:
+				//
+				// in vec3 position;
+				//
+				// Deshalb sind diese $$$HEADER$$$ in den Shadern. Wenn man jetzt ein
+				// Vertexattribut hinzufügt, muss man am Shader nichts mehr ändern!
+				sge::shader::vf_to_string<sgevol::cube::vf::format>(),
+				// Alle uniform-Variablen (und Konstanten), die man im Shader nutzen will.
+				// Wir brauchen nur die Modelviewprojection-Matrix von der Kamera im Shader.
+				// Diese Liste wird auch für $$$HEADER$$$ rangezogen
+				fcppt::assign::make_container<sge::shader::variable_sequence>
+					(sge::shader::variable(
+						// Name der Variable
+						"mvp",
+						// Typ (uniform oder const_ für Konstanten)
+						sge::shader::variable_type::uniform,
+						// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
+						sge::shader::matrix(
+							sge::renderer::matrix4::identity(),
+							sge::shader::matrix_flags::projection)))
+					(sge::shader::variable(
+						// Name der Variable
+						"mv",
+						// Typ (uniform oder const_ für Konstanten)
+						sge::shader::variable_type::uniform,
+						// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
+						sge::shader::matrix(
+							sge::renderer::matrix4::identity(),
+							sge::shader::matrix_flags::none)))
+					(sge::shader::variable(
+						"offset",
+						sge::shader::variable_type::uniform,
+						static_cast<sge::renderer::scalar>(
+							0.f)))
+					(sge::shader::variable(
+						"light",
+						sge::shader::variable_type::uniform,
+						static_cast<sge::renderer::scalar>(
+							0.f)))
+					(sge::shader::variable(
+						"camera",
+						sge::shader::variable_type::uniform,
+						sge::renderer::vector3())),
+				// sampler (sprich Texturen), die wir im Shader brauchen (ebenfalls in $$$HEADER$$$ drin)
+				fcppt::assign::make_container<sge::shader::sampler_sequence>
+					(sge::shader::sampler(
+						"tex", sge::renderer::texture::volume_ptr()))
+						// Selbsterklärend
+						// Man muss bei 3D-Texturen noch angeben, dass die 3 Dimensionen hat.
+						// Das kann er aus dem obigen create_volume_texture leider nicht
+						// ableiten (ein TODO für Freundlich?)
+						)));
 }

@@ -37,6 +37,7 @@ main()
   vec3 position;
 	// scaling factor for uniform cloud data
 	float factor = 0.50;
+	float value;
 
 	/*
 	if(
@@ -57,7 +58,7 @@ main()
 
   for(int i = 0; i < steps; i++)
   {
-		float value = texture(tex, position).r;
+		value = texture(tex, position).r;
 
 		dst += (1.0 - dst.a) * factor * vec4(1.0 - position.y,1.0,position.y,value);
 

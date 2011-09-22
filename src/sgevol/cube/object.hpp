@@ -34,6 +34,8 @@ private:
 	sge::camera::object &cam_;
 	fcppt::shared_ptr<sge::shader::object> shader_;
 	sge::image3d::view::const_object const &tex_;
+	fcppt::shared_ptr<sge::shader::object> create_shader(
+		fcppt::filesystem::path const &);
 };
 
 }

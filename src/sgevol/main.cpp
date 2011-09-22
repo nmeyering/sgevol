@@ -126,7 +126,6 @@
 #include <cstdlib>
 #include <boost/function.hpp>
 #include <sgevol/json/parse_color.hpp>
-#include <sgevol/create_shader.hpp>
 #include <sgevol/media_path.hpp>
 #include <sgevol/texture3d.hpp>
 #include <sgevol/shadow_volume.hpp>
