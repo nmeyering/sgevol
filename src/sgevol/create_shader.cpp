@@ -3,9 +3,9 @@
 #include <sge/renderer/vector3.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/filesystem/path.hpp>
-#include "media_path.hpp"
-#include "vf.hpp"
-#include "create_shader.hpp"
+#include <sgevol/media_path.hpp>
+#include <sgevol/vf.hpp>
+#include <sgevol/create_shader.hpp>
 
 namespace sgevol
 {

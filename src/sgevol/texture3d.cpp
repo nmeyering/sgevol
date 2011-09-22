@@ -23,10 +23,10 @@
 #include <ostream>
 #include <streambuf>
 #include <utility>
-#include "media_path.hpp"
-#include "simplex_noise.hpp"
-#include "texture3d.hpp"
-#include "vf.hpp"
+#include <sgevol/media_path.hpp>
+#include <sgevol/simplex_noise.hpp>
+#include <sgevol/texture3d.hpp>
+#include <sgevol/vf.hpp>
 
 namespace sgevol
 {

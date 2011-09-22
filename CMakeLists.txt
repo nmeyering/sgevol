@@ -72,6 +72,8 @@ INCLUDE_DIRECTORIES(${SGE_INCLUDE_DIRS})
 ADD_DEFINITIONS(${SGE_CFLAGS})
 # sge end
 
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
+
 # TODO
 SET_SOURCE_FILES_PROPERTIES(
 	media_path.cpp
@@ -81,7 +83,7 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 SET_SOURCE_FILES_PROPERTIES(
-	src/media_path.cpp
+	src/sgevol/media_path.cpp
 	PROPERTIES
 	COMPILE_FLAGS
 	-DMEDIA_PATH="\\\"${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME}/media\\\""
@@ -89,16 +91,16 @@ SET_SOURCE_FILES_PROPERTIES(
 
 ADD_EXECUTABLE(
 	app
-	src/json/parse_color.hpp
-	src/json/parse_rgba8_color.hpp
-	src/json/parse_rgba8_color.cpp
-	src/create_cube.cpp
-	src/create_shader.cpp
-	src/name.cpp
-	src/main.cpp
-  src/media_path.cpp
-	src/shadow_volume.cpp
-  src/texture3d.cpp
+	src/sgevol/json/parse_color.hpp
+	src/sgevol/json/parse_rgba8_color.hpp
+	src/sgevol/json/parse_rgba8_color.cpp
+	src/sgevol/cube/object.cpp
+	src/sgevol/create_shader.cpp
+	src/sgevol/name.cpp
+	src/sgevol/main.cpp
+	src/sgevol/media_path.cpp
+	src/sgevol/shadow_volume.cpp
+	src/sgevol/texture3d.cpp
 )
 
 TARGET_LINK_LIBRARIES(

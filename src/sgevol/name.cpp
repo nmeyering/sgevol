@@ -1,4 +1,4 @@
-#include "name.hpp"
+#include <sgevol/name.hpp>
 #include <fcppt/text.hpp>
 
 fcppt::string const

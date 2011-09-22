@@ -18,11 +18,10 @@
 #include <sge/font/size_type.hpp>
 #include <sge/font/system.hpp>
 #include <sge/font/text/align_h.hpp>
-#include <sge/font/text/flags.hpp>
-#include <sge/renderer/resource_flags.hpp>
 #include <sge/font/text/align_v.hpp>
 #include <sge/font/text/draw.hpp>
 #include <sge/font/text/drawer_3d.hpp>
+#include <sge/font/text/flags.hpp>
 #include <sge/font/text/flags_none.hpp>
 #include <sge/font/text/from_fcppt_string.hpp>
 #include <sge/font/text/lit.hpp>
@@ -35,11 +34,11 @@
 #include <sge/input/keyboard/action.hpp>
 #include <sge/input/keyboard/device.hpp>
 #include <sge/input/keyboard/key_code.hpp>
-#include <sge/parse/json/parse_file_exn.hpp>
-#include <sge/parse/json/find_and_convert_member.hpp>
 #include <sge/parse/json/config/create_command_line_parameters.hpp>
 #include <sge/parse/json/config/merge_command_line_parameters.hpp>
+#include <sge/parse/json/find_and_convert_member.hpp>
 #include <sge/parse/json/object.hpp>
+#include <sge/parse/json/parse_file_exn.hpp>
 #include <sge/parse/json/path.hpp>
 #include <sge/parse/json/value.hpp>
 #include <sge/renderer/depth_stencil_buffer.hpp>
@@ -52,6 +51,7 @@
 #include <sge/renderer/projection/far.hpp>
 #include <sge/renderer/projection/fov.hpp>
 #include <sge/renderer/projection/near.hpp>
+#include <sge/renderer/resource_flags.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_block.hpp>
@@ -65,10 +65,6 @@
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/state/source_blend_func.hpp>
 #include <sge/renderer/state/trampoline.hpp>
-#include <sge/renderer/texture/address_mode.hpp>
-#include <sge/renderer/texture/address_mode3.hpp>
-#include <sge/renderer/texture/create_volume_from_view.hpp>
-#include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/vertex_buffer.hpp>
 #include <sge/renderer/vertex_buffer_ptr.hpp>
@@ -129,13 +125,12 @@
 #include <iostream>
 #include <cstdlib>
 #include <boost/function.hpp>
-#include "json/parse_color.hpp"
-#include "create_cube.hpp"
-#include "create_shader.hpp"
-#include "media_path.hpp"
-#include "texture3d.hpp"
-#include "shadow_volume.hpp"
-#include "vf.hpp"
+#include <sgevol/json/parse_color.hpp>
+#include <sgevol/create_shader.hpp>
+#include <sgevol/media_path.hpp>
+#include <sgevol/texture3d.hpp>
+#include <sgevol/shadow_volume.hpp>
+#include <sgevol/cube/object.hpp>
 
 namespace
 {
@@ -366,6 +361,8 @@ try
 				try_catch_action,
 				tex_action)));
 
+	std::cout << "load thread started" << std::endl;
+
 	// Renderstates!
 	rend.state(
 		sge::renderer::state::list
@@ -395,19 +392,6 @@ try
 				(sge::image::color::init::alpha %= 0.5)
 				)));
 			*/
-
-	std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const buffer_and_declaration =
-		sgevol::create_cube(
-			rend);
-
-	fcppt::shared_ptr<sge::shader::object> shader =
-	sgevol::create_shader(
-		rend,
-		buffer_and_declaration.second,
-		sgevol::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("fragment")
-			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str());
 
 	// Kamera sollte bekannt sein
 	sge::camera::object cam(
@@ -462,6 +446,7 @@ try
 		sge::timer::parameters<sge::timer::clocks::standard>(
 			fcppt::chrono::milliseconds(
 				100)));
+	std::cout << "timer initialized" << std::endl;
 
 	float p = 0.f;
 	while( !aborted )
@@ -492,26 +477,25 @@ try
 	if (aborted)
 		return EXIT_FAILURE;
 
+
 	load_thread.join();
+	std::cout << "texture loaded" << std::endl;
 
 	if (save_texture)
 		mytex.save(
 			fcppt::filesystem::path(
 			save_path));
 
-	shader->update_texture( "tex",
-				sge::renderer::texture::create_volume_from_view(
-					rend,
-					mytex.const_view(),
-					// Lineare Filterung. trilinear und point sind auch möglich (und
-					// sogar anisotropisch, aber das ist ungetestet)
-					sge::renderer::texture::mipmap::off(),
-					sge::renderer::texture::address_mode3(
-						sge::renderer::texture::address_mode::clamp),
-					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
-					// man die unbedingt wieder auslesen will
-					sge::renderer::resource_flags::none)
-					);
+	sgevol::cube::object cube(
+		rend,
+		sgevol::media_path()
+			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("fragment")
+			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str(),
+		cam,
+		mytex.const_view());
+	std::cout << "cube created" << std::endl;
+
 
 	/*
 	shader->update_texture( "shadowtex",
@@ -580,84 +564,12 @@ try
 			+ SGE_FONT_TEXT_LIT(" fps"),
 			fcppt::math::box::structure_cast<sge::font::rect>(
 				rend.onscreen_target().viewport().get()),
-			sge::font::text::align_h::left,
+		sge::font::text::align_h::left,
 			sge::font::text::align_v::top,
 			sge::font::text::flags::none
 		);
 
-		// Shader aktivieren
-		{
-		sge::shader::scoped scoped_shader(
-			*shader,
-			sge::shader::activation_method_field(
-				sge::shader::activation_method::textures));
-
-		// Vertexbuffer aktivieren. Muss man machen
-		sge::renderer::scoped_vertex_declaration const decl_context(
-			rend,
-			*buffer_and_declaration.second);
-
-		sge::renderer::scoped_vertex_buffer const vb_context(
-			rend,
-			*buffer_and_declaration.first);
-
-		// Rendern (copypaste)
-		rend.render_nonindexed(
-			sge::renderer::first_vertex(0),
-			sge::renderer::vertex_count(buffer_and_declaration.first->size()),
-			sge::renderer::nonindexed_primitive_type::triangle);
-
-
-		if (sge::timer::reset_when_expired(offset_timer))
-			offset += fcppt::math::pi<float>()/50.f;
-			if (offset > fcppt::math::twopi<float>())
-				offset = 0.f;
-
-			/*
-			if(
-					std::abs( cam.gizmo().position().x() ) >= 1.0f ||
-					std::abs( cam.gizmo().position().y() ) >= 1.0f ||
-					std::abs( cam.gizmo().position().z() ) >= 1.0f
-				)
-			{
-				rend.state(
-					sge::renderer::state::list(
-						sge::renderer::state::cull_mode::front
-					));
-			}
-			else
-			{
-				rend.state(
-					sge::renderer::state::list(
-						sge::renderer::state::cull_mode::back
-					));
-			}
-			*/
-			rend.state(
-				sge::renderer::state::list(
-					sge::renderer::state::cull_mode::back));
-
-			// mvp updaten
-			shader->update_uniform(
-				"mvp",
-				sge::shader::matrix(
-				cam.mvp(),
-				sge::shader::matrix_flags::projection));
-
-			shader->update_uniform(
-				"camera",
-				cam.gizmo().position());
-
-			shader->update_uniform(
-				"offset",
-				offset);
-
-			shader->update_uniform(
-				"mv",
-				sge::shader::matrix(
-				cam.world(),
-				sge::shader::matrix_flags::none));
-		}
+		cube.render();
 
 		fps_counter.update();
 
