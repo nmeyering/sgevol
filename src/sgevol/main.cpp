@@ -184,6 +184,11 @@ try
 			config_file,
 			sge::parse::json::path(
 			FCPPT_TEXT("load-path")));
+	fcppt::string globe_tex_path =
+		sge::parse::json::find_and_convert_member<fcppt::string>(
+			config_file,
+			sge::parse::json::path(
+			FCPPT_TEXT("globe-texture")));
 	sge::image::color::rgba8 background_color =
 		sgevol::json::parse_color<sge::image::color::rgba8>(
 			sge::parse::json::find_and_convert_member<sge::parse::json::value>(
@@ -482,12 +487,12 @@ try
 		sge::renderer::texture::create_planar_from_path(
 			sgevol::media_path()
 				/ FCPPT_TEXT("textures")
-				/ FCPPT_TEXT("world_1024.png"),
+				/ globe_tex_path,
 				rend,
 				sys.image_loader(),
 				sge::renderer::texture::mipmap::off(),
 					sge::renderer::texture::address_mode2(
-						sge::renderer::texture::address_mode::clamp),
+						sge::renderer::texture::address_mode::repeat),
 					sge::renderer::resource_flags::none
 				));
 	std::cout << "globe texture created" << std::endl;
@@ -565,9 +570,9 @@ try
 			sge::font::text::flags::none
 		);
 
-		cube.render();
-
 		globe.render();
+
+		cube.render();
 
 		fps_counter.update();
 

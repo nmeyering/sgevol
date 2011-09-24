@@ -89,7 +89,13 @@ shader_(
 				sge::shader::variable_type::uniform,
 				sge::shader::matrix(
 					sge::renderer::matrix4::identity(),
-					sge::shader::matrix_flags::projection))),
+					sge::shader::matrix_flags::projection)))
+			(sge::shader::variable(
+				"mv",
+				sge::shader::variable_type::uniform,
+				sge::shader::matrix(
+					sge::renderer::matrix4::identity(),
+					sge::shader::matrix_flags::none))),
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
 				"tex", tex_))
@@ -124,7 +130,7 @@ sgevol::model::object::render()
 
 	renderer_.state(
 		sge::renderer::state::list(
-			sge::renderer::state::cull_mode::back));
+			sge::renderer::state::cull_mode::clockwise));
 
 	// mvp updaten
 	shader_.update_uniform(
@@ -132,4 +138,10 @@ sgevol::model::object::render()
 		sge::shader::matrix(
 		cam_.mvp(),
 		sge::shader::matrix_flags::projection));
+
+	shader_.update_uniform(
+		"mv",
+		sge::shader::matrix(
+		cam_.world(),
+		sge::shader::matrix_flags::none));
 }

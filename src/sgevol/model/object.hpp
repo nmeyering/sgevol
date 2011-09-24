@@ -76,13 +76,13 @@ public:
 	~object();
 private:
 	sge::renderer::device &renderer_;
-	sge::renderer::vertex_declaration_ptr const vd_;
-	sge::renderer::vertex_buffer_ptr vb_;
-	sge::renderer::texture::planar_ptr tex_;
-	sge::camera::object &cam_;
-	sge::shader::object shader_;
 	sge::model::obj::loader_ptr const model_loader_;
 	sge::model::obj::instance_ptr model_;
+	sge::renderer::vertex_declaration_ptr const vd_;
+	sge::renderer::vertex_buffer_ptr vb_;
+	sge::camera::object &cam_;
+	sge::renderer::texture::planar_ptr tex_;
+	sge::shader::object shader_;
 };
 
 }
