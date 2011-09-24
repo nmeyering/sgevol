@@ -60,6 +60,7 @@ FIND_PACKAGE(
 	image
 	image3d
 	input
+	modelobj
 	parse
 	renderer
 	shader
@@ -95,6 +96,7 @@ ADD_EXECUTABLE(
 	src/sgevol/json/parse_rgba8_color.hpp
 	src/sgevol/json/parse_rgba8_color.cpp
 	src/sgevol/cube/object.cpp
+	src/sgevol/model/object.cpp
 	src/sgevol/name.cpp
 	src/sgevol/main.cpp
 	src/sgevol/media_path.cpp
