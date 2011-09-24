@@ -43,7 +43,6 @@
 #include <sge/parse/json/value.hpp>
 #include <sge/renderer/depth_stencil_buffer.hpp>
 #include <sge/renderer/device.hpp>
-#include <sge/renderer/first_vertex.hpp>
 #include <sge/renderer/no_multi_sampling.hpp>
 #include <sge/renderer/nonindexed_primitive_type.hpp>
 #include <sge/renderer/onscreen_target.hpp>
@@ -55,8 +54,6 @@
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_block.hpp>
-#include <sge/renderer/scoped_vertex_buffer.hpp>
-#include <sge/renderer/scoped_vertex_declaration.hpp>
 #include <sge/renderer/state/color.hpp>
 #include <sge/renderer/state/cull_mode.hpp>
 #include <sge/renderer/state/depth_func.hpp>
@@ -66,18 +63,8 @@
 #include <sge/renderer/state/source_blend_func.hpp>
 #include <sge/renderer/state/trampoline.hpp>
 #include <sge/renderer/vector3.hpp>
-#include <sge/renderer/vertex_buffer.hpp>
-#include <sge/renderer/vertex_buffer_ptr.hpp>
-#include <sge/renderer/vertex_count.hpp>
-#include <sge/renderer/vertex_declaration_ptr.hpp>
 #include <sge/renderer/visual_depth.hpp>
 #include <sge/renderer/vsync.hpp>
-#include <sge/shader/activation_method.hpp>
-#include <sge/shader/activation_method_field.hpp>
-#include <sge/shader/matrix.hpp>
-#include <sge/shader/matrix_flags.hpp>
-#include <sge/shader/object.hpp>
-#include <sge/shader/scoped.hpp>
 #include <sge/sprite/object_impl.hpp>
 #include <sge/sprite/parameters_impl.hpp>
 #include <sge/systems/cursor_option.hpp>
@@ -128,7 +115,6 @@
 #include <sgevol/json/parse_color.hpp>
 #include <sgevol/media_path.hpp>
 #include <sgevol/texture3d.hpp>
-#include <sgevol/shadow_volume.hpp>
 #include <sgevol/cube/object.hpp>
 
 namespace
@@ -325,11 +311,6 @@ try
 
 	sgevol::texture3d mytex(
 		texture_size);
-	/*
-	sgevol::shadow_volume shadowtex(
-		texture_size,
-		mytex.const_view());
-		*/
 
 	boost::function<void()> tex_action;
 
@@ -344,15 +325,6 @@ try
 			std::tr1::bind(
 				&sgevol::texture3d::calculate,
 				&mytex);
-
-	/*
-	tex_action =
-		std::tr1::bind(
-			&sgevol::shadow_volume::calculate,
-			&shadowtex);
-	*/
-
-	// shadowtex.calculate();
 
 	fcppt::thread::object load_thread(
 		boost::function<void()>(
@@ -494,23 +466,6 @@ try
 		cam,
 		mytex.const_view());
 	std::cout << "cube created" << std::endl;
-
-
-	/*
-	shader->update_texture( "shadowtex",
-				sge::renderer::texture::create_volume_from_view(
-					rend,
-					shadowtex.const_view(),
-					// Lineare Filterung. trilinear und point sind auch möglich (und
-					// sogar anisotropisch, aber das ist ungetestet)
-					sge::renderer::texture::mipmap::off(),
-					sge::renderer::texture::address_mode3(
-						sge::renderer::texture::address_mode::clamp),
-					// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
-					// man die unbedingt wieder auslesen will
-					sge::renderer::resource_flags::none)
-					);
-	*/
 
 	running = true;
 
