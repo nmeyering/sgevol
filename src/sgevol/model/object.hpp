@@ -7,10 +7,12 @@
 #include <sge/renderer/vertex_declaration.hpp>
 #include <sge/shader/object.hpp>
 #include <sge/camera/object.hpp>
-#include <sge/model/obj/instance_ptr.hpp>
-#include <sge/model/obj/loader_ptr.hpp>
 #include <sge/renderer/texture/planar_ptr.hpp>
 #include <sge/renderer/vertex_declaration_ptr.hpp>
+#include <sge/model/obj/instance_ptr.hpp>
+#include <sge/model/obj/loader_ptr.hpp>
+#include <sge/model/obj/vb_converter/convert.hpp>
+#include <sgevol/model/vf.hpp>
 
 #include <fcppt/config/external_begin.hpp>
 #include <boost/mpl/map/map10.hpp>
@@ -63,6 +65,7 @@ public:
 	explicit
 	object(
 		sge::renderer::device &,
+		fcppt::filesystem::path const &,
 		fcppt::filesystem::path const &,
 		fcppt::filesystem::path const &,
 		sge::renderer::texture::planar_ptr,

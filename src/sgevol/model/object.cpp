@@ -51,7 +51,8 @@
 sgevol::model::object::object(
 	sge::renderer::device &_renderer,
 	fcppt::filesystem::path const &_model_file,
-	fcppt::filesystem::path const &_shader_file,
+	fcppt::filesystem::path const &_vertex_shader_file,
+	fcppt::filesystem::path const &_fragment_shader_file,
 	sge::renderer::texture::planar_ptr _tex,
 	sge::camera::object &_cam)
 :
@@ -79,11 +80,8 @@ shader_(
 	sge::shader::object_parameters(
 		renderer_,
 		*vd_,
-		sgevol::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("vertex")
-			/ FCPPT_TEXT("vertex.glsl"),
-		_shader_file,
+		_vertex_shader_file,
+		_fragment_shader_file,
 		sge::shader::vf_to_string<sgevol::model::vf::format>(),
 		fcppt::assign::make_container<sge::shader::variable_sequence>
 			(sge::shader::variable(

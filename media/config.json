@@ -3,7 +3,7 @@
 	"shader-file" : "simple",
 	"save-path" : "dump.tex",
 	"load-path" : "dump.tex",
-	"load-texture" : false,
+	"load-texture" : true,
 	"save-texture" : false,
 	"background-color" : [0.0,0.0,0.5,1.0]
 }

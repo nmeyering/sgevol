@@ -1,3 +1,4 @@
+#include <sge/all_extensions.hpp>
 #include <sge/camera/duration.hpp>
 #include <sge/camera/identity_gizmo.hpp>
 #include <sge/camera/movement_speed.hpp>
@@ -27,6 +28,7 @@
 #include <sge/font/text/lit.hpp>
 #include <sge/font/text/part.hpp>
 #include <sge/font/text/string.hpp>
+#include <sge/image/capabilities_field.hpp>
 #include <sge/image/color/any/object.hpp>
 #include <sge/image/color/init.hpp>
 #include <sge/image/color/rgba8.hpp>
@@ -62,6 +64,10 @@
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/state/source_blend_func.hpp>
 #include <sge/renderer/state/trampoline.hpp>
+#include <sge/renderer/texture/create_planar_from_path.hpp>
+#include <sge/renderer/texture/address_mode.hpp>
+#include <sge/renderer/texture/address_mode2.hpp>
+#include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/visual_depth.hpp>
 #include <sge/renderer/vsync.hpp>
@@ -69,6 +75,7 @@
 #include <sge/sprite/parameters_impl.hpp>
 #include <sge/systems/cursor_option.hpp>
 #include <sge/systems/cursor_option_field.hpp>
+#include <sge/systems/image_loader.hpp>
 #include <sge/systems/input.hpp>
 #include <sge/systems/input_helper.hpp>
 #include <sge/systems/input_helper_field.hpp>
@@ -116,6 +123,7 @@
 #include <sgevol/media_path.hpp>
 #include <sgevol/texture3d.hpp>
 #include <sgevol/cube/object.hpp>
+#include <sgevol/model/object.hpp>
 
 namespace
 {
@@ -220,6 +228,9 @@ try
 					sge::renderer::vsync::on,
 					sge::renderer::no_multi_sampling),
 				sge::viewport::fill_on_resize()))
+		(sge::systems::image_loader(
+			sge::image::capabilities_field::null(),
+			sge::all_extensions))
 		(sge::systems::input(
 				sge::systems::input_helper_field(
 					sge::systems::input_helper::keyboard_collector) |
@@ -467,6 +478,37 @@ try
 		mytex.const_view());
 	std::cout << "cube created" << std::endl;
 
+	sge::renderer::texture::planar_ptr globe_tex(
+		sge::renderer::texture::create_planar_from_path(
+			sgevol::media_path()
+				/ FCPPT_TEXT("textures")
+				/ FCPPT_TEXT("world_1024.png"),
+				rend,
+				sys.image_loader(),
+				sge::renderer::texture::mipmap::off(),
+					sge::renderer::texture::address_mode2(
+						sge::renderer::texture::address_mode::clamp),
+					sge::renderer::resource_flags::none
+				));
+	std::cout << "globe texture created" << std::endl;
+
+	sgevol::model::object globe(
+		rend,
+		sgevol::media_path()
+			/ FCPPT_TEXT("models")
+			/ FCPPT_TEXT("globe.obj"),
+		sgevol::media_path()
+			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("vertex")
+			/ FCPPT_TEXT("tex_plain.glsl"),
+		sgevol::media_path()
+			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("fragment")
+			/ FCPPT_TEXT("tex_plain.glsl"),
+		globe_tex,
+		cam);
+	std::cout << "globe created" << std::endl;
+
 	running = true;
 
 	cb.take(
@@ -524,6 +566,8 @@ try
 		);
 
 		cube.render();
+
+		globe.render();
 
 		fps_counter.update();
 
