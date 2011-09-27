@@ -102,6 +102,7 @@ ADD_EXECUTABLE(
 	src/sgevol/media_path.cpp
 	src/sgevol/shadow_volume.cpp
 	src/sgevol/texture3d.cpp
+	src/sgevol/noise_volume.cpp
 )
 
 TARGET_LINK_LIBRARIES(

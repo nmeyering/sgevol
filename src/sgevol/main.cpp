@@ -68,6 +68,8 @@
 #include <sge/renderer/texture/address_mode.hpp>
 #include <sge/renderer/texture/address_mode2.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/texture/filter/point.hpp>
+#include <sge/renderer/texture/filter/scoped.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/visual_depth.hpp>
 #include <sge/renderer/vsync.hpp>
@@ -124,6 +126,7 @@
 #include <sgevol/texture3d.hpp>
 #include <sgevol/cube/object.hpp>
 #include <sgevol/model/object.hpp>
+#include <sgevol/noise_volume.hpp>
 
 namespace
 {
@@ -169,6 +172,11 @@ try
 			config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("texture-size")));
+	std::size_t noise_size =
+		sge::parse::json::find_and_convert_member<std::size_t>(
+			config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("noise-size")));
 	fcppt::string shader_file =
 		sge::parse::json::find_and_convert_member<fcppt::string>(
 			config_file,
@@ -328,6 +336,9 @@ try
 	sgevol::texture3d mytex(
 		texture_size);
 
+	sgevol::noise_volume noise(
+		noise_size);
+
 	boost::function<void()> tex_action;
 
 	if (load_texture)
@@ -480,7 +491,8 @@ try
 			/ FCPPT_TEXT("fragment")
 			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str(),
 		cam,
-		mytex.const_view());
+		mytex.const_view(),
+		noise.const_view());
 	std::cout << "cube created" << std::endl;
 
 	sge::renderer::texture::planar_ptr globe_tex(
@@ -557,6 +569,20 @@ try
 		// Beginne Renderdurchgang
 		sge::renderer::scoped_block const block_(rend);
 
+		globe.render();
+
+		/*
+		{
+			sge::renderer::texture::filter::scoped const scoped_filter(
+				rend,
+				sge::renderer::stage(0u),
+				sge::renderer::texture::filter::point()
+			);
+
+			cube.render();
+		}
+		*/
+		cube.render();
 		sge::font::text::draw(
 			*fps_metrics,
 			drawer,
@@ -569,10 +595,6 @@ try
 			sge::font::text::align_v::top,
 			sge::font::text::flags::none
 		);
-
-		globe.render();
-
-		cube.render();
 
 		fps_counter.update();
 

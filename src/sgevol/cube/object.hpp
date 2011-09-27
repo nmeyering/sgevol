@@ -22,8 +22,9 @@ public:
 		sge::renderer::device &,
 		fcppt::filesystem::path const &,
 		sge::camera::object &,
-		sge::image3d::view::const_object const &);
-	
+		sge::image3d::view::const_object const &_tex,
+		sge::image3d::view::const_object const &_noise);
+
 	void render();
 
 	~object();
@@ -34,6 +35,7 @@ private:
 	sge::camera::object &cam_;
 	fcppt::shared_ptr<sge::shader::object> shader_;
 	sge::image3d::view::const_object const &tex_;
+	sge::image3d::view::const_object const &noise_;
 	fcppt::shared_ptr<sge::shader::object> create_shader(
 		fcppt::filesystem::path const &);
 };

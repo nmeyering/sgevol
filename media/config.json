@@ -1,5 +1,6 @@
 {
 	"texture-size" : 128,
+	"noise-size" : 8,
 	"shader-file" : "simple",
 	"save-path" : "dump.tex",
 	"load-path" : "dump.tex",

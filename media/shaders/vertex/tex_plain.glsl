@@ -10,7 +10,7 @@ void
 main()
 {
 	gl_Position =
-		mvp * vec4(0.8 * position,1.0);
+		mvp * vec4(0.95 * position,1.0);
 	position_interp =
 		vec3(mv * vec4(position,1.0));
     // position;

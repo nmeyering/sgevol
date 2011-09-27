@@ -45,7 +45,8 @@ sgevol::cube::object::object(
 	sge::renderer::device &_renderer,
 	fcppt::filesystem::path const &_shader_file,
 	sge::camera::object &_cam,
-	sge::image3d::view::const_object const &_tex)
+	sge::image3d::view::const_object const &_tex,
+	sge::image3d::view::const_object const &_noise)
 :
 renderer_(
 	_renderer),
@@ -63,7 +64,9 @@ vb_(
 cam_(
 	_cam),
 tex_(
-	_tex)
+	_tex),
+noise_(
+	_noise)
 {
 	// Um lesend oder schreibend auf einen Vertexbuffer zugreifen zu können, muss
 	// man ihn locken. Intern wird da vermutlich der Speicherblock, der sich auf
@@ -135,6 +138,16 @@ tex_(
 				sge::renderer::texture::address_mode::clamp),
 			// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
 			// man die unbedingt wieder auslesen will
+			sge::renderer::resource_flags::none)
+			);
+
+	shader_->update_texture("noise",
+		sge::renderer::texture::create_volume_from_view(
+			renderer_,
+			noise_,
+			sge::renderer::texture::mipmap::off(),
+			sge::renderer::texture::address_mode3(
+				sge::renderer::texture::address_mode::repeat),
 			sge::renderer::resource_flags::none)
 			);
 }
@@ -280,6 +293,8 @@ sgevol::cube::object::create_shader(
 				fcppt::assign::make_container<sge::shader::sampler_sequence>
 					(sge::shader::sampler(
 						"tex", sge::renderer::texture::volume_ptr()))
+					(sge::shader::sampler(
+						"noise", sge::renderer::texture::volume_ptr()))
 						// Selbsterklärend
 						// Man muss bei 3D-Texturen noch angeben, dass die 3 Dimensionen hat.
 						// Das kann er aus dem obigen create_volume_texture leider nicht
