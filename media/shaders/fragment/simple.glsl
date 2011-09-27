@@ -38,6 +38,9 @@ main()
 	*/
 	position = (position_interp + 1.0) * 0.5;
 
+	float jitter = texture(noise, 90 * position).r;
+	position -= stepsize * 4.0 * jitter;
+
   for(int i = 0; i < steps; i++)
   {
 		value = texture(tex, position).r;

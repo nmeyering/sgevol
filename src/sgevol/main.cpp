@@ -208,6 +208,11 @@ try
 				config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("star-count")));
+	sge::renderer::scalar star_size =
+		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+				config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("star-size")));
 	bool load_texture =
 		sge::parse::json::find_and_convert_member<bool>(
 			config_file,
@@ -527,6 +532,7 @@ try
 
 	sgevol::stars::object stars(
 		star_count,
+		star_size,
 		rend,
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
@@ -537,7 +543,6 @@ try
 			/ FCPPT_TEXT("fragment")
 			/ FCPPT_TEXT("stars.glsl"),
 		cam);
-		
 
 	running = true;
 

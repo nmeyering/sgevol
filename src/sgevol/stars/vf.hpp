@@ -20,6 +20,7 @@ namespace vf
 namespace tags
 {
 SGE_RENDERER_VF_MAKE_UNSPECIFIED_TAG(position);
+SGE_RENDERER_VF_MAKE_UNSPECIFIED_TAG(color);
 SGE_RENDERER_VF_MAKE_UNSPECIFIED_TAG(radius);
 }
 
@@ -41,6 +42,18 @@ sge::renderer::vf::unspecified
 	sge::renderer::vf::vector
 	<
 		sge::renderer::scalar,
+		3
+	>,
+	tags::color
+>
+color;
+
+typedef
+sge::renderer::vf::unspecified
+<
+	sge::renderer::vf::vector
+	<
+		sge::renderer::scalar,
 		1
 	>,
 	tags::radius
@@ -50,9 +63,10 @@ radius;
 typedef
 sge::renderer::vf::part
 <
-	boost::mpl::vector2
+	boost::mpl::vector3
 	<
 		position,
+		color,
 		radius
 	>
 >

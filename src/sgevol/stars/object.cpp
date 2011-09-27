@@ -42,6 +42,7 @@
 
 sgevol::stars::object::object(
 	sge::renderer::size_type _count,
+	sge::renderer::scalar _max_size,
 	sge::renderer::device &_renderer,
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
@@ -49,6 +50,8 @@ sgevol::stars::object::object(
 :
 count_(
 	_count),
+max_size_(
+	_max_size),
 renderer_(
 	_renderer),
 vd_(
@@ -91,6 +94,10 @@ shader_(
 	position_vector;
 
 	typedef
+	vf::color::packed_type
+	color_vector;
+
+	typedef
 	vf::radius::packed_type
 	radius_vector;
 
@@ -101,16 +108,20 @@ shader_(
 	>::type
 	vec2;
 
-	//random angles
-	fcppt::random::uniform<float> rng(
+	fcppt::random::uniform<float> color_rng(
+		fcppt::random::make_inclusive_range(
+			0.0f,
+			1.f));
+		
+	fcppt::random::uniform<float> angle_rng(
 		fcppt::random::make_inclusive_range(
 			0.f,
 			1.f));
 
 	fcppt::random::uniform<sge::renderer::scalar> radius_rng(
 		fcppt::random::make_inclusive_range(
-			static_cast<sge::renderer::scalar>(0.f),
-			static_cast<sge::renderer::scalar>(5.f)));
+			static_cast<sge::renderer::scalar>(1.f),
+			max_size_));
 
 	for (
 		vf::vertex_view::iterator vb_it = vertices.begin();
@@ -120,9 +131,14 @@ shader_(
 		vb_it->set<vf::position>(
 			fcppt::math::vector::hypersphere_to_cartesian(
 				vec2(
-					fcppt::math::twopi<float>() * rng(),
-					std::acos(2.f * rng() - 1.f)))
+					fcppt::math::twopi<float>() * angle_rng(),
+					std::acos(2.f * angle_rng() - 1.f)))
 			);
+		vb_it->set<vf::color>(
+			color_vector(
+				color_rng(),
+				color_rng(),
+				color_rng()));
 		vb_it->set<vf::radius>(
 			radius_vector(radius_rng()));
 	}
