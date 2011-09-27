@@ -5,9 +5,8 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
-const float stepsize = 0.010;
+const float stepsize = 0.01;
 const int steps = int(sqrt(3.0)/stepsize);
-const float jdelta = 0.080;
 const vec3 center = vec3(0.5,0.5,0.5);
 const float pi = 3.1415925;
 const float twopi = 2.0 * pi;
@@ -39,9 +38,6 @@ main()
 	*/
 	position = (position_interp + 1.0) * 0.5;
 
-	float jitter = texture(noise, 90 * position).r;
-	position += direction * stepsize * 4.0 * jitter;
-
   for(int i = 0; i < steps; i++)
   {
 		value = texture(tex, position).r;
@@ -55,7 +51,6 @@ main()
 			break;
 
     position = position + direction * stepsize;
-    //position = position + direction * stepsize * (1.0 + texture(noise, 9*position).r);
 
     // ray termination - sphere
 		if (distance(position, center) < 0.475)

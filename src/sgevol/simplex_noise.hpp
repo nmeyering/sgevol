@@ -227,6 +227,7 @@ simplex_noise<Float,N>::sample(
 			contrib(t, floored + *v);
 	}
 
+	// FIXME: replace this magic number with something sensible
 	return 40.f * res;
 }
 

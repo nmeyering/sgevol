@@ -57,7 +57,6 @@
 #include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_block.hpp>
 #include <sge/renderer/state/color.hpp>
-#include <sge/renderer/state/cull_mode.hpp>
 #include <sge/renderer/state/depth_func.hpp>
 #include <sge/renderer/state/dest_blend_func.hpp>
 #include <sge/renderer/state/draw_mode.hpp>
@@ -127,6 +126,7 @@
 #include <sgevol/cube/object.hpp>
 #include <sgevol/model/object.hpp>
 #include <sgevol/noise_volume.hpp>
+#include <sgevol/stars/object.hpp>
 
 namespace
 {
@@ -203,6 +203,11 @@ try
 				config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("background-color"))));
+	sge::renderer::size_type star_count =
+		sge::parse::json::find_and_convert_member<sge::renderer::size_type>(
+				config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("star-count")));
 	bool load_texture =
 		sge::parse::json::find_and_convert_member<bool>(
 			config_file,
@@ -372,8 +377,6 @@ try
 			(sge::renderer::state::bool_::enable_alpha_blending = true)
 			(sge::renderer::state::source_blend_func::src_alpha)
 			(sge::renderer::state::dest_blend_func::inv_src_alpha)
-			// Kein Culling
-			(sge::renderer::state::cull_mode::off)
 			// WIREFRAME
 			//(sge::renderer::state::draw_mode::line)
 			// Tiefenfunktion
@@ -477,7 +480,6 @@ try
 
 
 	load_thread.join();
-	std::cout << "texture loaded" << std::endl;
 
 	if (save_texture)
 		mytex.save(
@@ -493,7 +495,6 @@ try
 		cam,
 		mytex.const_view(),
 		noise.const_view());
-	std::cout << "cube created" << std::endl;
 
 	sge::renderer::texture::planar_ptr globe_tex(
 		sge::renderer::texture::create_planar_from_path(
@@ -507,7 +508,6 @@ try
 						sge::renderer::texture::address_mode::repeat),
 					sge::renderer::resource_flags::none
 				));
-	std::cout << "globe texture created" << std::endl;
 
 	sgevol::model::object globe(
 		rend,
@@ -524,7 +524,20 @@ try
 			/ FCPPT_TEXT("tex_plain.glsl"),
 		globe_tex,
 		cam);
-	std::cout << "globe created" << std::endl;
+
+	sgevol::stars::object stars(
+		star_count,
+		rend,
+		sgevol::media_path()
+			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("vertex")
+			/ FCPPT_TEXT("stars.glsl"),
+		sgevol::media_path()
+			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("fragment")
+			/ FCPPT_TEXT("stars.glsl"),
+		cam);
+		
 
 	running = true;
 
@@ -569,6 +582,8 @@ try
 		// Beginne Renderdurchgang
 		sge::renderer::scoped_block const block_(rend);
 
+		stars.render();
+
 		globe.render();
 
 		/*
@@ -583,6 +598,7 @@ try
 		}
 		*/
 		cube.render();
+
 		sge::font::text::draw(
 			*fps_metrics,
 			drawer,
