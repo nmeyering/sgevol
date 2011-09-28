@@ -213,6 +213,7 @@ texture3d::calculate()
 						,0.f
 						,1.f);
 				//sphere
+				#if 0
 				alpha *=
 					fcppt::math::clamp(
 						1.0f -
@@ -228,6 +229,7 @@ texture3d::calculate()
 						0.f,
 						1.f
 					);
+				#endif
 				#else
 				alpha = fcppt::math::clamp(
 					1.0f -

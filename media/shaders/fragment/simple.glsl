@@ -8,6 +8,18 @@ out vec4 frag_color;
 const float stepsize = 0.001;
 const int steps = int(sqrt(3.0)/stepsize);
 const vec3 center = vec3(0.5,0.5,0.5);
+const float PI = 3.1415926;
+
+vec3
+polar(
+	vec3 p)
+{
+		float r = length(p);
+		float theta = acos(p.z/r);
+		float phi = atan(p.y,p.x) + PI;
+		// return vec3((r - 0.95) * 20.0,theta/PI,phi/(2.0 * PI));
+		return vec3((r - 0.95),theta/PI,phi/(2.0 * PI));
+}
 
 void
 main()
@@ -16,27 +28,30 @@ main()
 	vec3 direction = normalize(position_interp - camera);
   vec3 position;
 	// scaling factor for uniform cloud data
-	float factor = stepsize * 4000;
+	float factor = stepsize * 100;
 	float value;
 
 	// TODO: rendering from the inside?
 
 	position = (position_interp + 1.0) * 0.5;
 
+	/*
 	float jitter = texture(noise, 90 * position).r;
 	position -= stepsize * 1.0 * jitter;
+	*/
 
   for(int i = 0; i < steps; i++)
   {
-		value = texture(tex, position).r;
+		value = texture(tex, polar(position.xzy*2.0-1.0)).g;
 
     // ray termination - sphere
 		if (distance(position, center) < 0.475)
 			break;
 		if (distance(position, center) > 0.51)
 			break;
-
-		dst += (1.0 - dst.a) * factor * vec4(1.0, 1.0, 1.0, value);
+		//float xxx = polar(position * 2.0 - 1.0).y;
+		//vec3 color = vec3(1.0 - xxx, xxx, 0.0);
+		dst += (1.0 - dst.a) * factor * vec4(1.0,1.0,1.0, value);
 
 		/*
 		if(dst.a > 0.95)
