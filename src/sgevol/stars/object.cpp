@@ -104,19 +104,19 @@ shader_(
 	typedef
 	fcppt::math::vector::static_<
 		float,
-		2
+		3
 	>::type
-	vec2;
+	vec3;
 
-	fcppt::random::uniform<float> color_rng(
+	fcppt::random::uniform<float> rng(
 		fcppt::random::make_inclusive_range(
-			0.0f,
+			-1.0f,
 			1.f));
-		
+
 	fcppt::random::uniform<float> angle_rng(
 		fcppt::random::make_inclusive_range(
 			0.f,
-			1.f));
+			fcppt::math::twopi<float>()));
 
 	fcppt::random::uniform<sge::renderer::scalar> radius_rng(
 		fcppt::random::make_inclusive_range(
@@ -128,17 +128,20 @@ shader_(
 		vb_it != vertices.end();
 		++vb_it)
 	{
+		float z = rng();
+		float r = std::sqrt(1 - z*z);
+		float angle = angle_rng();
 		vb_it->set<vf::position>(
-			fcppt::math::vector::hypersphere_to_cartesian(
-				vec2(
-					fcppt::math::twopi<float>() * angle_rng(),
-					std::acos(2.f * angle_rng() - 1.f)))
+				vec3(
+					r * std::cos(angle),
+					r * std::sin(angle),
+					z)
 			);
 		vb_it->set<vf::color>(
 			color_vector(
-				color_rng(),
-				color_rng(),
-				color_rng()));
+				1.f,
+				1.f,
+				1.f));
 		vb_it->set<vf::radius>(
 			radius_vector(radius_rng()));
 	}
