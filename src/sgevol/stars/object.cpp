@@ -108,6 +108,7 @@ shader_(
 	>::type
 	vec3;
 
+	// FIXME: use correct generators
 	fcppt::random::uniform<float> rng(
 		fcppt::random::make_inclusive_range(
 			-1.0f,

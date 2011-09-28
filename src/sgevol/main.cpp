@@ -36,6 +36,8 @@
 #include <sge/input/keyboard/action.hpp>
 #include <sge/input/keyboard/device.hpp>
 #include <sge/input/keyboard/key_code.hpp>
+#include <sge/model/obj/create.hpp>
+#include <sge/model/obj/loader.hpp>
 #include <sge/parse/json/config/create_command_line_parameters.hpp>
 #include <sge/parse/json/config/merge_command_line_parameters.hpp>
 #include <sge/parse/json/find_and_convert_member.hpp>
@@ -123,6 +125,7 @@
 #include <sgevol/json/parse_color.hpp>
 #include <sgevol/media_path.hpp>
 #include <sgevol/texture3d.hpp>
+#include <sgevol/cloud_sphere/object.hpp>
 #include <sgevol/cube/object.hpp>
 #include <sgevol/model/object.hpp>
 #include <sgevol/noise_volume.hpp>
@@ -491,20 +494,6 @@ try
 			fcppt::filesystem::path(
 			save_path));
 
-	sgevol::cube::object cube(
-		rend,
-		sgevol::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("vertex")
-			/ FCPPT_TEXT("vertex.glsl"),
-		sgevol::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("fragment")
-			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str(),
-		cam,
-		mytex.const_view(),
-		noise.const_view());
-
 	sge::renderer::texture::planar_ptr globe_tex(
 		sge::renderer::texture::create_planar_from_path(
 			sgevol::media_path()
@@ -518,11 +507,17 @@ try
 					sge::renderer::resource_flags::none
 				));
 
+	sge::model::obj::loader_ptr model_loader(
+		sge::model::obj::create());
+	sge::model::obj::instance_ptr globe_model(
+		model_loader->load(
+			sgevol::media_path()
+				/ FCPPT_TEXT("models")
+				/ FCPPT_TEXT("globe.obj")));
+
 	sgevol::model::object globe(
 		rend,
-		sgevol::media_path()
-			/ FCPPT_TEXT("models")
-			/ FCPPT_TEXT("globe.obj"),
+		globe_model,
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("vertex")
@@ -533,6 +528,22 @@ try
 			/ FCPPT_TEXT("tex_plain.glsl"),
 		globe_tex,
 		cam);
+
+	sgevol::cloud_sphere::object cloud_sphere(
+		rend,
+		globe_model,
+		sgevol::media_path()
+			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("vertex")
+			/ FCPPT_TEXT("vertex.glsl"),
+		sgevol::media_path()
+			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("fragment")
+			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str(),
+		cam,
+		mytex.const_view(),
+		noise.const_view());
+
 
 	sgevol::stars::object stars(
 		star_count,
@@ -593,8 +604,6 @@ try
 
 		stars.render();
 
-		globe.render();
-
 		/*
 		{
 			sge::renderer::texture::filter::scoped const scoped_filter(
@@ -606,7 +615,9 @@ try
 			cube.render();
 		}
 		*/
-		cube.render();
+
+		globe.render();
+		cloud_sphere.render();
 
 		sge::font::text::draw(
 			*fps_metrics,

@@ -8,6 +8,6 @@
 	"save-texture" : false,
 	"background-color" : [0.0,0.0,0.0,1.0],
 	"globe-texture" : "world_1024.png",
-	"star-count" : 500,
-	"star-size" : 10.0
+	"star-count" : 2500,
+	"star-size" : 15.0
 }

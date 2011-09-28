@@ -5,11 +5,9 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
-const float stepsize = 0.01;
+const float stepsize = 0.001;
 const int steps = int(sqrt(3.0)/stepsize);
 const vec3 center = vec3(0.5,0.5,0.5);
-const float pi = 3.1415925;
-const float twopi = 2.0 * pi;
 
 void
 main()
@@ -21,43 +19,32 @@ main()
 	float factor = stepsize * 4000;
 	float value;
 
-	/*
-	if(
-		abs( camera.x ) < 1.0 ||
-		abs( camera.y ) < 1.0 ||
-		abs( camera.z ) < 1.0
-		)
-	{
-		position = camera;
-	}
-	else
-	{
-  	position = position_interp;
-	}
-	position = (position + 1.0) * 0.5;
-	*/
+	// TODO: rendering from the inside?
+
 	position = (position_interp + 1.0) * 0.5;
 
 	float jitter = texture(noise, 90 * position).r;
-	position -= stepsize * 4.0 * jitter;
+	position -= stepsize * 1.0 * jitter;
 
   for(int i = 0; i < steps; i++)
   {
 		value = texture(tex, position).r;
 
-		if (distance(position, center) > 0.5)
-			value = 0.0;
-
-		dst += (1.0 - dst.a) * factor * vec4(1.0, 1.0, 1.0, value);
-
-		if(dst.a > 0.95)
-			break;
-
-    position = position + direction * stepsize;
-
     // ray termination - sphere
 		if (distance(position, center) < 0.475)
 			break;
+		if (distance(position, center) > 0.51)
+			break;
+
+		dst += (1.0 - dst.a) * factor * vec4(1.0, 1.0, 1.0, value);
+
+		/*
+		if(dst.a > 0.95)
+			break;
+		*/
+
+    position = position + direction * stepsize;
+
 
 		/*
     // ray termination - cube

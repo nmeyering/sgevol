@@ -26,8 +26,6 @@
 #include <sge/shader/object.hpp>
 #include <sge/shader/scoped.hpp>
 #include <sge/timer/reset_when_expired.hpp>
-#include <sge/model/obj/create.hpp>
-#include <sge/model/obj/loader.hpp>
 #include <sge/model/obj/vb_converter/convert.hpp>
 #include <sge/renderer/matrix4.hpp>
 #include <sge/renderer/texture/planar_ptr.hpp>
@@ -46,11 +44,12 @@
 #include <fcppt/math/twopi.hpp>
 #include <sgevol/media_path.hpp>
 #include <sgevol/model/vf.hpp>
+#include <sgevol/model/vertex_format.hpp>
 #include <sgevol/model/object.hpp>
 
 sgevol::model::object::object(
 	sge::renderer::device &_renderer,
-	fcppt::filesystem::path const &_model_file,
+	sge::model::obj::instance_ptr _model,
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
 	sge::renderer::texture::planar_ptr _tex,
@@ -58,16 +57,13 @@ sgevol::model::object::object(
 :
 renderer_(
 	_renderer),
-model_loader_(
-	sge::model::obj::create()),
 model_(
-	model_loader_->load(
-		_model_file)),
+	_model),
 vd_(
 	renderer_.create_vertex_declaration(
 		sge::renderer::vf::dynamic::make_format<vf::format>())),
 vb_(
-	sge::model::obj::vb_converter::convert<vf::part,vertex_format>(
+	sge::model::obj::vb_converter::convert<vf::part,sgevol::model::vertex_format>(
 		renderer_,
 		*vd_,
 		sge::renderer::resource_flags::readable,
@@ -127,10 +123,6 @@ sgevol::model::object::render()
 		sge::renderer::first_vertex(0),
 		sge::renderer::vertex_count(vb_->size()),
 		sge::renderer::nonindexed_primitive_type::triangle);
-
-	renderer_.state(
-		sge::renderer::state::list(
-			sge::renderer::state::cull_mode::clockwise));
 
 	// mvp updaten
 	shader_.update_uniform(
