@@ -20,7 +20,8 @@ public:
 	explicit
 	object(
 		sge::renderer::device &,
-		fcppt::filesystem::path const &,
+		fcppt::filesystem::path const &_vertex_shader_file,
+		fcppt::filesystem::path const &_fragment_shader_file,
 		sge::camera::object &,
 		sge::image3d::view::const_object const &_tex,
 		sge::image3d::view::const_object const &_noise);
@@ -33,11 +34,9 @@ private:
 	sge::renderer::vertex_declaration_ptr vd_;
 	sge::renderer::vertex_buffer_ptr vb_;
 	sge::camera::object &cam_;
-	fcppt::shared_ptr<sge::shader::object> shader_;
 	sge::image3d::view::const_object const &tex_;
 	sge::image3d::view::const_object const &noise_;
-	fcppt::shared_ptr<sge::shader::object> create_shader(
-		fcppt::filesystem::path const &);
+	sge::shader::object shader_;
 };
 
 }

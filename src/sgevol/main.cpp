@@ -495,6 +495,10 @@ try
 		rend,
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("vertex")
+			/ FCPPT_TEXT("vertex.glsl"),
+		sgevol::media_path()
+			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
 			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str(),
 		cam,
