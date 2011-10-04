@@ -76,8 +76,6 @@ shader_(
 	sge::shader::object_parameters(
 		renderer_,
 		*vd_,
-		_vertex_shader_file,
-		_fragment_shader_file,
 		sge::shader::vf_to_string<sgevol::model::vf::format>(),
 		fcppt::assign::make_container<sge::shader::variable_sequence>
 			(sge::shader::variable(
@@ -95,7 +93,11 @@ shader_(
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
 				"tex", tex_))
-				))
+				)
+				.vertex_shader(
+					_vertex_shader_file)
+				.fragment_shader(
+					_fragment_shader_file))
 {
 }
 

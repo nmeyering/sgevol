@@ -77,8 +77,6 @@ shader_(
 	sge::shader::object_parameters(
 		renderer_,
 		*vd_,
-		_vertex_shader_file,
-		_fragment_shader_file,
 		sge::shader::vf_to_string<sgevol::cloud_sphere::vf::format>(),
 		fcppt::assign::make_container<sge::shader::variable_sequence>
 			(sge::shader::variable(
@@ -115,7 +113,11 @@ shader_(
 				"tex", sge::renderer::texture::volume_ptr()))
 			(sge::shader::sampler(
 				"noise", sge::renderer::texture::volume_ptr()))
-				))
+				)
+				.vertex_shader(
+					_vertex_shader_file)
+				.fragment_shader(
+					_fragment_shader_file))
 {
 	shader_.update_texture("tex",
 		sge::renderer::texture::create_volume_from_view(
