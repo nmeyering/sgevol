@@ -97,13 +97,13 @@ shadow_volume::calculate()
 			{
 				shadow = 0.f;
 
-				tmp[0] = 
+				tmp[0] =
 					static_cast<float>(x);
-				tmp[1] = 
+				tmp[1] =
 					static_cast<float>(y);
-				tmp[2] = 
+				tmp[2] =
 					static_cast<float>(z);
-				
+
 				for (unsigned i = 0; i < steps; ++i)
 				{
 					tmp += - sun * stepsize;
@@ -124,7 +124,7 @@ shadow_volume::calculate()
 					shadow,
 					0.f,
 					1.f);
-				store_view()[ v::dim(x,y,z) ] = 
+				store_view()[ v::dim(x,y,z) ] =
 					sge::image::color::l8(
 						(sge::image::color::init::luminance %= shadow));
 			}
@@ -132,7 +132,7 @@ shadow_volume::calculate()
 	}
 	catch(fcppt::exception const &e)
 	{
-		fcppt::io::cerr << e.string() << FCPPT_TEXT("\n");
+		fcppt::io::cerr() << e.string() << FCPPT_TEXT("\n");
 	}
 	catch(std::exception const &e)
 	{

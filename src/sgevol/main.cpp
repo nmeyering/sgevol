@@ -151,7 +151,7 @@ try_catch_action(
 	}
 	catch(fcppt::exception e)
 	{
-		fcppt::io::cerr << e.string() << std::endl;
+		fcppt::io::cerr() << e.string() << std::endl;
 		std::terminate();
 	}
 }
@@ -640,12 +640,12 @@ try
 }
 catch(sge::exception const &e)
 {
-	fcppt::io::cerr << e.string() << FCPPT_TEXT('\n');
+	fcppt::io::cerr() << e.string() << FCPPT_TEXT('\n');
 	return EXIT_FAILURE;
 }
 catch(fcppt::exception const &e)
 {
-	fcppt::io::cerr << e.string() << FCPPT_TEXT("\n");
+	fcppt::io::cerr() << e.string() << FCPPT_TEXT("\n");
 }
 catch(std::exception const &e)
 {
