@@ -135,10 +135,13 @@ namespace
 {
 
 void
-toggle_active(
-	sge::console::gfx &c)
+toggle_console(
+	sge::console::gfx &console,
+	sge::camera::object &camera)
 {
-	c.active(!c.active());
+	bool const act = console.active();
+	console.active(!act);
+	camera.active(act);
 }
 
 void
@@ -154,6 +157,27 @@ try_catch_action(
 		fcppt::io::cerr() << e.string() << std::endl;
 		std::terminate();
 	}
+}
+
+void
+set_cloud_sphere_opacity(
+  sge::console::arg_list const &args,
+  sge::console::object &console,
+  sgevol::cloud_sphere::object &sphere)
+{
+  if(args.size() != 2)
+  {
+    console.emit_error(
+			SGE_FONT_TEXT_LIT("usage: ") +
+			console.prefix() +
+			args[0] +
+			SGE_FONT_TEXT_LIT(" <float-value>"));
+    return;
+  }
+
+  sphere.opacity(
+    fcppt::lexical_cast<sge::renderer::scalar>(
+      args[1]));
 }
 
 }
@@ -200,6 +224,16 @@ try
 			config_file,
 			sge::parse::json::path(
 			FCPPT_TEXT("globe-texture")));
+	sge::renderer::scalar globe_radius =
+		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+			config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("globe-radius")));
+	sge::renderer::scalar opacity_factor =
+		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+			config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("opacity-factor")));
 	sge::image::color::rgba8 background_color =
 		sgevol::json::parse_color<sge::image::color::rgba8>(
 			sge::parse::json::find_and_convert_member<sge::parse::json::value>(
@@ -269,67 +303,6 @@ try
 	// Abkürzung, damit wir nicht immer sys.renderer() schreiben müssen
 	sge::renderer::device& rend(
 		sys.renderer());
-
-	// console begin
-	sge::console::object console(
-		SGE_FONT_TEXT_LIT('/')
-	);
-
-	fcppt::signal::scoped_connection const quit_conn(
-		console.insert(
-			SGE_FONT_TEXT_LIT("quit"),
-			boost::phoenix::ref(running) = false,
-			SGE_FONT_TEXT_LIT("quit demo")
-		)
-	);
-
-	sge::font::metrics_ptr const console_metrics(
-		sys.font_system().create_font(
-				sge::config::media_path()
-				/ FCPPT_TEXT("fonts")
-				/ FCPPT_TEXT("default.ttf"),
-				static_cast<sge::font::size_type>(16)
-		)
-	);
-
-	sge::console::gfx console_gfx(
-		console,
-		sys.renderer(),
-		sge::image::colors::black(),
-		*console_metrics,
-		sys.keyboard_collector(),
-		sge::console::sprite_object(
-			sge::console::sprite_parameters()
-			.pos(
-				sge::console::sprite_object::vector::null()
-			)
-			.texture(
-				sge::texture::part_ptr()
-			)
-			.size(
-				sge::console::sprite_object::dim(400,300)
-			)
-			.elements()
-		),
-		static_cast<
-			sge::console::output_line_limit
-		>(
-			100
-		)
-	);
-
-	fcppt::signal::scoped_connection console_cb(
-		sys.keyboard_collector().key_callback(
-			sge::input::keyboard::action(
-				sge::input::keyboard::key_code::f1,
-				std::tr1::bind(
-					&toggle_active,
-					fcppt::ref(
-						console_gfx)))));
-
-	console_gfx.active(false);
-
-	// console end
 
 	sge::font::metrics_ptr const metrics(
 		sys.font_system().create_font(
@@ -521,12 +494,13 @@ try
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("vertex")
-			/ FCPPT_TEXT("tex_plain.glsl"),
+			/ FCPPT_TEXT("globe.glsl"),
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
 			/ FCPPT_TEXT("tex_plain.glsl"),
 		globe_tex,
+		globe_radius,
 		cam);
 
 	sgevol::cloud_sphere::object cloud_sphere(
@@ -541,6 +515,8 @@ try
 			/ FCPPT_TEXT("fragment")
 			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str(),
 		cam,
+		globe_radius,
+		opacity_factor,
 		mytex.const_view(),
 		noise.const_view());
 
@@ -589,6 +565,81 @@ try
 				static_cast<sge::font::size_type>(32)
 		)
 	);
+
+	// console begin
+	sge::console::object console(
+		SGE_FONT_TEXT_LIT('/')
+	);
+
+	fcppt::signal::scoped_connection const quit_conn(
+		console.insert(
+			SGE_FONT_TEXT_LIT("quit"),
+			boost::phoenix::ref(running) = false,
+			SGE_FONT_TEXT_LIT("quit demo")
+		)
+	);
+
+	fcppt::signal::scoped_connection const opacity_conn(
+		console.insert(
+			SGE_FONT_TEXT_LIT("opacity"),
+			std::tr1::bind(
+				&set_cloud_sphere_opacity,
+				std::tr1::placeholders::_1,
+				std::tr1::placeholders::_2,
+				fcppt::ref(cloud_sphere)),
+			SGE_FONT_TEXT_LIT("cloud opacity")
+		)
+	);
+
+	sge::font::metrics_ptr const console_metrics(
+		sys.font_system().create_font(
+				sge::config::media_path()
+				/ FCPPT_TEXT("fonts")
+				/ FCPPT_TEXT("default.ttf"),
+				static_cast<sge::font::size_type>(16)
+		)
+	);
+
+	sge::console::gfx console_gfx(
+		console,
+		sys.renderer(),
+		sge::image::colors::black(),
+		*console_metrics,
+		sys.keyboard_collector(),
+		sge::console::sprite_object(
+			sge::console::sprite_parameters()
+			.pos(
+				sge::console::sprite_object::vector::null()
+			)
+			.texture(
+				sge::texture::part_ptr()
+			)
+			.size(
+				sge::console::sprite_object::dim(400,300)
+			)
+			.elements()
+		),
+		static_cast<
+			sge::console::output_line_limit
+		>(
+			100
+		)
+	);
+
+	fcppt::signal::scoped_connection console_cb(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::f1,
+				std::tr1::bind(
+					&toggle_console,
+					fcppt::ref(
+						console_gfx),
+					fcppt::ref(
+						cam)))));
+
+	console_gfx.active(false);
+
+	// console end
 
 	while(running)
 	{

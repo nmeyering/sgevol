@@ -10,17 +10,6 @@ const int steps = int(sqrt(3.0)/stepsize);
 const vec3 center = vec3(0.5,0.5,0.5);
 const float PI = 3.1415926;
 
-vec3
-polar(
-	vec3 p)
-{
-		float r = length(p);
-		float theta = acos(p.z/r);
-		float phi = atan(p.y,p.x) + PI;
-		// return vec3((r - 0.95) * 20.0,theta/PI,phi/(2.0 * PI));
-		return vec3((r - 0.95),theta/PI,phi/(2.0 * PI));
-}
-
 void
 main()
 {
@@ -28,8 +17,11 @@ main()
 	vec3 direction = normalize(position_interp - camera);
   vec3 position;
 	// scaling factor for uniform cloud data
-	float factor = stepsize * 100;
+	float factor = stepsize * opacity;
 	float value;
+
+	// cutoff - surface is reached here
+	float radius_limit = 0.498 * radius;
 
 	// TODO: rendering from the inside?
 
@@ -42,10 +34,10 @@ main()
 
   for(int i = 0; i < steps; i++)
   {
-		value = texture(tex, polar(position.xzy*2.0-1.0)).g;
+		value = texture(tex, position).r;
 
     // ray termination - sphere
-		if (distance(position, center) < 0.475)
+		if (distance(position, center) < radius_limit)
 			break;
 		if (distance(position, center) > 0.51)
 			break;

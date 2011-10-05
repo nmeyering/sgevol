@@ -51,6 +51,8 @@ sgevol::cloud_sphere::object::object(
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
 	sge::camera::object &_cam,
+	sge::renderer::scalar _radius,
+	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,
 	sge::image3d::view::const_object const &_noise)
 :
@@ -69,6 +71,8 @@ vb_(
 		*model_)),
 cam_(
 	_cam),
+opacity_(
+	_opacity),
 tex_(
 	_tex),
 noise_(
@@ -93,6 +97,14 @@ shader_(
 				sge::shader::matrix(
 					sge::renderer::matrix4::identity(),
 					sge::shader::matrix_flags::none)))
+			(sge::shader::variable(
+				"radius",
+				sge::shader::variable_type::uniform,
+				_radius))
+			(sge::shader::variable(
+				"opacity",
+				sge::shader::variable_type::uniform,
+				_opacity))
 			(sge::shader::variable(
 				"offset",
 				sge::shader::variable_type::uniform,
@@ -208,6 +220,10 @@ sgevol::cloud_sphere::object::render()
 	shader_.update_uniform(
 		"camera",
 		cam_.gizmo().position());
+
+	shader_.update_uniform(
+		"opacity",
+		opacity_);
 
 	shader_.update_uniform(
 		"mv",

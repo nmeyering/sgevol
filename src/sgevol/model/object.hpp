@@ -30,6 +30,7 @@ public:
 		fcppt::filesystem::path const &,
 		fcppt::filesystem::path const &,
 		sge::renderer::texture::planar_ptr,
+		float _radius,
 		sge::camera::object &);
 
 	void render();
@@ -41,8 +42,9 @@ private:
 	sge::model::obj::instance_ptr model_;
 	sge::renderer::vertex_declaration_ptr const vd_;
 	sge::renderer::vertex_buffer_ptr vb_;
-	sge::camera::object &cam_;
 	sge::renderer::texture::planar_ptr tex_;
+	sge::renderer::scalar radius_;
+	sge::camera::object &cam_;
 	sge::shader::object shader_;
 };
 

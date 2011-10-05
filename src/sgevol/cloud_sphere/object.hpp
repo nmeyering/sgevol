@@ -27,10 +27,26 @@ public:
 		fcppt::filesystem::path const &_vertex_shader_file,
 		fcppt::filesystem::path const &_fragment_shader_file,
 		sge::camera::object &,
+		sge::renderer::scalar radius,
+		sge::renderer::scalar opacity,
 		sge::image3d::view::const_object const &_tex,
 		sge::image3d::view::const_object const &_noise);
 
 	void render();
+
+	void opacity(
+		sge::renderer::scalar const _opacity)
+	{
+		opacity_ =
+			_opacity;
+	}
+
+	sge::renderer::scalar
+	opacity()
+	const
+	{
+		return opacity_;
+	}
 
 	~object();
 private:
@@ -39,6 +55,7 @@ private:
 	sge::renderer::vertex_declaration_ptr vd_;
 	sge::renderer::vertex_buffer_ptr vb_;
 	sge::camera::object &cam_;
+	sge::renderer::scalar opacity_;
 	sge::image3d::view::const_object const &tex_;
 	sge::image3d::view::const_object const &noise_;
 	sge::shader::object shader_;
