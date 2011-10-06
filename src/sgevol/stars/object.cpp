@@ -7,7 +7,7 @@
 #include <fcppt/math/vector/hypersphere_to_cartesian.hpp>
 #include <fcppt/random/make_inclusive_range.hpp>
 #include <fcppt/random/uniform.hpp>
-#include <sge/camera/object.hpp>
+#include <sge/camera/base.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
 #include <sge/renderer/lock_mode.hpp>
@@ -46,7 +46,7 @@ sgevol::stars::object::object(
 	sge::renderer::device &_renderer,
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
-	sge::camera::object &_camera)
+	sge::camera::base &_camera)
 :
 count_(
 	_count),

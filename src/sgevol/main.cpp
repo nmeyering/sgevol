@@ -1,11 +1,11 @@
 #include <sge/all_extensions.hpp>
-#include <sge/camera/duration.hpp>
+#include <sge/camera/first_person/object.hpp>
+#include <sge/camera/first_person/movement_speed.hpp>
+#include <sge/camera/first_person/rotation_speed.hpp>
+#include <sge/camera/first_person/parameters.hpp>
 #include <sge/camera/identity_gizmo.hpp>
-#include <sge/camera/movement_speed.hpp>
-#include <sge/camera/object.hpp>
-#include <sge/camera/parameters.hpp>
+#include <sge/camera/projection/object.hpp>
 #include <sge/camera/projection/update_perspective_from_viewport.hpp>
-#include <sge/camera/rotation_speed.hpp>
 #include <sge/config/media_path.hpp>
 #include <sge/console/arg_list.hpp>
 #include <sge/console/gfx.hpp>
@@ -137,7 +137,7 @@ namespace
 void
 toggle_console(
 	sge::console::gfx &console,
-	sge::camera::object &camera)
+	sge::camera::first_person::object &camera)
 {
 	bool const act = console.active();
 	console.active(!act);
@@ -376,13 +376,13 @@ try
 			*/
 
 	// Kamera sollte bekannt sein
-	sge::camera::object cam(
-		sge::camera::parameters(
+	sge::camera::first_person::object cam(
+		sge::camera::first_person::parameters(
 			// movementspeed
-			sge::camera::movement_speed(
+			sge::camera::first_person::movement_speed(
 				0.05f),
 			// mousespeed
-			sge::camera::rotation_speed(
+			sge::camera::first_person::rotation_speed(
 				400.f),
 			// Maus und Keyboard
 			sys.keyboard_collector(),

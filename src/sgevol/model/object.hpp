@@ -1,7 +1,7 @@
 #ifndef SGEVOL_MODEL_OBJECT_HPP_INCLUDED
 #define SGEVOL_MODEL_OBJECT_HPP_INCLUDED
 
-#include <sge/camera/object.hpp>
+#include <sge/camera/base.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/model/obj/instance_ptr.hpp>
 #include <sge/model/obj/loader_ptr.hpp>
@@ -31,7 +31,7 @@ public:
 		fcppt::filesystem::path const &,
 		sge::renderer::texture::planar_ptr,
 		float _radius,
-		sge::camera::object &);
+		sge::camera::base &);
 
 	void render();
 
@@ -44,7 +44,7 @@ private:
 	sge::renderer::vertex_buffer_ptr vb_;
 	sge::renderer::texture::planar_ptr tex_;
 	sge::renderer::scalar radius_;
-	sge::camera::object &cam_;
+	sge::camera::base &cam_;
 	sge::shader::object shader_;
 };
 
