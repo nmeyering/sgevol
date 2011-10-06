@@ -1,4 +1,4 @@
-#include <sge/camera/object.hpp>
+#include <sge/camera/base.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/renderer/texture/address_mode.hpp>
 #include <sge/renderer/texture/address_mode3.hpp>
@@ -54,7 +54,7 @@ sgevol::model::object::object(
 	fcppt::filesystem::path const &_fragment_shader_file,
 	sge::renderer::texture::planar_ptr _tex,
 	sge::renderer::scalar _radius,
-	sge::camera::object &_cam)
+	sge::camera::base &_cam)
 :
 renderer_(
 	_renderer),

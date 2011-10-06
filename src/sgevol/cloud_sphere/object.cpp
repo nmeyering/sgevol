@@ -1,4 +1,4 @@
-#include <sge/camera/object.hpp>
+#include <sge/camera/base.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/model/obj/create.hpp>
 #include <sge/model/obj/loader.hpp>
@@ -50,7 +50,7 @@ sgevol::cloud_sphere::object::object(
 	sge::model::obj::instance_ptr _model,
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
-	sge::camera::object &_cam,
+	sge::camera::base &_cam,
 	sge::renderer::scalar _radius,
 	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,

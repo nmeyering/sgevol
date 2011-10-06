@@ -1,4 +1,4 @@
-#include <sge/camera/object.hpp>
+#include <sge/camera/base.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
@@ -45,7 +45,7 @@ sgevol::cube::object::object(
 	sge::renderer::device &_renderer,
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
-	sge::camera::object &_cam,
+	sge::camera::base &_cam,
 	sge::image3d::view::const_object const &_tex,
 	sge::image3d::view::const_object const &_noise)
 :
