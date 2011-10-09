@@ -12,6 +12,9 @@
 #include <sge/console/object.hpp>
 #include <sge/console/output_line_limit.hpp>
 #include <sge/console/sprite_object.hpp>
+#include <sge/console/callback/from_functor.hpp>
+#include <sge/console/callback/name.hpp>
+#include <sge/console/callback/short_description.hpp>
 #include <sge/console/sprite_parameters.hpp>
 #include <sge/exception.hpp>
 #include <sge/font/metrics_ptr.hpp>
@@ -161,26 +164,11 @@ try_catch_action(
 }
 
 void
-set_cloud_sphere_opacity(
-  sge::console::arg_list const &args,
-  sge::console::object &console,
-  sgevol::cloud_sphere::object &sphere)
+quit(
+	bool &_value)
 {
-  if(args.size() != 2)
-  {
-    console.emit_error(
-			SGE_FONT_TEXT_LIT("usage: ") +
-			console.prefix() +
-			args[0] +
-			SGE_FONT_TEXT_LIT(" <float-value>"));
-    return;
-  }
-
-  sphere.opacity(
-    fcppt::extract_from_string_exn<sge::renderer::scalar>(
-      args[1]));
+	_value = false;
 }
-
 }
 
 int
@@ -504,7 +492,7 @@ try
 		globe_radius,
 		cam);
 
-	sgevol::cloud_sphere::object cloud_sphere(
+	sgevol::cloud_sphere::object sphere(
 		rend,
 		globe_model,
 		sgevol::media_path()
@@ -574,23 +562,27 @@ try
 
 	fcppt::signal::scoped_connection const quit_conn(
 		console.insert(
-			SGE_FONT_TEXT_LIT("quit"),
-			boost::phoenix::ref(running) = false,
-			SGE_FONT_TEXT_LIT("quit demo")
-		)
-	);
+			sge::console::callback::from_functor<void()>(
+				std::tr1::bind(
+					&quit,
+					fcppt::ref(
+						running)),
+				sge::console::callback::name(
+					SGE_FONT_TEXT_LIT("quit")),
+				sge::console::callback::short_description(
+					SGE_FONT_TEXT_LIT("quit demo")))));
 
 	fcppt::signal::scoped_connection const opacity_conn(
 		console.insert(
-			SGE_FONT_TEXT_LIT("opacity"),
-			std::tr1::bind(
-				&set_cloud_sphere_opacity,
-				std::tr1::placeholders::_1,
-				std::tr1::placeholders::_2,
-				fcppt::ref(cloud_sphere)),
-			SGE_FONT_TEXT_LIT("cloud opacity")
-		)
-	);
+			sge::console::callback::from_functor<void(sge::renderer::scalar)>(
+				std::tr1::bind(
+					static_cast<void(sgevol::cloud_sphere::object::*)(sge::renderer::scalar)>(&sgevol::cloud_sphere::object::opacity),
+					&sphere,
+					std::tr1::placeholders::_1),
+				sge::console::callback::name(
+					SGE_FONT_TEXT_LIT("opacity")),
+				sge::console::callback::short_description(
+					SGE_FONT_TEXT_LIT("cloud opacity")))));
 
 	sge::font::metrics_ptr const console_metrics(
 		sys.font_system().create_font(
@@ -669,7 +661,7 @@ try
 		*/
 
 		globe.render();
-		cloud_sphere.render();
+		sphere.render();
 
 		sge::font::text::draw(
 			*fps_metrics,
