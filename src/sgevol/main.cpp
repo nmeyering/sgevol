@@ -1,8 +1,7 @@
 #include <sge/all_extensions.hpp>
-#include <sge/camera/first_person/object.hpp>
-#include <sge/camera/first_person/movement_speed.hpp>
-#include <sge/camera/first_person/rotation_speed.hpp>
-#include <sge/camera/first_person/parameters.hpp>
+#include <sge/camera/spherical/object.hpp>
+#include <sge/camera/spherical/movement_speed.hpp>
+#include <sge/camera/spherical/parameters.hpp>
 #include <sge/camera/identity_gizmo.hpp>
 #include <sge/camera/projection/object.hpp>
 #include <sge/camera/projection/update_perspective_from_viewport.hpp>
@@ -141,7 +140,7 @@ namespace
 void
 toggle_console(
 	sge::console::gfx &console,
-	sge::camera::first_person::object &camera)
+	sge::camera::spherical::object &camera)
 {
 	bool const act = console.active();
 	console.active(!act);
@@ -353,7 +352,7 @@ try
 			(sge::renderer::state::depth_func::off)
 			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
 			(sge::renderer::state::float_::depth_buffer_clear_val = 1.f)
-			(sge::renderer::state::color::back_buffer_clear_color = 
+			(sge::renderer::state::color::back_buffer_clear_color =
 				sge::image::color::any::object(background_color)));
 			/*
 			sge::image::color::rgba8(
@@ -365,24 +364,19 @@ try
 			*/
 
 	// Kamera sollte bekannt sein
-	sge::camera::first_person::object cam(
-		sge::camera::first_person::parameters(
+	sge::camera::spherical::object cam(
+		sge::camera::spherical::parameters(
 			// movementspeed
-			sge::camera::first_person::movement_speed(
-				0.05f),
-			// mousespeed
-			sge::camera::first_person::rotation_speed(
-				400.f),
+			sge::camera::spherical::movement_speed(
+				0.005f),
+			// min_radius
+			1.10f,
 			// Maus und Keyboard
-			sys.keyboard_collector(),
-			sys.mouse_collector()
-			).gizmo(
-			sge::camera::identity_gizmo().position(
-				sge::renderer::vector3(
-					0.0f,
-					0.0f,
-					-3.0f
-					)))
+			sys.keyboard_collector())
+			.radius(
+				1.2f)
+			.damping(
+				0.95f)
 			);
 
 	fcppt::signal::scoped_connection const viewport_connection(
