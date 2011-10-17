@@ -126,7 +126,7 @@ shadow_volume::calculate()
 					1.f);
 				store_view()[ v::dim(x,y,z) ] =
 					sge::image::color::l8(
-						(sge::image::color::init::luminance %= shadow));
+						(sge::image::color::init::luminance() %= shadow));
 			}
 	}
 	}
