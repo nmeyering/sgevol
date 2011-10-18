@@ -27,7 +27,7 @@ public:
 		sge::renderer::device &,
 		fcppt::filesystem::path const &_fragment_shader_file,
 		fcppt::filesystem::path const &_vertex_shader_file,
-		sge::camera::base &);
+		sge::camera::base* &);
 
 	void render();
 
@@ -38,7 +38,7 @@ private:
 	sge::renderer::device &renderer_;
 	sge::renderer::vertex_declaration_ptr vd_;
 	sge::renderer::vertex_buffer_ptr vb_;
-	sge::camera::base &camera_;
+	sge::camera::base* &camera_;
 	sge::shader::object shader_;
 };
 

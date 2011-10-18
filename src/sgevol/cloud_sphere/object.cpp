@@ -50,7 +50,7 @@ sgevol::cloud_sphere::object::object(
 	sge::model::obj::instance_ptr _model,
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
-	sge::camera::base &_cam,
+	sge::camera::base* &_cam,
 	sge::renderer::scalar _radius,
 	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,
@@ -214,12 +214,12 @@ sgevol::cloud_sphere::object::render()
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_.mvp(),
+		cam_->mvp(),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"camera",
-		cam_.gizmo().position());
+		cam_->gizmo().position());
 
 	shader_.update_uniform(
 		"opacity",
@@ -228,6 +228,6 @@ sgevol::cloud_sphere::object::render()
 	shader_.update_uniform(
 		"mv",
 		sge::shader::matrix(
-		cam_.world(),
+		cam_->world(),
 		sge::shader::matrix_flags::none));
 }

@@ -54,7 +54,7 @@ sgevol::model::object::object(
 	fcppt::filesystem::path const &_fragment_shader_file,
 	sge::renderer::texture::planar_ptr _tex,
 	sge::renderer::scalar _radius,
-	sge::camera::base &_cam)
+	sge::camera::base* &_cam)
 :
 renderer_(
 	_renderer),
@@ -137,12 +137,12 @@ sgevol::model::object::render()
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_.mvp(),
+		cam_->mvp(),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"mv",
 		sge::shader::matrix(
-		cam_.world(),
+		cam_->world(),
 		sge::shader::matrix_flags::none));
 }

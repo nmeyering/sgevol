@@ -46,7 +46,7 @@ sgevol::stars::object::object(
 	sge::renderer::device &_renderer,
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
-	sge::camera::base &_camera)
+	sge::camera::base* &_camera)
 :
 count_(
 	_count),
@@ -186,6 +186,6 @@ sgevol::stars::object::render()
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		camera_.projection() * camera_.rotation(),
+		camera_->projection() * camera_->rotation(),
 		sge::shader::matrix_flags::projection));
 }

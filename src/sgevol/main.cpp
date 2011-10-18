@@ -2,6 +2,10 @@
 #include <sge/camera/spherical/object.hpp>
 #include <sge/camera/spherical/movement_speed.hpp>
 #include <sge/camera/spherical/parameters.hpp>
+#include <sge/camera/first_person/object.hpp>
+#include <sge/camera/first_person/movement_speed.hpp>
+#include <sge/camera/first_person/rotation_speed.hpp>
+#include <sge/camera/first_person/parameters.hpp>
 #include <sge/camera/identity_gizmo.hpp>
 #include <sge/camera/projection/object.hpp>
 #include <sge/camera/projection/update_perspective_from_viewport.hpp>
@@ -119,12 +123,6 @@
 #include <fcppt/signal/scoped_connection.hpp>
 #include <fcppt/string.hpp>
 #include <fcppt/thread/object.hpp>
-#include <boost/spirit/home/phoenix/core/reference.hpp>
-#include <boost/spirit/home/phoenix/operator/self.hpp>
-#include <exception>
-#include <iostream>
-#include <cstdlib>
-#include <boost/function.hpp>
 #include <sgevol/json/parse_color.hpp>
 #include <sgevol/media_path.hpp>
 #include <sgevol/texture3d.hpp>
@@ -133,6 +131,15 @@
 #include <sgevol/model/object.hpp>
 #include <sgevol/noise_volume.hpp>
 #include <sgevol/stars/object.hpp>
+#include <boost/spirit/home/phoenix/core/reference.hpp>
+#include <boost/spirit/home/phoenix/operator/self.hpp>
+#include <algorithm>
+#include <exception>
+#include <iostream>
+#include <cstdlib>
+#include <boost/function.hpp>
+
+#include <fcppt/math/matrix/output.hpp>
 
 namespace
 {
@@ -140,7 +147,7 @@ namespace
 void
 toggle_console(
 	sge::console::gfx &console,
-	sge::camera::spherical::object &camera)
+	sge::camera::base &camera)
 {
 	bool const act = console.active();
 	console.active(!act);
@@ -160,6 +167,17 @@ try_catch_action(
 		fcppt::io::cerr() << e.string() << std::endl;
 		std::terminate();
 	}
+}
+
+void
+switch_cam(
+	sge::camera::base * &cur,
+	sge::camera::base * &alt)
+{
+	std::swap(cur, alt);
+	cur->active(true);
+	alt->active(false);
+	std::cout << cur->mvp() << std::endl;
 }
 
 void
@@ -248,15 +266,41 @@ try
 			config_file,
 			sge::parse::json::path(
 			FCPPT_TEXT("save-texture")));
+	sge::renderer::scalar cam_movement_speed =
+		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+				config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("cam")) /
+				FCPPT_TEXT("movement-speed"));
+	sge::renderer::scalar cam_acc_factor =
+		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+				config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("cam")) /
+				FCPPT_TEXT("acc-factor"));
+	sge::renderer::scalar cam_min_radius =
+		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+				config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("cam")) /
+				FCPPT_TEXT("min-radius"));
+	sge::renderer::scalar cam_radius =
+		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+				config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("cam")) /
+				FCPPT_TEXT("radius"));
+	sge::renderer::scalar cam_damping =
+		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+				config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("cam")) /
+				FCPPT_TEXT("damping"));
 	// nonsensical...
 	if (load_texture)
 		save_texture = false;
 
 	bool running = false;
-
-	// systems::instance ist eine Hilfsklasse, die es einem abnimmt, alle
-	// Plugins, die man so braucht, manuell zu laden und zusammenzustecken.
-	// Später arbeitet man nur noch mit sys.renderer(), sys.image_loader() usw.
 
 	sge::window::dim const dimensions(
 		1024,
@@ -363,21 +407,41 @@ try
 				)));
 			*/
 
-	// Kamera sollte bekannt sein
-	sge::camera::spherical::object cam(
+	sge::camera::spherical::object spherical_cam(
 		sge::camera::spherical::parameters(
 			// movementspeed
 			sge::camera::spherical::movement_speed(
-				0.005f),
+				cam_movement_speed),
 			// min_radius
-			1.10f,
+			cam_min_radius,
 			// Maus und Keyboard
 			sys.keyboard_collector())
 			.radius(
-				1.2f)
+				cam_radius)
 			.damping(
-				0.95f)
+				cam_damping)
+			.acceleration_factor(
+				cam_acc_factor)
+			.active(false)
 			);
+
+	sge::camera::first_person::object fps_cam(
+		sge::camera::first_person::parameters(
+			sge::camera::first_person::movement_speed(
+				0.04f
+			),
+			sge::camera::first_person::rotation_speed(
+				200.0f
+			),
+			sys.keyboard_collector(),
+			sys.mouse_collector())
+		.active(false));
+
+	sge::camera::base
+		*cam = &spherical_cam,
+		*alternative_cam = &fps_cam;
+
+	cam->active(true);
 
 	fcppt::signal::scoped_connection const viewport_connection(
 		sys.viewport_manager().manage_callback(
@@ -386,7 +450,7 @@ try
 				fcppt::ref(
 					rend),
 				fcppt::ref(
-					cam),
+					*cam),
 				sge::renderer::projection::fov(
 					fcppt::math::deg_to_rad(
 						60.f)),
@@ -558,7 +622,7 @@ try
 		console.insert(
 			sge::console::callback::from_functor<void()>(
 				std::tr1::bind(
-					&quit,
+					&::quit,
 					fcppt::ref(
 						running)),
 				sge::console::callback::name(
@@ -577,6 +641,20 @@ try
 					SGE_FONT_TEXT_LIT("opacity")),
 				sge::console::callback::short_description(
 					SGE_FONT_TEXT_LIT("cloud opacity")))));
+
+	fcppt::signal::scoped_connection const switch_cam_conn(
+		console.insert(
+			sge::console::callback::from_functor<void()>(
+				std::tr1::bind(
+					&::switch_cam,
+					fcppt::ref(
+						cam),
+					fcppt::ref(
+						alternative_cam)),
+				sge::console::callback::name(
+					SGE_FONT_TEXT_LIT("switch_cam")),
+				sge::console::callback::short_description(
+					SGE_FONT_TEXT_LIT("switch between the two cameras (polar style and first-person style)")))));
 
 	sge::font::metrics_ptr const console_metrics(
 		sys.font_system().create_font(
@@ -622,7 +700,7 @@ try
 					fcppt::ref(
 						console_gfx),
 					fcppt::ref(
-						cam)))));
+						*cam)))));
 
 	console_gfx.active(false);
 
@@ -633,7 +711,7 @@ try
 		// Sonst werden keine Input-Events geschickt
 		sys.window().dispatch();
 
-		cam.update(
+		cam->update(
 			sge::timer::elapsed<sge::camera::duration>(
 				frame_timer));
 
