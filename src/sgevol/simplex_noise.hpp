@@ -22,7 +22,7 @@ class simplex_noise
 public:
 	typedef
 	typename
-	fcppt::math::vector::static_< 
+	fcppt::math::vector::static_<
 		Float,
 		N
 	>::type
@@ -66,9 +66,9 @@ private:
 	std::size_t const &b)
 	{
 		if (a >= 0)
-			return static_cast<std::size_t>(a) % 
+			return static_cast<std::size_t>(a) %
 				static_cast<std::size_t>(b);
-		else 
+		else
 			return static_cast<std::size_t>(-a) %
 				static_cast<std::size_t>(b);
 	}
@@ -121,7 +121,7 @@ private:
 
 		return res;
 	}
-	
+
 	Float
 	stretch_factor()
 	{
@@ -129,7 +129,7 @@ private:
 			1.0/(1.0 + std::sqrt(1.0 + N))
 		);
 	}
-	
+
 	Float
 	inv_factor()
 	{
@@ -169,7 +169,7 @@ private:
 	{
 		Float t = static_cast<Float>(0.6);
 		t -= fcppt::math::vector::dot(v,v);
-		if (t < 0) 
+		if (t < 0)
 			return static_cast<Float>(0);
 		else
 			t *= t;
