@@ -5,10 +5,12 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
-const float stepsize = 0.002;
+const float stepsize = 0.001;
 const int steps = int(sqrt(3.0)/stepsize);
 const vec3 center = vec3(0.5,0.5,0.5);
 const float PI = 3.1415926;
+
+float simplex_noise(vec3);
 
 void
 main()
@@ -27,7 +29,7 @@ main()
 
 	position = (position_interp + 1.0) * 0.5;
 
-	//position -= stepsize * 1.0 * simplexNoise2(gl_FragCoord.xy);
+	position -= stepsize * simplex_noise(vec3(gl_FragCoord.xy,0.0));
 
 	for(int i = 0; i < steps; i++)
 	{

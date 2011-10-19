@@ -435,7 +435,11 @@ try
 			),
 			sys.keyboard_collector(),
 			sys.mouse_collector())
-		.active(false));
+		.active(false)
+		.gizmo(
+			sge::camera::identity_gizmo().position(
+				sge::renderer::vector3(
+				0.f,0.f,-3.0))));
 
 	sge::camera::base
 		*cam = &spherical_cam,

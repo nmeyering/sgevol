@@ -129,6 +129,11 @@ shader_(
 				.vertex_shader(
 					_vertex_shader_file)
 				.fragment_shader(
+					sgevol::media_path()
+					/ FCPPT_TEXT("shaders")
+					/ FCPPT_TEXT("fragment")
+					/ FCPPT_TEXT("simplex_noise.glsl"))
+				.fragment_shader(
 					_fragment_shader_file))
 {
 	shader_.update_texture("tex",
