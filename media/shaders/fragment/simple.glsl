@@ -13,9 +13,9 @@ const float PI = 3.1415926;
 void
 main()
 {
-  vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
+	vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
 	vec3 direction = normalize(position_interp - camera);
-  vec3 position;
+	vec3 position;
 	// scaling factor for uniform cloud data
 	float factor = stepsize * opacity;
 	float value;
@@ -27,16 +27,13 @@ main()
 
 	position = (position_interp + 1.0) * 0.5;
 
-	/*
-	float jitter = texture(noise, 90 * position).r;
-	position -= stepsize * 1.0 * jitter;
-	*/
+	//position -= stepsize * 1.0 * simplexNoise2(gl_FragCoord.xy);
 
-  for(int i = 0; i < steps; i++)
-  {
+	for(int i = 0; i < steps; i++)
+	{
 		value = texture(tex, position).r;
 
-    // ray termination - sphere
+		// ray termination - sphere
 		if (distance(position, center) < radius_limit)
 			break;
 		if (distance(position, center) > 0.51)
@@ -50,20 +47,20 @@ main()
 			break;
 		*/
 
-    position = position + direction * stepsize;
+		position = position + direction * stepsize;
 
 
 		/*
-    // ray termination - cube
-    vec3 temp1 = sign(position);
-    vec3 temp2 = sign(vec3( 1.0, 1.0, 1.0 ) - position);
-    float inside = dot(temp1, temp2);
+		// ray termination - cube
+		vec3 temp1 = sign(position);
+		vec3 temp2 = sign(vec3( 1.0, 1.0, 1.0 ) - position);
+		float inside = dot(temp1, temp2);
 
 		// outside
-    if (inside < 3.0)
-      break;
+		if (inside < 3.0)
+			break;
 		*/
-  }
+	}
 	float m = max(max(dst.r, dst.g), max(dst.b, dst.a));
 	vec4 result = dst;
 	if(m > 1.0)
