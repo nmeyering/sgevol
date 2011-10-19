@@ -147,11 +147,11 @@ namespace
 void
 toggle_console(
 	sge::console::gfx &console,
-	sge::camera::base &camera)
+	sge::camera::base* &camera)
 {
 	bool const act = console.active();
 	console.active(!act);
-	camera.active(act);
+	camera->active(act);
 }
 
 void
@@ -174,10 +174,10 @@ switch_cam(
 	sge::camera::base * &cur,
 	sge::camera::base * &alt)
 {
+	bool act = cur->active();
+	cur->active(!act);
+	alt->active(act);
 	std::swap(cur, alt);
-	cur->active(true);
-	alt->active(false);
-	std::cout << cur->mvp() << std::endl;
 }
 
 void
@@ -460,6 +460,23 @@ try
 				sge::renderer::projection::far(
 					1000.f))));
 
+	fcppt::signal::scoped_connection const viewport_connection_alt(
+		sys.viewport_manager().manage_callback(
+			std::tr1::bind(
+				sge::camera::projection::update_perspective_from_viewport,
+				fcppt::ref(
+					rend),
+				fcppt::ref(
+					*alternative_cam),
+				sge::renderer::projection::fov(
+					fcppt::math::deg_to_rad(
+						60.f)),
+				sge::renderer::projection::near(
+					0.1f),
+				// Far plane
+				sge::renderer::projection::far(
+					1000.f))));
+
 	bool aborted = false;
 
 	fcppt::signal::scoped_connection cb(
@@ -700,12 +717,22 @@ try
 					fcppt::ref(
 						console_gfx),
 					fcppt::ref(
-						*cam)))));
+						cam)))));
+
+	fcppt::signal::scoped_connection cam_cb(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::f5,
+				std::tr1::bind(
+					&::switch_cam,
+					fcppt::ref(
+						cam),
+					fcppt::ref(
+						alternative_cam)))));
 
 	console_gfx.active(false);
 
 	// console end
-
 	while(running)
 	{
 		// Sonst werden keine Input-Events geschickt
