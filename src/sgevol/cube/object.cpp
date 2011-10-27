@@ -40,6 +40,7 @@
 #include <sgevol/media_path.hpp>
 #include <sgevol/cube/vf.hpp>
 #include <sgevol/cube/object.hpp>
+#include <algorithm>
 
 sgevol::cube::object::object(
 	sge::renderer::device &_renderer,
@@ -141,21 +142,19 @@ shader_(
 	int a = -1;
 	int b = 1;
 
-	for (int side = 0; side < 6; ++side)
-		for (int tri = 0; tri < 2; ++tri)
-			for (int i = 0; i < 3; ++i)
+	for (unsigned side = 0; side < 6; ++side)
+		for (unsigned tri = 0; tri < 2; ++tri)
+			for (unsigned i = 0; i < 3; ++i)
 			{
-				int vert = (tri == 0) ? i : 2 - i;
-				int x = side % 3;
+				unsigned vert = (tri == 0) ? i : 2 - i;
+				unsigned x = side % 3;
 				int y = (vert == 0) ? a : b;
 				int z = (vert == 2) ? b : a;
 				if (
 					((side % 2 == 0) && tri == 1) ||
 					((side % 2 == 1) && tri == 0))
 				{
-					int t = y;
-					y = z;
-					z = t;
+					std::swap(y,z);
 				}
 				position_vector res(0,0,0);
 				res[x] = static_cast<position_vector::value_type>(

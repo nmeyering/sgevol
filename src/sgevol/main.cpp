@@ -1,23 +1,44 @@
+#include <fcppt/chrono/milliseconds.hpp>
+#include <fcppt/chrono/seconds.hpp>
+#include <fcppt/exception.hpp>
+#include <fcppt/extract_from_string_exn.hpp>
+#include <fcppt/filesystem/path.hpp>
+#include <fcppt/format.hpp>
+#include <fcppt/insert_to_string.hpp>
+#include <fcppt/io/cerr.hpp>
+#include <fcppt/make_shared_ptr.hpp>
+#include <fcppt/math/box/structure_cast.hpp>
+#include <fcppt/math/deg_to_rad.hpp>
+#include <fcppt/math/pi.hpp>
+#include <fcppt/math/twopi.hpp>
+#include <fcppt/ref.hpp>
+#include <fcppt/scoped_ptr.hpp>
+#include <fcppt/shared_ptr.hpp>
+#include <fcppt/signal/scoped_connection.hpp>
+#include <fcppt/string.hpp>
+#include <fcppt/thread/object.hpp>
 #include <sge/all_extensions.hpp>
-#include <sge/camera/spherical/object.hpp>
-#include <sge/camera/spherical/movement_speed.hpp>
-#include <sge/camera/spherical/parameters.hpp>
-#include <sge/camera/first_person/object.hpp>
+#include <sge/camera/base.hpp>
+#include <sge/camera/duration.hpp>
 #include <sge/camera/first_person/movement_speed.hpp>
-#include <sge/camera/first_person/rotation_speed.hpp>
+#include <sge/camera/first_person/object.hpp>
 #include <sge/camera/first_person/parameters.hpp>
+#include <sge/camera/first_person/rotation_speed.hpp>
 #include <sge/camera/identity_gizmo.hpp>
 #include <sge/camera/projection/object.hpp>
 #include <sge/camera/projection/update_perspective_from_viewport.hpp>
+#include <sge/camera/spherical/movement_speed.hpp>
+#include <sge/camera/spherical/object.hpp>
+#include <sge/camera/spherical/parameters.hpp>
 #include <sge/config/media_path.hpp>
 #include <sge/console/arg_list.hpp>
+#include <sge/console/callback/from_functor.hpp>
+#include <sge/console/callback/name.hpp>
+#include <sge/console/callback/short_description.hpp>
 #include <sge/console/gfx.hpp>
 #include <sge/console/object.hpp>
 #include <sge/console/output_line_limit.hpp>
 #include <sge/console/sprite_object.hpp>
-#include <sge/console/callback/from_functor.hpp>
-#include <sge/console/callback/name.hpp>
-#include <sge/console/callback/short_description.hpp>
 #include <sge/console/sprite_parameters.hpp>
 #include <sge/exception.hpp>
 #include <sge/font/metrics_ptr.hpp>
@@ -43,7 +64,9 @@
 #include <sge/input/keyboard/device.hpp>
 #include <sge/input/keyboard/key_code.hpp>
 #include <sge/model/obj/create.hpp>
+#include <sge/model/obj/instance_ptr.hpp>
 #include <sge/model/obj/loader.hpp>
+#include <sge/model/obj/loader_ptr.hpp>
 #include <sge/parse/json/config/create_command_line_parameters.hpp>
 #include <sge/parse/json/config/merge_command_line_parameters.hpp>
 #include <sge/parse/json/find_and_convert_member.hpp>
@@ -64,6 +87,8 @@
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_block.hpp>
+#include <sge/renderer/size_type.hpp>
+#include <sge/renderer/stage.hpp>
 #include <sge/renderer/state/color.hpp>
 #include <sge/renderer/state/depth_func.hpp>
 #include <sge/renderer/state/dest_blend_func.hpp>
@@ -71,12 +96,15 @@
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/state/source_blend_func.hpp>
 #include <sge/renderer/state/trampoline.hpp>
-#include <sge/renderer/texture/create_planar_from_path.hpp>
 #include <sge/renderer/texture/address_mode.hpp>
+#include <sge/renderer/texture/address_mode_s.hpp>
+#include <sge/renderer/texture/address_mode_t.hpp>
 #include <sge/renderer/texture/address_mode2.hpp>
-#include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/texture/create_planar_from_path.hpp>
 #include <sge/renderer/texture/filter/point.hpp>
 #include <sge/renderer/texture/filter/scoped.hpp>
+#include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/texture/planar_ptr.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/visual_depth.hpp>
 #include <sge/renderer/vsync.hpp>
@@ -94,6 +122,7 @@
 #include <sge/systems/renderer.hpp>
 #include <sge/systems/window.hpp>
 #include <sge/texture/part_ptr.hpp>
+#include <sge/texture/part_raw.hpp>
 #include <sge/timer/basic.hpp>
 #include <sge/timer/clocks/standard.hpp>
 #include <sge/timer/elapsed.hpp>
@@ -105,32 +134,15 @@
 #include <sge/window/dim.hpp>
 #include <sge/window/instance.hpp>
 #include <sge/window/simple_parameters.hpp>
-#include <fcppt/chrono/milliseconds.hpp>
-#include <fcppt/chrono/seconds.hpp>
-#include <fcppt/exception.hpp>
-#include <fcppt/extract_from_string_exn.hpp>
-#include <fcppt/insert_to_string.hpp>
-#include <fcppt/filesystem/path.hpp>
-#include <fcppt/format.hpp>
-#include <fcppt/io/cerr.hpp>
-#include <fcppt/math/box/structure_cast.hpp>
-#include <fcppt/math/deg_to_rad.hpp>
-#include <fcppt/math/pi.hpp>
-#include <fcppt/math/twopi.hpp>
-#include <fcppt/ref.hpp>
-#include <fcppt/scoped_ptr.hpp>
-#include <fcppt/shared_ptr.hpp>
-#include <fcppt/signal/scoped_connection.hpp>
-#include <fcppt/string.hpp>
-#include <fcppt/thread/object.hpp>
-#include <sgevol/json/parse_color.hpp>
-#include <sgevol/media_path.hpp>
-#include <sgevol/texture3d.hpp>
 #include <sgevol/cloud_sphere/object.hpp>
 #include <sgevol/cube/object.hpp>
+#include <sgevol/json/parse_color.hpp>
+#include <sgevol/media_path.hpp>
 #include <sgevol/model/object.hpp>
 #include <sgevol/noise_volume.hpp>
 #include <sgevol/stars/object.hpp>
+#include <sgevol/texture3d.hpp>
+
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
 #include <algorithm>
@@ -138,6 +150,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <boost/function.hpp>
+
 
 #include <fcppt/math/matrix/output.hpp>
 
@@ -165,7 +178,7 @@ try_catch_action(
 	catch(fcppt::exception e)
 	{
 		fcppt::io::cerr() << e.string() << std::endl;
-		std::terminate();
+		throw e;
 	}
 }
 
@@ -200,6 +213,35 @@ try
 				argc,
 				argv));
 
+	fcppt::string console_bg =
+		sge::parse::json::find_and_convert_member<fcppt::string>(
+			config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("console"))
+			/ FCPPT_TEXT("bg"));
+	sge::image::color::rgba8 console_fg =
+		sgevol::json::parse_color<sge::image::color::rgba8>(
+			sge::parse::json::find_and_convert_member<sge::parse::json::value>(
+				config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("console"))
+			/ FCPPT_TEXT("fg")));
+	sge::console::sprite_object::dim console_dim =
+		sge::parse::json::find_and_convert_member<
+			sge::console::sprite_object::dim
+		>(
+			config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("console"))
+			/ FCPPT_TEXT("dim"));
+
+	sge::window::dim window_dim =
+		sge::parse::json::find_and_convert_member<
+			sge::window::dim
+		>(
+			config_file,
+			sge::parse::json::path(
+				FCPPT_TEXT("window-dim")));
 	std::size_t texture_size =
 		sge::parse::json::find_and_convert_member<std::size_t>(
 			config_file,
@@ -303,8 +345,7 @@ try
 	bool running = false;
 
 	sge::window::dim const dimensions(
-		1024,
-		768
+		window_dim
 	);
 	sge::systems::instance sys(
 		sge::systems::list()
@@ -498,11 +539,11 @@ try
 				100)));
 	std::cout << "timer initialized" << std::endl;
 
-	float p = 0.f;
+	float progress = 0.f;
 	while( !aborted )
 	{
 		if(sge::timer::reset_when_expired(accesstimer))
-			if((p = mytex.progress()) >= 99.f)
+			if((progress = mytex.progress()) >= 99.f)
 				break;
 
 		sys.window().dispatch();
@@ -513,7 +554,7 @@ try
 			*metrics,
 			drawer,
 			fcppt::insert_to_string<sge::font::text::string>(
-				static_cast<int>(p)
+				static_cast<int>(progress)
 			) +
 			SGE_FONT_TEXT_LIT("%"),
 			fcppt::math::box::structure_cast<sge::font::rect>(
@@ -639,6 +680,22 @@ try
 		SGE_FONT_TEXT_LIT('/')
 	);
 
+	sge::renderer::texture::planar_ptr console_tex(
+		sge::renderer::texture::create_planar_from_path(
+			sgevol::media_path()
+				/ FCPPT_TEXT("textures")
+				/ console_bg,
+				rend,
+				sys.image_loader(),
+				sge::renderer::texture::mipmap::off(),
+					sge::renderer::texture::address_mode2(
+						sge::renderer::texture::address_mode_s(
+							sge::renderer::texture::address_mode::clamp),
+						sge::renderer::texture::address_mode_t(
+							sge::renderer::texture::address_mode::repeat)),
+					sge::renderer::resource_flags::none
+				));
+
 	fcppt::signal::scoped_connection const quit_conn(
 		console.insert(
 			sge::console::callback::from_functor<void()>(
@@ -689,7 +746,7 @@ try
 	sge::console::gfx console_gfx(
 		console,
 		sys.renderer(),
-		sge::image::colors::black(),
+		sge::image::color::any::object(console_fg),
 		*console_metrics,
 		sys.keyboard_collector(),
 		sge::console::sprite_object(
@@ -698,10 +755,11 @@ try
 				sge::console::sprite_object::vector::null()
 			)
 			.texture(
-				sge::texture::part_ptr()
+				fcppt::make_shared_ptr<sge::texture::part_raw>(
+					console_tex)
 			)
 			.size(
-				sge::console::sprite_object::dim(400,300)
+				console_dim
 			)
 			.elements()
 		),
