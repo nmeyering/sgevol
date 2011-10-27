@@ -68,10 +68,14 @@ texture3d::texture3d(
 void texture3d::load(
 		fcppt::filesystem::path const &_filename)
 {
+	typedef
+	fcppt::io::cifstream::pos_type
+	pos_type;
+
 	fcppt::io::cifstream file(
 		_filename);
 
-	fcppt::io::cifstream::pos_type size =
+	pos_type size =
 		sge::image3d::view::size(
 				view()
 			).content() *
@@ -79,38 +83,59 @@ void texture3d::load(
 					sge::image3d::view::format(
 						view()));
 
-	fcppt::io::cifstream::pos_type actual_size =
-		fcppt::filesystem::file_size(_filename);
+	if (!file.is_open())
+		throw fcppt::exception(
+			FCPPT_TEXT("Failed to open texture file!"));
 
-	if (size != actual_size)
+	pos_type chunk_size =
+			static_cast<int>(size) / 100;
+
+	char *buffer = reinterpret_cast<
+				char *
+			>(
+				sge::image3d::view::data(
+					view()));
+
+	for (unsigned chunk = 0; chunk < 100; ++chunk)
+	{
+		progress(
+			static_cast<float>(
+				chunk) / 100.f);
+		file.read(
+			buffer,
+			chunk_size);
+		buffer += chunk_size;
+	}
+
+	unsigned rest = size % 100u;
+	file.read(buffer,rest);
+	progress(100.f);
+
+	pos_type read_size = file.tellg();
+
+	if (read_size < size)
 	{
 		throw fcppt::exception(
 			(fcppt::format(
 				FCPPT_TEXT("Texture file size %1%")
-				FCPPT_TEXT("didn't match expected size %2%."))
-				%	actual_size
+				FCPPT_TEXT(" didn't match expected size %2%."))
+				%	read_size
 				%	size
 			).str());
 	}
 
-	if (file.is_open())
-	{
-		progress(50.0f);
-    file.read(
-			reinterpret_cast<
-				char *
-			>(
-				sge::image3d::view::data(
-					view())),
-			size);
-    file.close();
-		progress(100.0f);
-	}
-	else
+	file.ignore();
+
+	if (!file.eof())
 	{
 		throw fcppt::exception(
-			FCPPT_TEXT("Failed to open texture file!"));
+			(fcppt::format(
+				FCPPT_TEXT("Texture file too big,")
+				FCPPT_TEXT(" expected size %1%."))
+				%	size
+			).str());
 	}
+	file.close();
 }
 
 sge::image3d::view::const_object const
