@@ -60,8 +60,8 @@ vb_(
 		*vd_,
 		sge::renderer::vf::dynamic::part_index(0u),
 		// Two triangles per face
-		static_cast<sge::renderer::size_type>(
-			2 * 3 * 6),
+		sge::renderer::vertex_count(
+			2u * 3u * 6u),
 		sge::renderer::resource_flags::none)),
 cam_(
 	_cam),

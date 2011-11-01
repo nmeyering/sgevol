@@ -61,7 +61,7 @@ vb_(
 	renderer_.create_vertex_buffer(
 		*vd_,
 		sge::renderer::vf::dynamic::part_index(0u),
-		count_,
+		sge::renderer::vertex_count(count_),
 		sge::renderer::resource_flags::none)),
 camera_(
 	_camera),
