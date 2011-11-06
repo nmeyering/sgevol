@@ -67,7 +67,8 @@ vb_(
 	sge::model::obj::vb_converter::convert<vf::part,sgevol::model::vertex_format>(
 		renderer_,
 		*vd_,
-		sge::renderer::resource_flags::readable,
+		sge::renderer::resource_flags_field(
+			sge::renderer::resource_flags::readable),
 		*model_)),
 tex_(
 	_tex),
