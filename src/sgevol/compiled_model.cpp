@@ -10,9 +10,9 @@
 #include <sge/renderer/resource_flags.hpp>
 #include <sge/renderer/scoped_vertex_buffer.hpp>
 #include <sge/renderer/scoped_vertex_declaration.hpp>
-#include <sge/renderer/stage.hpp>
 #include <sge/renderer/texture/planar_ptr.hpp>
 #include <sge/renderer/texture/scoped.hpp>
+#include <sge/renderer/texture/stage.hpp>
 #include <sge/renderer/vertex_buffer_ptr.hpp>
 #include <sge/renderer/vertex_count.hpp>
 #include <sge/renderer/vertex_declaration.hpp>
@@ -90,7 +90,7 @@ compiled_model::render()
 					renderer_),
 				fcppt::cref(
 					*texture_),
-				sge::renderer::stage(
+				sge::renderer::texture::stage(
 					0)));
 
 	sge::renderer::scoped_vertex_declaration scoped_vd(

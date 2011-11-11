@@ -88,7 +88,6 @@
 #include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_block.hpp>
 #include <sge/renderer/size_type.hpp>
-#include <sge/renderer/stage.hpp>
 #include <sge/renderer/state/color.hpp>
 #include <sge/renderer/state/depth_func.hpp>
 #include <sge/renderer/state/dest_blend_func.hpp>
@@ -105,6 +104,7 @@
 #include <sge/renderer/texture/filter/scoped.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/texture/planar_ptr.hpp>
+#include <sge/renderer/texture/stage.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/visual_depth.hpp>
 #include <sge/renderer/vsync.hpp>
@@ -813,7 +813,7 @@ try
 		{
 			sge::renderer::texture::filter::scoped const scoped_filter(
 				rend,
-				sge::renderer::stage(0u),
+				sge::renderer::texture::stage(0u),
 				sge::renderer::texture::filter::point()
 			);
 
