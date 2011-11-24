@@ -16,7 +16,7 @@
 	"background-color" : [0.0,0.0,0.0,1.0],
 	"globe-texture" : "world_1024.png",
 	"globe-radius" : 0.95,
-	"opacity-factor" : 1000.0,
+	"opacity-factor" : 0.5,
 	"star-count" : 10000,
 	"star-size" : 5.0,
 	"cam" :

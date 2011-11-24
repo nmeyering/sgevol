@@ -33,7 +33,7 @@ main()
 	// position += 0.0002 * 0.25 * simplex_noise(vec3(gl_FragCoord.xy,0.0));
 	vec3 starting_pos = position;
 
-	for(int i = 0; i < 5; i++)
+	for(int i = 0; i < 1; i++)
 	{
 		float radius = distance(position, center);
 		// ray termination - sphere
@@ -42,10 +42,13 @@ main()
 		if (radius > 0.51)
 			break;
 
-		value = texture(tex, position).r;
+		value = 0.5 * simplex_noise(10 * position)
+					+ 0.25 * simplex_noise(20 * position)
+					+ 0.125 * simplex_noise(40 * position);
+		value *= 0.1;
 
-		// smooth falloff
-		value *= clamp(5 * (radius - radius_limit) / (0.51 - radius_limit), 0.0, 1.0);
+		// smooth falloff towards surface?
+		// value *= clamp(5 * (radius - radius_limit) / (0.51 - radius_limit), 0.0, 1.0);
 
 		//float xxx = polar(position * 2.0 - 1.0).y;
 		//vec3 color = vec3(1.0 - xxx, xxx, 0.0);

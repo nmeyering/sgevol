@@ -1,3 +1,4 @@
+#include <fcppt/assign/make_container.hpp>
 #include <fcppt/chrono/milliseconds.hpp>
 #include <fcppt/chrono/seconds.hpp>
 #include <fcppt/exception.hpp>
@@ -17,7 +18,6 @@
 #include <fcppt/signal/scoped_connection.hpp>
 #include <fcppt/string.hpp>
 #include <fcppt/thread/object.hpp>
-#include <sge/all_extensions.hpp>
 #include <sge/camera/base.hpp>
 #include <sge/camera/duration.hpp>
 #include <sge/camera/first_person/movement_speed.hpp>
@@ -112,7 +112,6 @@
 #include <sge/sprite/parameters_impl.hpp>
 #include <sge/systems/cursor_option.hpp>
 #include <sge/systems/cursor_option_field.hpp>
-#include <sge/systems/image_loader.hpp>
 #include <sge/systems/input.hpp>
 #include <sge/systems/input_helper.hpp>
 #include <sge/systems/input_helper_field.hpp>
@@ -361,9 +360,11 @@ try
 					sge::renderer::vsync::on,
 					sge::renderer::no_multi_sampling),
 				sge::viewport::fill_on_resize()))
-		(sge::systems::image_loader(
+		(sge::systems::image2d(
 			sge::image::capabilities_field::null(),
-			sge::all_extensions))
+			fcppt::assign::make_container<sge::media::extension_set>(
+				sge::media::extension(
+					FCPPT_TEXT("png")))))
 		(sge::systems::input(
 				sge::systems::input_helper_field(
 					sge::systems::input_helper::keyboard_collector) |
@@ -582,7 +583,7 @@ try
 				/ FCPPT_TEXT("textures")
 				/ globe_tex_path,
 				rend,
-				sys.image_loader(),
+				sys.image_system(),
 				sge::renderer::texture::mipmap::off(),
 					sge::renderer::texture::address_mode2(
 						sge::renderer::texture::address_mode::repeat),
@@ -686,7 +687,7 @@ try
 				/ FCPPT_TEXT("textures")
 				/ console_bg,
 				rend,
-				sys.image_loader(),
+				sys.image_system(),
 				sge::renderer::texture::mipmap::off(),
 					sge::renderer::texture::address_mode2(
 						sge::renderer::texture::address_mode_s(
