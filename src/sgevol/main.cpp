@@ -1,3 +1,4 @@
+#include <fcppt/assign/make_container.hpp>
 #include <fcppt/chrono/milliseconds.hpp>
 #include <fcppt/chrono/seconds.hpp>
 #include <fcppt/exception.hpp>
@@ -89,10 +90,13 @@
 #include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_block.hpp>
 #include <sge/renderer/size_type.hpp>
+#include <sge/renderer/state/bool.hpp>
 #include <sge/renderer/state/color.hpp>
+#include <sge/renderer/state/cull_mode.hpp>
 #include <sge/renderer/state/depth_func.hpp>
 #include <sge/renderer/state/dest_blend_func.hpp>
 #include <sge/renderer/state/draw_mode.hpp>
+#include <sge/renderer/state/float.hpp>
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/state/source_blend_func.hpp>
 #include <sge/renderer/state/trampoline.hpp>
