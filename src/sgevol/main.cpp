@@ -768,7 +768,6 @@ try
 			.size(
 				console_dim
 			)
-			.elements()
 		),
 		static_cast<
 			sge::console::output_line_limit
