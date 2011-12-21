@@ -12,7 +12,6 @@
 #include <sge/renderer/scoped_vertex_declaration.hpp>
 #include <sge/renderer/scoped_vertex_lock.hpp>
 #include <sge/renderer/size_type.hpp>
-#include <sge/renderer/state/cull_mode.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/vertex_count.hpp>

@@ -92,7 +92,6 @@
 #include <sge/renderer/size_type.hpp>
 #include <sge/renderer/state/bool.hpp>
 #include <sge/renderer/state/color.hpp>
-#include <sge/renderer/state/cull_mode.hpp>
 #include <sge/renderer/state/depth_func.hpp>
 #include <sge/renderer/state/dest_blend_func.hpp>
 #include <sge/renderer/state/draw_mode.hpp>
@@ -123,7 +122,6 @@
 #include <sge/systems/input_helper_field.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
-#include <sge/systems/parameterless.hpp>
 #include <sge/systems/renderer.hpp>
 #include <sge/systems/window.hpp>
 #include <sge/texture/part_ptr.hpp>
@@ -137,8 +135,9 @@
 #include <sge/viewport/fill_on_resize.hpp>
 #include <sge/viewport/manager.hpp>
 #include <sge/window/dim.hpp>
-#include <sge/window/instance.hpp>
-#include <sge/window/simple_parameters.hpp>
+#include <sge/window/parameters.hpp>
+#include <sge/window/system.hpp>
+#include <sge/window/title.hpp>
 #include <sgevol/cloud_sphere/object.hpp>
 #include <sgevol/cube/object.hpp>
 #include <sgevol/json/parse_color.hpp>
@@ -352,12 +351,15 @@ try
 	sge::window::dim const dimensions(
 		window_dim
 	);
-	sge::systems::instance sys(
+
+	sge::systems::instance const sys(
 		sge::systems::list()
 		(sge::systems::window(
-				sge::window::simple_parameters(
+				sge::window::parameters(
 					// Fenstertitel offenbar
-					FCPPT_TEXT("sgevol: cloud volume rendering demo"),
+					sge::window::title(
+						FCPPT_TEXT("sgevol: cloud volume rendering demo")
+					),
 					dimensions)))
 		(sge::systems::renderer(
 				sge::renderer::parameters(
@@ -377,7 +379,7 @@ try
 					sge::systems::input_helper::mouse_collector,
 				sge::systems::cursor_option_field(
 					sge::systems::cursor_option::exclusive)))
-		(sge::systems::parameterless::font)
+		(sge::systems::font())
 	);
 
 	// Abkürzung, damit wir nicht immer sys.renderer() schreiben müssen
@@ -553,7 +555,7 @@ try
 			if((progress = mytex.progress()) >= 99.f)
 				break;
 
-		sys.window().dispatch();
+		sys.window_system().poll();
 
 		sge::renderer::scoped_block const block_(rend);
 
@@ -804,7 +806,7 @@ try
 	while(running)
 	{
 		// Sonst werden keine Input-Events geschickt
-		sys.window().dispatch();
+		sys.window_system().poll();
 
 		cam->update(
 			sge::timer::elapsed<sge::camera::duration>(
