@@ -18,6 +18,8 @@
 #include <sge/renderer/texture/address_mode.hpp>
 #include <sge/renderer/texture/address_mode3.hpp>
 #include <sge/renderer/texture/create_volume_from_view.hpp>
+#include <sge/renderer/texture/mipmap/all_levels.hpp>
+#include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/vertex_buffer.hpp>
@@ -141,7 +143,7 @@ shader_(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			tex_,
-			sge::renderer::texture::mipmap::off(),
+			sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
 			sge::renderer::texture::address_mode3(
 				sge::renderer::texture::address_mode::clamp),
 			// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
@@ -153,7 +155,7 @@ shader_(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			noise_,
-			sge::renderer::texture::mipmap::off(),
+			sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
 			sge::renderer::texture::address_mode3(
 				sge::renderer::texture::address_mode::repeat),
 			sge::renderer::resource_flags::none));

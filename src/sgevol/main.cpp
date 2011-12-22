@@ -104,8 +104,11 @@
 #include <sge/renderer/texture/address_mode_t.hpp>
 #include <sge/renderer/texture/address_mode2.hpp>
 #include <sge/renderer/texture/create_planar_from_path.hpp>
+#include <sge/renderer/texture/filter/mipmap.hpp>
 #include <sge/renderer/texture/filter/point.hpp>
 #include <sge/renderer/texture/filter/scoped.hpp>
+#include <sge/renderer/texture/mipmap/all_levels.hpp>
+#include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/texture/planar_ptr.hpp>
 #include <sge/renderer/texture/stage.hpp>
@@ -590,7 +593,8 @@ try
 				/ globe_tex_path,
 				rend,
 				sys.image_system(),
-				sge::renderer::texture::mipmap::off(),
+				sge::renderer::texture::mipmap::all_levels(
+						sge::renderer::texture::mipmap::auto_generate::yes),
 					sge::renderer::texture::address_mode2(
 						sge::renderer::texture::address_mode::repeat),
 					sge::renderer::resource_flags::none
@@ -694,7 +698,8 @@ try
 				/ console_bg,
 				rend,
 				sys.image_system(),
-				sge::renderer::texture::mipmap::off(),
+				sge::renderer::texture::mipmap::all_levels(
+						sge::renderer::texture::mipmap::auto_generate::yes),
 					sge::renderer::texture::address_mode2(
 						sge::renderer::texture::address_mode_s(
 							sge::renderer::texture::address_mode::clamp),
@@ -815,20 +820,19 @@ try
 
 		stars.render();
 
-		/*
+		globe.render();
+#if 1
 		{
 			sge::renderer::texture::filter::scoped const scoped_filter(
 				rend,
 				sge::renderer::texture::stage(0u),
-				sge::renderer::texture::filter::point()
+				sge::renderer::texture::filter::mipmap()
 			);
-
-			cube.render();
+			sphere.render();
 		}
-		*/
-
-		globe.render();
-		sphere.render();
+#else
+			sphere.render();
+#endif
 
 		sge::font::text::draw(
 			*fps_metrics,
