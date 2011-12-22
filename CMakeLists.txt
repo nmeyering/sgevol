@@ -95,7 +95,6 @@ ADD_EXECUTABLE(
 	src/sgevol/json/parse_color.hpp
 	src/sgevol/json/parse_rgba8_color.hpp
 	src/sgevol/json/parse_rgba8_color.cpp
-	src/sgevol/cube/object.cpp
 	src/sgevol/cloud_sphere/object.cpp
 	src/sgevol/model/object.cpp
 	src/sgevol/stars/object.cpp
@@ -109,6 +108,28 @@ ADD_EXECUTABLE(
 
 TARGET_LINK_LIBRARIES(
 	app
+	${Boost_LIBRARIES}
+	${Fcppt_LIBRARIES}
+	${SGE_LIBRARIES}
+)
+
+ADD_EXECUTABLE(
+	cubetest
+	src/sgevol/cube/object.cpp
+	src/sgevol/cubetest.cpp
+	src/sgevol/json/parse_color.hpp
+	src/sgevol/json/parse_rgba8_color.cpp
+	src/sgevol/json/parse_rgba8_color.hpp
+	src/sgevol/media_path.cpp
+	src/sgevol/name.cpp
+	src/sgevol/noise_volume.cpp
+	src/sgevol/shadow_volume.cpp
+	src/sgevol/stars/object.cpp
+	src/sgevol/texture3d.cpp
+)
+
+TARGET_LINK_LIBRARIES(
+	cubetest
 	${Boost_LIBRARIES}
 	${Fcppt_LIBRARIES}
 	${SGE_LIBRARIES}

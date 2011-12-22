@@ -47,7 +47,10 @@ public:
 	store_view();
 
 	void
-	calculate();
+	fill();
+
+	void
+	fill_spherical();
 
 	void
 	save(

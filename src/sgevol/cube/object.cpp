@@ -46,7 +46,7 @@ sgevol::cube::object::object(
 	sge::renderer::device &_renderer,
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
-	sge::camera::base &_cam,
+	sge::camera::base* &_cam,
 	sge::image3d::view::const_object const &_tex,
 	sge::image3d::view::const_object const &_noise)
 :
@@ -112,6 +112,11 @@ shader_(
 				)
 				.vertex_shader(
 					_vertex_shader_file)
+				.fragment_shader(
+					sgevol::media_path()
+					/ FCPPT_TEXT("shaders")
+					/ FCPPT_TEXT("fragment")
+					/ FCPPT_TEXT("simplex_noise.glsl"))
 				.fragment_shader(
 					_fragment_shader_file))
 {
@@ -251,16 +256,16 @@ sgevol::cube::object::render()
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_.mvp(),
+		cam_->mvp(),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"camera",
-		cam_.gizmo().position());
+		cam_->gizmo().position());
 
 	shader_.update_uniform(
 		"mv",
 		sge::shader::matrix(
-		cam_.world(),
+		cam_->world(),
 		sge::shader::matrix_flags::none));
 }

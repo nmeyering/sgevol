@@ -138,8 +138,8 @@
 #include <sge/window/parameters.hpp>
 #include <sge/window/system.hpp>
 #include <sge/window/title.hpp>
-#include <sgevol/cloud_sphere/object.hpp>
 #include <sgevol/json/parse_color.hpp>
+#include <sgevol/cube/object.hpp>
 #include <sgevol/media_path.hpp>
 #include <sgevol/model/object.hpp>
 #include <sgevol/noise_volume.hpp>
@@ -269,16 +269,6 @@ try
 			config_file,
 			sge::parse::json::path(
 			FCPPT_TEXT("load-path")));
-	fcppt::string globe_tex_path =
-		sge::parse::json::find_and_convert_member<fcppt::string>(
-			config_file,
-			sge::parse::json::path(
-			FCPPT_TEXT("globe-texture")));
-	sge::renderer::scalar globe_radius =
-		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
-			config_file,
-			sge::parse::json::path(
-				FCPPT_TEXT("globe-radius")));
 	sge::renderer::scalar opacity_factor =
 		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
 			config_file,
@@ -416,7 +406,7 @@ try
 	else
 		tex_action =
 			std::tr1::bind(
-				&sgevol::texture3d::fill,
+				&sgevol::texture3d::fill_spherical,
 				&mytex);
 
 	fcppt::thread::object load_thread(
@@ -575,7 +565,6 @@ try
 	if (aborted)
 		return EXIT_FAILURE;
 
-
 	load_thread.join();
 
 	if (save_texture)
@@ -583,45 +572,8 @@ try
 			fcppt::filesystem::path(
 			save_path));
 
-	sge::renderer::texture::planar_ptr globe_tex(
-		sge::renderer::texture::create_planar_from_path(
-			sgevol::media_path()
-				/ FCPPT_TEXT("textures")
-				/ globe_tex_path,
-				rend,
-				sys.image_system(),
-				sge::renderer::texture::mipmap::off(),
-					sge::renderer::texture::address_mode2(
-						sge::renderer::texture::address_mode::repeat),
-					sge::renderer::resource_flags::none
-				));
-
-	sge::model::obj::loader_ptr model_loader(
-		sge::model::obj::create());
-	sge::model::obj::instance_ptr globe_model(
-		model_loader->load(
-			sgevol::media_path()
-				/ FCPPT_TEXT("models")
-				/ FCPPT_TEXT("globe.obj")));
-
-	sgevol::model::object globe(
+	sgevol::cube::object cube(
 		rend,
-		globe_model,
-		sgevol::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("vertex")
-			/ FCPPT_TEXT("globe.glsl"),
-		sgevol::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("fragment")
-			/ FCPPT_TEXT("tex_plain.glsl"),
-		globe_tex,
-		globe_radius,
-		cam);
-
-	sgevol::cloud_sphere::object sphere(
-		rend,
-		globe_model,
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("vertex")
@@ -629,13 +581,10 @@ try
 		sgevol::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
-			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str(),
+			/ FCPPT_TEXT("simple.glsl"),
 		cam,
-		globe_radius,
-		opacity_factor,
 		mytex.const_view(),
 		noise.const_view());
-
 
 	sgevol::stars::object stars(
 		star_count,
@@ -714,18 +663,6 @@ try
 					SGE_FONT_TEXT_LIT("quit")),
 				sge::console::callback::short_description(
 					SGE_FONT_TEXT_LIT("quit demo")))));
-
-	fcppt::signal::scoped_connection const opacity_conn(
-		console.insert(
-			sge::console::callback::from_functor<void(sge::renderer::scalar)>(
-				std::tr1::bind(
-					static_cast<void(sgevol::cloud_sphere::object::*)(sge::renderer::scalar)>(&sgevol::cloud_sphere::object::opacity),
-					&sphere,
-					std::tr1::placeholders::_1),
-				sge::console::callback::name(
-					SGE_FONT_TEXT_LIT("opacity")),
-				sge::console::callback::short_description(
-					SGE_FONT_TEXT_LIT("cloud opacity")))));
 
 	fcppt::signal::scoped_connection const switch_cam_conn(
 		console.insert(
@@ -815,20 +752,7 @@ try
 
 		stars.render();
 
-		/*
-		{
-			sge::renderer::texture::filter::scoped const scoped_filter(
-				rend,
-				sge::renderer::texture::stage(0u),
-				sge::renderer::texture::filter::point()
-			);
-
-			cube.render();
-		}
-		*/
-
-		globe.render();
-		sphere.render();
+		cube.render();
 
 		sge::font::text::draw(
 			*fps_metrics,
