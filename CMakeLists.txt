@@ -109,7 +109,9 @@ ADD_EXECUTABLE(
 TARGET_LINK_LIBRARIES(
 	app
 	${Boost_LIBRARIES}
-	${Fcppt_LIBRARIES}
+	${Fcppt_core_LIBRARIES}
+	${Fcppt_filesystem_LIBRARIES}
+	${Fcppt_thread_LIBRARIES}
 	${SGE_LIBRARIES}
 )
 
@@ -131,6 +133,8 @@ ADD_EXECUTABLE(
 TARGET_LINK_LIBRARIES(
 	cubetest
 	${Boost_LIBRARIES}
-	${Fcppt_LIBRARIES}
+	${Fcppt_core_LIBRARIES}
+	${Fcppt_filesystem_LIBRARIES}
+	${Fcppt_thread_LIBRARIES}
 	${SGE_LIBRARIES}
 )
