@@ -20,6 +20,7 @@
 #include <fcppt/thread/object.hpp>
 #include <sge/media/extension.hpp>
 #include <sge/media/extension_set.hpp>
+#include <sge/media/optional_extension_set.hpp>
 #include <sge/camera/base.hpp>
 #include <sge/camera/duration.hpp>
 #include <sge/camera/first_person/movement_speed.hpp>
@@ -371,9 +372,10 @@ try
 				sge::viewport::fill_on_resize()))
 		(sge::systems::image2d(
 			sge::image::capabilities_field::null(),
-			fcppt::assign::make_container<sge::media::extension_set>(
-				sge::media::extension(
-					FCPPT_TEXT("png")))))
+			sge::media::optional_extension_set(
+				fcppt::assign::make_container<sge::media::extension_set>(
+					sge::media::extension(
+						FCPPT_TEXT("png"))))))
 		(sge::systems::input(
 				sge::systems::input_helper_field(
 					sge::systems::input_helper::keyboard_collector) |
@@ -419,7 +421,7 @@ try
 	else
 		tex_action =
 			std::tr1::bind(
-				&sgevol::texture3d::fill,
+				&sgevol::texture3d::fill_spherical,
 				&mytex);
 
 	fcppt::thread::object load_thread(

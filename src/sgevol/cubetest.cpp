@@ -65,6 +65,7 @@
 #include <sge/input/keyboard/action.hpp>
 #include <sge/input/keyboard/device.hpp>
 #include <sge/input/keyboard/key_code.hpp>
+#include <sge/media/optional_extension_set.hpp>
 #include <sge/model/obj/create.hpp>
 #include <sge/model/obj/instance_ptr.hpp>
 #include <sge/model/obj/loader.hpp>
@@ -358,9 +359,10 @@ try
 				sge::viewport::fill_on_resize()))
 		(sge::systems::image2d(
 			sge::image::capabilities_field::null(),
-			fcppt::assign::make_container<sge::media::extension_set>(
-				sge::media::extension(
-					FCPPT_TEXT("png")))))
+			sge::media::optional_extension_set(
+				fcppt::assign::make_container<sge::media::extension_set>(
+					sge::media::extension(
+						FCPPT_TEXT("png"))))))
 		(sge::systems::input(
 				sge::systems::input_helper_field(
 					sge::systems::input_helper::keyboard_collector) |
