@@ -8,7 +8,7 @@ INCLUDE(FcpptCMakeUtils)
 FIND_PACKAGE(
 	Boost 1.45.0 REQUIRED COMPONENTS
 	system
-  )
+	)
 
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
@@ -35,8 +35,8 @@ ADD_DEFINITIONS(${Mizuiro_DEFINITIONS})
 
 
 SET(
- INSTALL_MEDIA_DIR
- media
+	INSTALL_MEDIA_DIR
+	media
 )
 
 INCLUDE(
@@ -56,10 +56,12 @@ FIND_PACKAGE(
 	camera
 	config
 	console
+	core
 	fonttext
 	image
 	image3d
 	input
+	log
 	modelobj
 	parse
 	renderer
