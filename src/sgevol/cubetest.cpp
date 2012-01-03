@@ -109,6 +109,7 @@
 #include <sge/renderer/texture/filter/scoped.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/texture/planar_ptr.hpp>
+#include <sge/renderer/texture/set_address_mode2.hpp>
 #include <sge/renderer/texture/stage.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/visual_depth.hpp>
@@ -646,11 +647,6 @@ try
 				rend,
 				sys.image_system(),
 				sge::renderer::texture::mipmap::off(),
-					sge::renderer::texture::address_mode2(
-						sge::renderer::texture::address_mode_s(
-							sge::renderer::texture::address_mode::clamp),
-						sge::renderer::texture::address_mode_t(
-							sge::renderer::texture::address_mode::repeat)),
 					sge::renderer::resource_flags::none
 				));
 
@@ -772,7 +768,17 @@ try
 		fps_counter.update();
 
 		if (console_gfx.active())
+		{
+			sge::renderer::texture::set_address_mode2(
+				rend,
+				sge::renderer::texture::stage(0u),
+				sge::renderer::texture::address_mode2(
+					sge::renderer::texture::address_mode_s(
+						sge::renderer::texture::address_mode::clamp),
+					sge::renderer::texture::address_mode_t(
+						sge::renderer::texture::address_mode::repeat)));
 			console_gfx.render();
+		}
 	}
 }
 catch(sge::exception const &e)

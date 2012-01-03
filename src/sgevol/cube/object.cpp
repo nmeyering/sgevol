@@ -18,6 +18,7 @@
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/texture/set_address_mode3.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/vertex_buffer.hpp>
 #include <sge/renderer/vertex_count.hpp>
@@ -175,25 +176,22 @@ shader_(
 					res);
 			}
 
-	shader_.update_texture("tex",
+	shader_.update_texture(
+		"tex",
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			tex_,
-			sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
-			sge::renderer::texture::address_mode3(
-				sge::renderer::texture::address_mode::clamp),
-			// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
-			// man die unbedingt wieder auslesen will
-			sge::renderer::resource_flags::none)
-			);
+			sge::renderer::texture::mipmap::all_levels(
+				sge::renderer::texture::mipmap::auto_generate::yes),
+			sge::renderer::resource_flags::none));
 
-	shader_.update_texture("noise",
+	shader_.update_texture(
+		"noise",
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			noise_,
-			sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
-			sge::renderer::texture::address_mode3(
-				sge::renderer::texture::address_mode::repeat),
+			sge::renderer::texture::mipmap::all_levels(
+				sge::renderer::texture::mipmap::auto_generate::yes),
 			sge::renderer::resource_flags::none));
 }
 
@@ -204,6 +202,12 @@ sgevol::cube::object::~object()
 void
 sgevol::cube::object::render()
 {
+	sge::renderer::texture::set_address_mode3(
+		renderer_,
+		sge::renderer::texture::stage(0u),
+		sge::renderer::texture::address_mode3(
+			sge::renderer::texture::address_mode::clamp));
+
 	sge::shader::scoped scoped_shader(
 		shader_,
 		sge::shader::activation_method_field(

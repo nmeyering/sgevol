@@ -8,7 +8,7 @@ INCLUDE(FcpptCMakeUtils)
 FIND_PACKAGE(
 	Boost 1.45.0 REQUIRED COMPONENTS
 	system
-  )
+	)
 
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
@@ -35,8 +35,8 @@ ADD_DEFINITIONS(${Mizuiro_DEFINITIONS})
 
 
 SET(
- INSTALL_MEDIA_DIR
- media
+	INSTALL_MEDIA_DIR
+	media
 )
 
 INCLUDE(
@@ -56,6 +56,7 @@ FIND_PACKAGE(
 	camera
 	config
 	console
+	core
 	fonttext
 	image
 	image3d
@@ -66,8 +67,8 @@ FIND_PACKAGE(
 	shader
 	systems
 	texture
-	window
-	viewport)
+	viewport
+	window)
 
 INCLUDE_DIRECTORIES(${SGE_INCLUDE_DIRS})
 ADD_DEFINITIONS(${SGE_CFLAGS})
