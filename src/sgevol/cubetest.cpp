@@ -409,7 +409,7 @@ try
 	else
 		tex_action =
 			std::tr1::bind(
-				&sgevol::texture3d::fill_spherical,
+				&sgevol::texture3d::fill,
 				&mytex);
 
 	fcppt::thread::object load_thread(
@@ -586,6 +586,7 @@ try
 			/ FCPPT_TEXT("fragment")
 			/ FCPPT_TEXT("simple.glsl"),
 		cam,
+		opacity_factor,
 		mytex.const_view(),
 		noise.const_view());
 
@@ -661,6 +662,18 @@ try
 					SGE_FONT_TEXT_LIT("quit")),
 				sge::console::callback::short_description(
 					SGE_FONT_TEXT_LIT("quit demo")))));
+
+	fcppt::signal::scoped_connection const opacity_conn(
+		console.insert(
+			sge::console::callback::from_functor<void(sge::renderer::scalar)>(
+				std::tr1::bind(
+					static_cast<void(sgevol::cube::object::*)(sge::renderer::scalar)>(&sgevol::cube::object::opacity),
+					&cube,
+					std::tr1::placeholders::_1),
+				sge::console::callback::name(
+					SGE_FONT_TEXT_LIT("opacity")),
+				sge::console::callback::short_description(
+					SGE_FONT_TEXT_LIT("cloud opacity")))));
 
 	fcppt::signal::scoped_connection const switch_cam_conn(
 		console.insert(

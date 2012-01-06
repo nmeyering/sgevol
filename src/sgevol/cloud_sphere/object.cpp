@@ -229,7 +229,7 @@ sgevol::cloud_sphere::object::render()
 	*/
 	renderer_.state(
 		sge::renderer::state::list(
-			sge::renderer::state::cull_mode::clockwise));
+			sge::renderer::state::cull_mode::counter_clockwise));
 
 	shader_.update_uniform(
 		"mvp",

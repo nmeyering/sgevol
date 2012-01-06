@@ -14,6 +14,7 @@
 #include <sge/renderer/texture/address_mode.hpp>
 #include <sge/renderer/texture/address_mode2.hpp>
 #include <sge/renderer/texture/set_address_mode2.hpp>
+#include <sge/renderer/state/cull_mode.hpp>
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/vertex_count.hpp>
 #include <sge/renderer/vertex_buffer.hpp>
@@ -139,6 +140,10 @@ sgevol::model::object::render()
 		sge::renderer::first_vertex(0),
 		sge::renderer::vertex_count(vb_->size()),
 		sge::renderer::nonindexed_primitive_type::triangle);
+
+	renderer_.state(
+		sge::renderer::state::list(
+			sge::renderer::state::cull_mode::counter_clockwise));
 
 	// mvp updaten
 	shader_.update_uniform(
