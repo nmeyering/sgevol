@@ -15,16 +15,16 @@
 	"save-texture" : false,
 	"background-color" : [0.0,0.0,0.1,1.0],
 	"globe-texture" : "world_1024.png",
-	"globe-radius" : 0.90,
+	"globe-radius" : 0.95,
 	"opacity-factor" : 1000.0,
 	"star-count" : 10000,
 	"star-size" : 5.0,
 	"cam" :
 	{
 		"movement-speed" : 0.05,
-		"acc-factor" : 0.02,
+		"acc-factor" : 0.05,
 		"min-radius" : 1.1,
 		"radius" : 3.0,
-		"damping" : 0.98
+		"damping" : 0.95
 	}
 }

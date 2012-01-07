@@ -109,6 +109,7 @@
 #include <sge/renderer/texture/filter/scoped.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/texture/planar_ptr.hpp>
+#include <sge/renderer/texture/set_address_mode2.hpp>
 #include <sge/renderer/texture/stage.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/visual_depth.hpp>
@@ -408,7 +409,7 @@ try
 	else
 		tex_action =
 			std::tr1::bind(
-				&sgevol::texture3d::fill_spherical,
+				&sgevol::texture3d::fill,
 				&mytex);
 
 	fcppt::thread::object load_thread(
@@ -585,6 +586,7 @@ try
 			/ FCPPT_TEXT("fragment")
 			/ FCPPT_TEXT("simple.glsl"),
 		cam,
+		opacity_factor,
 		mytex.const_view(),
 		noise.const_view());
 
@@ -646,11 +648,6 @@ try
 				rend,
 				sys.image_system(),
 				sge::renderer::texture::mipmap::off(),
-					sge::renderer::texture::address_mode2(
-						sge::renderer::texture::address_mode_s(
-							sge::renderer::texture::address_mode::clamp),
-						sge::renderer::texture::address_mode_t(
-							sge::renderer::texture::address_mode::repeat)),
 					sge::renderer::resource_flags::none
 				));
 
@@ -665,6 +662,18 @@ try
 					SGE_FONT_TEXT_LIT("quit")),
 				sge::console::callback::short_description(
 					SGE_FONT_TEXT_LIT("quit demo")))));
+
+	fcppt::signal::scoped_connection const opacity_conn(
+		console.insert(
+			sge::console::callback::from_functor<void(sge::renderer::scalar)>(
+				std::tr1::bind(
+					static_cast<void(sgevol::cube::object::*)(sge::renderer::scalar)>(&sgevol::cube::object::opacity),
+					&cube,
+					std::tr1::placeholders::_1),
+				sge::console::callback::name(
+					SGE_FONT_TEXT_LIT("opacity")),
+				sge::console::callback::short_description(
+					SGE_FONT_TEXT_LIT("cloud opacity")))));
 
 	fcppt::signal::scoped_connection const switch_cam_conn(
 		console.insert(
@@ -772,7 +781,17 @@ try
 		fps_counter.update();
 
 		if (console_gfx.active())
+		{
+			sge::renderer::texture::set_address_mode2(
+				rend,
+				sge::renderer::texture::stage(0u),
+				sge::renderer::texture::address_mode2(
+					sge::renderer::texture::address_mode_s(
+						sge::renderer::texture::address_mode::clamp),
+					sge::renderer::texture::address_mode_t(
+						sge::renderer::texture::address_mode::repeat)));
 			console_gfx.render();
+		}
 	}
 }
 catch(sge::exception const &e)

@@ -9,7 +9,7 @@ const float stepsize = 0.005;
 const int steps = int(sqrt(3.0)/stepsize);
 const vec3 center = vec3(0.5,0.5,0.5);
 const float PI = 3.1415926;
-const float opacity = 10.0;
+//const float opacity = 10.0;
 
 float simplex_noise(vec3);
 

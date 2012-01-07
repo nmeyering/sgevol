@@ -18,6 +18,7 @@
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/texture/set_address_mode3.hpp>
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/vertex_buffer.hpp>
 #include <sge/renderer/vertex_count.hpp>
@@ -49,6 +50,7 @@ sgevol::cube::object::object(
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
 	sge::camera::base* &_cam,
+	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,
 	sge::image3d::view::const_object const &_noise)
 :
@@ -67,6 +69,8 @@ vb_(
 		sge::renderer::resource_flags::none)),
 cam_(
 	_cam),
+opacity_(
+	_opacity),
 tex_(
 	_tex),
 noise_(
@@ -91,6 +95,10 @@ shader_(
 				sge::shader::matrix(
 					sge::renderer::matrix4::identity(),
 					sge::shader::matrix_flags::none)))
+			(sge::shader::variable(
+				"opacity",
+				sge::shader::variable_type::uniform,
+				_opacity))
 			(sge::shader::variable(
 				"offset",
 				sge::shader::variable_type::uniform,
@@ -175,25 +183,22 @@ shader_(
 					res);
 			}
 
-	shader_.update_texture("tex",
+	shader_.update_texture(
+		"tex",
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			tex_,
-			sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
-			sge::renderer::texture::address_mode3(
-				sge::renderer::texture::address_mode::clamp),
-			// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
-			// man die unbedingt wieder auslesen will
-			sge::renderer::resource_flags::none)
-			);
+			sge::renderer::texture::mipmap::all_levels(
+				sge::renderer::texture::mipmap::auto_generate::yes),
+			sge::renderer::resource_flags::none));
 
-	shader_.update_texture("noise",
+	shader_.update_texture(
+		"noise",
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			noise_,
-			sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
-			sge::renderer::texture::address_mode3(
-				sge::renderer::texture::address_mode::repeat),
+			sge::renderer::texture::mipmap::all_levels(
+				sge::renderer::texture::mipmap::auto_generate::yes),
 			sge::renderer::resource_flags::none));
 }
 
@@ -204,6 +209,12 @@ sgevol::cube::object::~object()
 void
 sgevol::cube::object::render()
 {
+	sge::renderer::texture::set_address_mode3(
+		renderer_,
+		sge::renderer::texture::stage(0u),
+		sge::renderer::texture::address_mode3(
+			sge::renderer::texture::address_mode::clamp));
+
 	sge::shader::scoped scoped_shader(
 		shader_,
 		sge::shader::activation_method_field(
@@ -264,6 +275,10 @@ sgevol::cube::object::render()
 	shader_.update_uniform(
 		"camera",
 		cam_->gizmo().position());
+
+	shader_.update_uniform(
+		"opacity",
+		opacity_);
 
 	shader_.update_uniform(
 		"mv",

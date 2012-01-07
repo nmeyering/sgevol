@@ -68,8 +68,8 @@ FIND_PACKAGE(
 	shader
 	systems
 	texture
-	window
-	viewport)
+	viewport
+	window)
 
 INCLUDE_DIRECTORIES(${SGE_INCLUDE_DIRS})
 ADD_DEFINITIONS(${SGE_CFLAGS})
