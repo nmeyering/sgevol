@@ -1,6 +1,5 @@
 #include <fcppt/math/clamp.hpp>
 #include <sge/image/color/init.hpp>
-#include <sge/image/color/l8.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/image3d/view/object.hpp>
 #include <sgevol/simplex_noise.hpp>
@@ -78,7 +77,7 @@ sgevol::noise_volume::calculate()
 						,1.f);
 
 				view_[ v::dim(x,y,z) ] =
-					sge::image::color::l8(
-						(sge::image::color::init::luminance() %= alpha));
+					color_type(
+						(mizuiro::image::color::init::trampoline<channel_type>() %= alpha));
 			}
 }

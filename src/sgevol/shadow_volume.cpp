@@ -1,3 +1,4 @@
+#include <mizuiro/color/init/trampoline.hpp>
 #include <sge/image/color/color.hpp>
 #include <sge/image/const_raw_pointer.hpp>
 #include <sge/image/raw_pointer.hpp>
@@ -5,7 +6,6 @@
 #include <sge/image3d/view/view.hpp>
 #include <mizuiro/image/view.hpp>
 #include <mizuiro/color/operators.hpp>
-#include <mizuiro/color/channel/luminance.hpp>
 #include <fcppt/io/cerr.hpp>
 #include <fcppt/math/clamp.hpp>
 #include <fcppt/math/dim/dim.hpp>
@@ -115,7 +115,7 @@ shadow_volume::calculate()
 						static_cast<float>(
 							cloud[
 								dim_3d(tmp)].get(
-									mizuiro::color::channel::luminance()));
+									mizuiro::color::init::trampoline<channel_type>()));
 
 					if (shadow > 1.f)
 						break;
@@ -125,8 +125,8 @@ shadow_volume::calculate()
 					0.f,
 					1.f);
 				store_view()[ v::dim(x,y,z) ] =
-					sge::image::color::l8(
-						(sge::image::color::init::luminance() %= shadow));
+					color_type(
+						(mizuiro::color::init::trampoline<channel_type>() %= shadow));
 			}
 	}
 	}

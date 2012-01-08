@@ -2,6 +2,9 @@
 #define SGEVOL_TEXTURE3D_HPP_INCLUDED
 
 #include <fcppt/string.hpp>
+#include <mizuiro/color/channel/luminance.hpp>
+#include <sge/image/color/l8.hpp>
+#include <sge/image/color/l8_format.hpp>
 #include <sge/image3d/l8.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/image3d/view/object.hpp>
@@ -15,6 +18,9 @@ class texture3d
 {
 public:
 	typedef sge::image3d::l8 store;
+	typedef sge::image::color::l8 color_type;
+	typedef mizuiro::color::channel::luminance channel_type;
+	typedef sge::image::color::l8_format color_format;
 	typedef store::view_type v;
 	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
 

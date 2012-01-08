@@ -11,7 +11,7 @@ class shadow_volume: public texture3d
 	public:
 		typedef
 		sge::image3d::view::const_element<
-			sge::image::color::l8_format
+			color_format
 		>::type
 		cloud_view;
 

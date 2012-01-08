@@ -339,8 +339,8 @@ texture3d::fill_spherical()
 				#endif
 
 				view_[ v::dim(x,y,z) ] =
-					sge::image::color::l8(
-						(sge::image::color::init::luminance() %= alpha));
+					color_type(
+						(mizuiro::image::color::init::trampoline<channel_type>() %= alpha));
 			}
 	}
 }
@@ -422,8 +422,8 @@ texture3d::fill()
 				#endif
 
 				view_[ v::dim(x,y,z) ] =
-					sge::image::color::l8(
-						(sge::image::color::init::luminance() %= alpha));
+					color_type(
+						(mizuiro::image::color::init::trampoline<channel_type>() %= alpha));
 			}
 	}
 }

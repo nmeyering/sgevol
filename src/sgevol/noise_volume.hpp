@@ -2,6 +2,8 @@
 #define SGEVOL_NOISE_VOLUME_HPP_INCLUDED
 
 #include <fcppt/string.hpp>
+#include <sge/image/color/l8.hpp>
+#include <sge/image/color/l8_format.hpp>
 #include <sge/image3d/l8.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/image3d/view/object.hpp>
@@ -14,6 +16,8 @@ class noise_volume
 {
 public:
 	typedef sge::image3d::l8 store;
+	typedef sge::image::color::l8 color_type;
+	typedef mizuiro::color::channel::luminance channel_type;
 	typedef store::view_type v;
 	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
 
