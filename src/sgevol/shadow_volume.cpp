@@ -115,7 +115,7 @@ shadow_volume::calculate()
 						static_cast<float>(
 							cloud[
 								dim_3d(tmp)].get(
-									mizuiro::color::init::trampoline<channel_type>()));
+									channel_type()));
 
 					if (shadow > 1.f)
 						break;

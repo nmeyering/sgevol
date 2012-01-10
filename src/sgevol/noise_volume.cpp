@@ -78,6 +78,6 @@ sgevol::noise_volume::calculate()
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(
-						(mizuiro::image::color::init::trampoline<channel_type>() %= alpha));
+						(mizuiro::color::init::trampoline<channel_type>() %= alpha));
 			}
 }

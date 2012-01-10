@@ -340,7 +340,7 @@ texture3d::fill_spherical()
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(
-						(mizuiro::image::color::init::trampoline<channel_type>() %= alpha));
+						(mizuiro::color::init::trampoline<channel_type>() %= alpha));
 			}
 	}
 }
@@ -423,7 +423,7 @@ texture3d::fill()
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(
-						(mizuiro::image::color::init::trampoline<channel_type>() %= alpha));
+						(mizuiro::color::init::trampoline<channel_type>() %= alpha));
 			}
 	}
 }
