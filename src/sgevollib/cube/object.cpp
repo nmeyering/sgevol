@@ -160,12 +160,12 @@ shader_(
 	int a = -1;
 	int b = 1;
 
-	for (unsigned side = 0; side < 6; ++side)
-		for (unsigned tri = 0; tri < 2; ++tri)
-			for (unsigned i = 0; i < 3; ++i)
+	for (unsigned side = 0u; side < 6u; ++side)
+		for (int tri = 0; tri < 2; ++tri)
+			for (int i = 0; i < 3; ++i)
 			{
-				unsigned vert = (tri == 0) ? i : 2 - i;
-				unsigned x = side % 3;
+				int vert = (tri == 0) ? i : 2 - i;
+				unsigned x = side % 3u;
 				int y = (vert == 0) ? a : b;
 				int z = (vert == 2) ? b : a;
 				if (
@@ -177,9 +177,9 @@ shader_(
 				position_vector res(0,0,0);
 				res[x] = static_cast<position_vector::value_type>(
 					(side > x) ? b : a);
-				res[x == 0 ? 1 : 0] = static_cast<position_vector::value_type>(
+				res[x == 0u ? 1u : 0u] = static_cast<position_vector::value_type>(
 					y);
-				res[x == 2 ? 1 : 2] = static_cast<position_vector::value_type>(
+				res[x == 2u ? 1u : 2u] = static_cast<position_vector::value_type>(
 					z);
 
 				(*vb_it++).set<vf::position>(

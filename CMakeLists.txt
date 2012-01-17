@@ -84,8 +84,6 @@ SET(
 	src/sgevollib/cloud_sphere/object.cpp
 	src/sgevollib/cloud_sphere/object.hpp
 	src/sgevollib/cloud_sphere/vf.hpp
-	src/sgevollib/create_cube.cpp
-	src/sgevollib/create_cube.hpp
 	src/sgevollib/cube/object.cpp
 	src/sgevollib/cube/object.hpp
 	src/sgevollib/cube/vf.hpp
@@ -143,7 +141,6 @@ ADD_LIBRARY(
 
 ADD_EXECUTABLE(
 	sgevol
-	WIN32
 	${SGEVOLLIB_FILES}
 	src/sgevol/main.cpp
 )
@@ -161,7 +158,7 @@ TARGET_LINK_LIBRARIES(
 
 ADD_EXECUTABLE(
 	cubetest
-	WIN32
+	${SGEVOLLIB_FILES}
 	src/sgevol/cubetest.cpp
 )
 
