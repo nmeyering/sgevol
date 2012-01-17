@@ -12,13 +12,13 @@
 #include <fcppt/string.hpp>
 #include <fcppt/math/vector/basic_impl.hpp>
 #include <fcppt/math/vector/static.hpp>
-
+#include <fcppt/noncopyable.hpp>
 
 namespace sgevollib
 {
-
 class texture3d
 {
+FCPPT_NONCOPYABLE(texture3d);
 public:
 	typedef sge::image3d::l8 store;
 	typedef sge::image::color::l8 color_type;
@@ -75,6 +75,5 @@ private:
 	v view_;
 	locked_value<float> progress_;
 };
-
 }
 #endif

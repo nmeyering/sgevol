@@ -107,10 +107,6 @@ SET(
 	src/sgevollib/perlin3d.hpp
 	src/sgevollib/shadow_volume.cpp
 	src/sgevollib/shadow_volume.hpp
-	src/sgevollib/simplex2d.cpp
-	src/sgevollib/simplex2d.hpp
-	src/sgevollib/simplex3d.cpp
-	src/sgevollib/simplex3d.hpp
 	src/sgevollib/simplex_noise.hpp
 	src/sgevollib/stars/object.cpp
 	src/sgevollib/stars/object.hpp

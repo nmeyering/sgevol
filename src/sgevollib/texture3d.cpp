@@ -127,12 +127,13 @@ void texture3d::load(
 		_filename);
 
 	pos_type size =
+		static_cast<long>(
 		sge::image3d::view::size(
 				view()
 			).content() *
 				sge::image::color::format_stride(
 					sge::image3d::view::format(
-						view()));
+						view())));
 
 	if (!file.is_open())
 		throw fcppt::exception(
@@ -158,7 +159,7 @@ void texture3d::load(
 		buffer += chunk_size;
 	}
 
-	unsigned rest = size % 100u;
+	std::streamoff rest = size % 100;
 	file.read(buffer,rest);
 	progress(100.f);
 
@@ -236,12 +237,12 @@ texture3d::save(
 	fcppt::io::cofstream file(
 		_filename);
 
-	sge::image3d::dim::value_type size = sge::image3d::view::size(
+	std::streamsize size = static_cast<std::streamsize>(sge::image3d::view::size(
 			const_view()
 		).content() *
 		sge::image::color::format_stride(
 			sge::image3d::view::format(
-				const_view()));
+				const_view())));
 
 	file.write(
 		reinterpret_cast<
@@ -384,7 +385,7 @@ texture3d::fill()
 						,1.f);
 				//sphere
 				#if 1
-				alpha *=
+				alpha *= static_cast<double>(
 					fcppt::math::clamp(
 						1.0f -
 						(0.5f + fcppt::math::vector::length( tmp - center )) /
@@ -398,7 +399,7 @@ texture3d::fill()
 						*/
 						0.f,
 						1.f
-					);
+					));
 				#endif
 				#else
 				alpha = fcppt::math::clamp(

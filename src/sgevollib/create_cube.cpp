@@ -10,7 +10,6 @@
 #include <utility>
 #include <fcppt/config/external_end.hpp>
 
-
 namespace sgevollib
 {
 // Hier ein kurzes Wort zu Vertexbuffern: Das sind letztendlich nur
@@ -63,12 +62,12 @@ create_cube(
 	int a = -1;
 	int b = 1;
 
-	for (int side = 0; side < 6; ++side)
+	for (unsigned side = 0; side < 6; ++side)
 		for (int tri = 0; tri < 2; ++tri)
 			for (int i = 0; i < 3; ++i)
 			{
 				int vert = (tri == 0) ? i : 2 - i;
-				int x = side % 3;
+				unsigned x = side % 3;
 				int y = (vert == 0) ? a : b;
 				int z = (vert == 2) ? b : a;
 				if (
@@ -82,9 +81,9 @@ create_cube(
 				position_vector res(0,0,0);
 				res[x] = static_cast<position_vector::value_type>(
 					(side > x) ? b : a);
-				res[x == 0 ? 1 : 0] = static_cast<position_vector::value_type>(
+				res[x == 0 ? 1u : 0u] = static_cast<position_vector::value_type>(
 					y);
-				res[x == 2 ? 1 : 2] = static_cast<position_vector::value_type>(
+				res[x == 2 ? 1u : 2u] = static_cast<position_vector::value_type>(
 					z);
 
 				(*vb_it++).set<vf::position>(

@@ -29,7 +29,7 @@ perlin2d::next_gradient(
 			rng(),
 			rng()
 		);
-		if (fcppt::math::vector::length( tmp ) <= 1.0)
+		if (fcppt::math::vector::length( tmp ) <= 1.f)
 			return fcppt::math::vector::normalize( tmp );
 	}
 }
@@ -68,7 +68,7 @@ perlin2d::perlin2d(
 			rng(),
 			rng()
 		);
-		if (fcppt::math::vector::length( tmp ) <= 1.0)
+		if (fcppt::math::vector::length( tmp ) <= 1.f)
 			gradients_.push_back(
 				fcppt::math::vector::normalize( tmp )
 			);
@@ -198,8 +198,8 @@ perlin2d::fill_grid(
 				fcppt::math::clamp(
 						sample(
 							vec2(
-								static_cast<float>(x * factor),
-								static_cast<float>(y * factor)
+								static_cast<float>(x) * factor,
+								static_cast<float>(y) * factor
 							) ),
 					0.0f,
 					1.0f

@@ -21,18 +21,14 @@ perlin3d::perlin3d(
 )
 :
 	dim_(
-		_dim
-		),
+		_dim),
 	perm_(
-		_dim
-		),
+		_dim),
 	grid_(
 		grid_type::dim(
 			_dim,
 			_dim,
-			_dim
-		)
-	)
+			_dim))
 {
 	boost::iota(perm_,static_cast<index_type>(0));
 	boost::random_shuffle(perm_);
@@ -40,45 +36,34 @@ perlin3d::perlin3d(
 	fcppt::random::uniform<float> rngx(
 		fcppt::random::make_inclusive_range(
 			0.0f,
-			1.0f
-		),
+			1.0f),
 		fcppt::random::default_generator(
-			fcppt::time::std_time()
-		)
-	);
+			static_cast<unsigned>(fcppt::time::std_time())));
 
 	fcppt::random::uniform<float> rngy(
 		fcppt::random::make_inclusive_range(
 			0.0f,
-			1.0f
-		),
+			1.0f),
 		fcppt::random::default_generator(
-			fcppt::time::std_time() + 1
-		)
-	);
+			static_cast<unsigned>(fcppt::time::std_time() + 1)));
 
 	fcppt::random::uniform<float> rngz(
 		fcppt::random::make_inclusive_range(
 			0.0f,
-			1.0f
-		),
+			1.0f),
 		fcppt::random::default_generator(
-			fcppt::time::std_time() + 2
-		)
-	);
+			static_cast<unsigned>(fcppt::time::std_time() + 2)));
 
 	vec3 tmp;
-	while( gradients_.size() < dim_ )
+	while(gradients_.size() < dim_)
 	{
 		tmp = vec3(
 			rngx(),
 			rngy(),
-			rngz()
-		);
-		if (fcppt::math::vector::length( tmp ) <= 1.0)
+			rngz());
+		if (fcppt::math::vector::length(tmp) <= 1.f)
 			gradients_.push_back(
-				fcppt::math::vector::normalize( tmp )
-			);
+				fcppt::math::vector::normalize(tmp));
 	}
 
 	for( grid_type::size_type z = 0; z < dim_; ++z )
@@ -88,9 +73,7 @@ perlin3d::perlin3d(
 					grid_type::dim(
 						x,
 						y,
-						z
-					)
-				] = rngx();
+						z)] = rngx();
 				/*= gradients_[
 					(	x +
 						perm_[
@@ -117,40 +100,40 @@ float perlin3d::sample(
 	dim3;
 
 	vec3 floor(
-		std::floor( point.x() ),
-		std::floor( point.y() ),
-		std::floor( point.z() ) );
+		std::floor(point.x()),
+		std::floor(point.y()),
+		std::floor(point.z()));
 
 	fcppt::container::array<float, 8> n_contribs;
 
-	for( unsigned i = 0; i < 8; ++i )
+	for(unsigned i = 0; i < 8; ++i)
 	{
 		vec3 neighbor(
-			floor.x() +  static_cast<float>(i & 1u),
-			floor.y() +  static_cast<float>(i & 2u)/2.f,
-			floor.z() +  static_cast<float>(i & 4u)/4.f
+			floor.x() + static_cast<float>(i & 1u),
+			floor.y() + static_cast<float>(i & 2u)/2.f,
+			floor.z() + static_cast<float>(i & 4u)/4.f
 		);
 		n_contribs[i] =
 			grid_[
 				fcppt::math::vector::structure_cast<
-					dim3
-			>( neighbor )
-			];
+					dim3>(
+						neighbor)
+					];
 	}
 
 	using fcppt::math::interpolation::linear;
 	using fcppt::math::interpolation::trigonometric;
 
-	vec3 const diff( point - floor );
-	float const tx = trigonometric( diff.x(), 1.0f, 0.0f );
-	float const ty = trigonometric( diff.y(), 1.0f, 0.0f );
-	float const tz = trigonometric( diff.z(), 1.0f, 0.0f );
+	vec3 const diff(point - floor);
+	float const tx = trigonometric(diff.x(), 1.0f, 0.0f);
+	float const ty = trigonometric(diff.y(), 1.0f, 0.0f);
+	float const tz = trigonometric(diff.z(), 1.0f, 0.0f);
 
-	float const x1 = linear( tx, n_contribs[1], n_contribs[0] );
-	float const x2 = linear( tx, n_contribs[3], n_contribs[2] );
-	float const x3 = linear( tx, n_contribs[5], n_contribs[4] );
-	float const x4 = linear( tx, n_contribs[7], n_contribs[6] );
-	float const y1 = linear( ty, x2, x1 );
-	float const y2 = linear( ty, x4, x3 );
-	return linear( tz, y2, y1 );
+	float const x1 = linear(tx, n_contribs[1], n_contribs[0]);
+	float const x2 = linear(tx, n_contribs[3], n_contribs[2]);
+	float const x3 = linear(tx, n_contribs[5], n_contribs[4]);
+	float const x4 = linear(tx, n_contribs[7], n_contribs[6]);
+	float const y1 = linear(ty, x2, x1);
+	float const y2 = linear(ty, x4, x3);
+	return linear(tz, y2, y1);
 }

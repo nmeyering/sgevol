@@ -617,14 +617,7 @@ try
 			fcppt::chrono::seconds(
 				1)));
 
-	sge::timer::basic<sge::timer::clocks::standard> offset_timer(
-		sge::timer::parameters<sge::timer::clocks::standard>(
-			fcppt::chrono::milliseconds(
-				50)));
-
 	sge::timer::frames_counter fps_counter;
-
-	sge::renderer::scalar offset = 0.0f;
 
 	sge::font::metrics_ptr const fps_metrics(
 		sys.font_system().create_font(
