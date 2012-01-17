@@ -1,0 +1,16 @@
+#ifndef SGEVOLLIB_CREATE_CUBE_HPP_INCLUDED
+#define SGEVOLLIB_CREATE_CUBE_HPP_INCLUDED
+
+#include <sge/renderer/device_ptr.hpp>
+#include <sge/renderer/vertex_buffer_ptr.hpp>
+#include <sge/renderer/vertex_declaration_ptr.hpp>
+#include <sge/shader/object.hpp>
+
+namespace sgevollib
+{
+std::pair<sge::renderer::vertex_buffer_ptr,sge::renderer::vertex_declaration_ptr> const
+create_cube(
+	sge::renderer::device&);
+}
+
+#endif

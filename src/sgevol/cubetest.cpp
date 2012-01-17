@@ -1,32 +1,18 @@
-#include <fcppt/assign/make_container.hpp>
-#include <fcppt/chrono/milliseconds.hpp>
-#include <fcppt/chrono/seconds.hpp>
-#include <fcppt/exception.hpp>
-#include <fcppt/extract_from_string_exn.hpp>
-#include <fcppt/filesystem/path.hpp>
-#include <fcppt/format.hpp>
-#include <fcppt/insert_to_string.hpp>
-#include <fcppt/io/cerr.hpp>
-#include <fcppt/make_shared_ptr.hpp>
-#include <fcppt/math/box/structure_cast.hpp>
-#include <fcppt/math/deg_to_rad.hpp>
-#include <fcppt/math/pi.hpp>
-#include <fcppt/math/twopi.hpp>
-#include <fcppt/ref.hpp>
-#include <fcppt/scoped_ptr.hpp>
-#include <fcppt/shared_ptr.hpp>
-#include <fcppt/signal/scoped_connection.hpp>
-#include <fcppt/string.hpp>
-#include <fcppt/thread/object.hpp>
-#include <sge/media/extension.hpp>
-#include <sge/media/extension_set.hpp>
+#include <sgevollib/media_path.hpp>
+#include <sgevollib/noise_volume.hpp>
+#include <sgevollib/texture3d.hpp>
+#include <sgevollib/cube/object.hpp>
+#include <sgevollib/json/parse_color.hpp>
+#include <sgevollib/model/object.hpp>
+#include <sgevollib/stars/object.hpp>
+#include <sge/exception.hpp>
 #include <sge/camera/base.hpp>
 #include <sge/camera/duration.hpp>
+#include <sge/camera/identity_gizmo.hpp>
 #include <sge/camera/first_person/movement_speed.hpp>
 #include <sge/camera/first_person/object.hpp>
 #include <sge/camera/first_person/parameters.hpp>
 #include <sge/camera/first_person/rotation_speed.hpp>
-#include <sge/camera/identity_gizmo.hpp>
 #include <sge/camera/projection/object.hpp>
 #include <sge/camera/projection/update_perspective_from_viewport.hpp>
 #include <sge/camera/spherical/movement_speed.hpp>
@@ -34,15 +20,14 @@
 #include <sge/camera/spherical/parameters.hpp>
 #include <sge/config/media_path.hpp>
 #include <sge/console/arg_list.hpp>
-#include <sge/console/callback/from_functor.hpp>
-#include <sge/console/callback/name.hpp>
-#include <sge/console/callback/short_description.hpp>
 #include <sge/console/gfx.hpp>
 #include <sge/console/object.hpp>
 #include <sge/console/output_line_limit.hpp>
 #include <sge/console/sprite_object.hpp>
 #include <sge/console/sprite_parameters.hpp>
-#include <sge/exception.hpp>
+#include <sge/console/callback/from_functor.hpp>
+#include <sge/console/callback/name.hpp>
+#include <sge/console/callback/short_description.hpp>
 #include <sge/font/metrics_ptr.hpp>
 #include <sge/font/rect.hpp>
 #include <sge/font/size_type.hpp>
@@ -58,39 +43,44 @@
 #include <sge/font/text/part.hpp>
 #include <sge/font/text/string.hpp>
 #include <sge/image/capabilities_field.hpp>
-#include <sge/image/color/any/object.hpp>
+#include <sge/image/colors.hpp>
 #include <sge/image/color/init.hpp>
 #include <sge/image/color/rgba8.hpp>
-#include <sge/image/colors.hpp>
+#include <sge/image/color/any/object.hpp>
 #include <sge/input/keyboard/action.hpp>
 #include <sge/input/keyboard/device.hpp>
 #include <sge/input/keyboard/key_code.hpp>
+#include <sge/media/extension.hpp>
+#include <sge/media/extension_set.hpp>
 #include <sge/media/optional_extension_set.hpp>
 #include <sge/model/obj/create.hpp>
 #include <sge/model/obj/instance_ptr.hpp>
 #include <sge/model/obj/loader.hpp>
 #include <sge/model/obj/loader_ptr.hpp>
-#include <sge/parse/json/config/create_command_line_parameters.hpp>
-#include <sge/parse/json/config/merge_command_line_parameters.hpp>
 #include <sge/parse/json/find_and_convert_member.hpp>
 #include <sge/parse/json/object.hpp>
 #include <sge/parse/json/parse_file_exn.hpp>
 #include <sge/parse/json/path.hpp>
 #include <sge/parse/json/value.hpp>
+#include <sge/parse/json/config/create_command_line_parameters.hpp>
+#include <sge/parse/json/config/merge_command_line_parameters.hpp>
 #include <sge/renderer/depth_stencil_buffer.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/no_multi_sampling.hpp>
 #include <sge/renderer/nonindexed_primitive_type.hpp>
 #include <sge/renderer/onscreen_target.hpp>
 #include <sge/renderer/parameters.hpp>
-#include <sge/renderer/projection/far.hpp>
-#include <sge/renderer/projection/fov.hpp>
-#include <sge/renderer/projection/near.hpp>
 #include <sge/renderer/resource_flags.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
 #include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_block.hpp>
 #include <sge/renderer/size_type.hpp>
+#include <sge/renderer/vector3.hpp>
+#include <sge/renderer/visual_depth.hpp>
+#include <sge/renderer/vsync.hpp>
+#include <sge/renderer/projection/far.hpp>
+#include <sge/renderer/projection/fov.hpp>
+#include <sge/renderer/projection/near.hpp>
 #include <sge/renderer/state/bool.hpp>
 #include <sge/renderer/state/color.hpp>
 #include <sge/renderer/state/depth_func.hpp>
@@ -101,19 +91,16 @@
 #include <sge/renderer/state/source_blend_func.hpp>
 #include <sge/renderer/state/trampoline.hpp>
 #include <sge/renderer/texture/address_mode.hpp>
+#include <sge/renderer/texture/address_mode2.hpp>
 #include <sge/renderer/texture/address_mode_s.hpp>
 #include <sge/renderer/texture/address_mode_t.hpp>
-#include <sge/renderer/texture/address_mode2.hpp>
 #include <sge/renderer/texture/create_planar_from_path.hpp>
-#include <sge/renderer/texture/filter/point.hpp>
-#include <sge/renderer/texture/filter/scoped.hpp>
-#include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/texture/planar_ptr.hpp>
 #include <sge/renderer/texture/set_address_mode2.hpp>
 #include <sge/renderer/texture/stage.hpp>
-#include <sge/renderer/vector3.hpp>
-#include <sge/renderer/visual_depth.hpp>
-#include <sge/renderer/vsync.hpp>
+#include <sge/renderer/texture/filter/point.hpp>
+#include <sge/renderer/texture/filter/scoped.hpp>
+#include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/sprite/object_impl.hpp>
 #include <sge/sprite/parameters_impl.hpp>
 #include <sge/systems/cursor_option.hpp>
@@ -129,34 +116,47 @@
 #include <sge/texture/part_ptr.hpp>
 #include <sge/texture/part_raw.hpp>
 #include <sge/timer/basic.hpp>
-#include <sge/timer/clocks/standard.hpp>
 #include <sge/timer/elapsed.hpp>
 #include <sge/timer/frames_counter.hpp>
 #include <sge/timer/parameters.hpp>
 #include <sge/timer/reset_when_expired.hpp>
+#include <sge/timer/clocks/standard.hpp>
 #include <sge/viewport/fill_on_resize.hpp>
 #include <sge/viewport/manager.hpp>
 #include <sge/window/dim.hpp>
 #include <sge/window/parameters.hpp>
 #include <sge/window/system.hpp>
 #include <sge/window/title.hpp>
-#include <sgevol/json/parse_color.hpp>
-#include <sgevol/cube/object.hpp>
-#include <sgevol/media_path.hpp>
-#include <sgevol/model/object.hpp>
-#include <sgevol/noise_volume.hpp>
-#include <sgevol/stars/object.hpp>
-#include <sgevol/texture3d.hpp>
-
+#include <fcppt/exception.hpp>
+#include <fcppt/extract_from_string_exn.hpp>
+#include <fcppt/format.hpp>
+#include <fcppt/insert_to_string.hpp>
+#include <fcppt/make_shared_ptr.hpp>
+#include <fcppt/ref.hpp>
+#include <fcppt/scoped_ptr.hpp>
+#include <fcppt/shared_ptr.hpp>
+#include <fcppt/string.hpp>
+#include <fcppt/assign/make_container.hpp>
+#include <fcppt/chrono/milliseconds.hpp>
+#include <fcppt/chrono/seconds.hpp>
+#include <fcppt/filesystem/path.hpp>
+#include <fcppt/io/cerr.hpp>
+#include <fcppt/math/deg_to_rad.hpp>
+#include <fcppt/math/pi.hpp>
+#include <fcppt/math/twopi.hpp>
+#include <fcppt/math/box/structure_cast.hpp>
+#include <fcppt/signal/scoped_connection.hpp>
+#include <fcppt/thread/object.hpp>
 #include <fcppt/config/external_begin.hpp>
+#include <boost/function.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
 #include <algorithm>
+#include <cstdlib>
 #include <exception>
 #include <iostream>
-#include <cstdlib>
-#include <boost/function.hpp>
 #include <fcppt/config/external_end.hpp>
+
 
 namespace
 {
@@ -212,7 +212,7 @@ try
 	sge::parse::json::object const &config_file =
 		sge::parse::json::config::merge_command_line_parameters(
 			sge::parse::json::parse_file_exn(
-				sgevol::media_path()/FCPPT_TEXT("config.json")),
+				sgevollib::media_path()/FCPPT_TEXT("config.json")),
 			sge::parse::json::config::create_command_line_parameters(
 				argc,
 				argv));
@@ -224,7 +224,7 @@ try
 				FCPPT_TEXT("console"))
 			/ FCPPT_TEXT("bg"));
 	sge::image::color::rgba8 console_fg =
-		sgevol::json::parse_color<sge::image::color::rgba8>(
+		sgevollib::json::parse_color<sge::image::color::rgba8>(
 			sge::parse::json::find_and_convert_member<sge::parse::json::value>(
 				config_file,
 			sge::parse::json::path(
@@ -277,7 +277,7 @@ try
 			sge::parse::json::path(
 				FCPPT_TEXT("opacity-factor")));
 	sge::image::color::rgba8 background_color =
-		sgevol::json::parse_color<sge::image::color::rgba8>(
+		sgevollib::json::parse_color<sge::image::color::rgba8>(
 			sge::parse::json::find_and_convert_member<sge::parse::json::value>(
 				config_file,
 			sge::parse::json::path(
@@ -348,7 +348,7 @@ try
 				sge::window::parameters(
 					// Fenstertitel offenbar
 					sge::window::title(
-						FCPPT_TEXT("sgevol: cloud volume rendering demo")
+						FCPPT_TEXT("sgevollib: cloud volume rendering demo")
 					),
 					dimensions)))
 		(sge::systems::renderer(
@@ -392,10 +392,10 @@ try
 	);
 	// typedef fcppt::scoped_ptr<texture3d> texture_scoped_ptr;
 
-	sgevol::texture3d mytex(
+	sgevollib::texture3d mytex(
 		texture_size);
 
-	sgevol::noise_volume noise(
+	sgevollib::noise_volume noise(
 		noise_size);
 
 	boost::function<void()> tex_action;
@@ -403,13 +403,13 @@ try
 	if (load_texture)
 		tex_action =
 			std::tr1::bind(
-				&sgevol::texture3d::load,
+				&sgevollib::texture3d::load,
 				&mytex,
 				fcppt::filesystem::path(load_path));
 	else
 		tex_action =
 			std::tr1::bind(
-				&sgevol::texture3d::fill,
+				&sgevollib::texture3d::fill_spherical,
 				&mytex);
 
 	fcppt::thread::object load_thread(
@@ -575,13 +575,13 @@ try
 			fcppt::filesystem::path(
 			save_path));
 
-	sgevol::cube::object cube(
+	sgevollib::cube::object cube(
 		rend,
-		sgevol::media_path()
+		sgevollib::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("vertex")
 			/ FCPPT_TEXT("vertex.glsl"),
-		sgevol::media_path()
+		sgevollib::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
 			/ FCPPT_TEXT("simple.glsl"),
@@ -590,15 +590,15 @@ try
 		mytex.const_view(),
 		noise.const_view());
 
-	sgevol::stars::object stars(
+	sgevollib::stars::object stars(
 		star_count,
 		star_size,
 		rend,
-		sgevol::media_path()
+		sgevollib::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("vertex")
 			/ FCPPT_TEXT("stars.glsl"),
-		sgevol::media_path()
+		sgevollib::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
 			/ FCPPT_TEXT("stars.glsl"),
@@ -642,7 +642,7 @@ try
 
 	sge::renderer::texture::planar_ptr console_tex(
 		sge::renderer::texture::create_planar_from_path(
-			sgevol::media_path()
+			sgevollib::media_path()
 				/ FCPPT_TEXT("textures")
 				/ console_bg,
 				rend,
@@ -667,7 +667,7 @@ try
 		console.insert(
 			sge::console::callback::from_functor<void(sge::renderer::scalar)>(
 				std::tr1::bind(
-					static_cast<void(sgevol::cube::object::*)(sge::renderer::scalar)>(&sgevol::cube::object::opacity),
+					static_cast<void(sgevollib::cube::object::*)(sge::renderer::scalar)>(&sgevollib::cube::object::opacity),
 					&cube,
 					std::tr1::placeholders::_1),
 				sge::console::callback::name(
@@ -770,7 +770,7 @@ try
 			drawer,
 			sge::font::text::from_fcppt_string(
 				fps_counter.frames_str())
-			+ SGE_FONT_TEXT_LIT(" fps"),
+			+ SGE_FONT_TEXT_LIT(""),
 			fcppt::math::box::structure_cast<sge::font::rect>(
 				rend.onscreen_target().viewport().get()),
 		sge::font::text::align_h::left,

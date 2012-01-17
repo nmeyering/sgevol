@@ -8,7 +8,7 @@ INCLUDE(FcpptCMakeUtils)
 FIND_PACKAGE(
 	Boost 1.45.0 REQUIRED COMPONENTS
 	system
-	)
+)
 
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
@@ -69,7 +69,8 @@ FIND_PACKAGE(
 	systems
 	texture
 	viewport
-	window)
+	window
+)
 
 INCLUDE_DIRECTORIES(${SGE_INCLUDE_DIRS})
 ADD_DEFINITIONS(${SGE_CFLAGS})
@@ -77,39 +78,83 @@ ADD_DEFINITIONS(${SGE_CFLAGS})
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
 
-# TODO
-SET_SOURCE_FILES_PROPERTIES(
-	media_path.cpp
-	PROPERTIES
-	COMPILE_FLAGS
-	-DMEDIA_PATH="\\\"${media_path}\\\""
+SET(
+	SGEVOLLIB_FILES
+	src/sgevollib/cloud_sphere/model_format.hpp
+	src/sgevollib/cloud_sphere/object.cpp
+	src/sgevollib/cloud_sphere/object.hpp
+	src/sgevollib/cloud_sphere/vf.hpp
+	src/sgevollib/create_cube.cpp
+	src/sgevollib/create_cube.hpp
+	src/sgevollib/cube/object.cpp
+	src/sgevollib/cube/object.hpp
+	src/sgevollib/cube/vf.hpp
+	src/sgevollib/json/parse_color.hpp
+	src/sgevollib/json/parse_rgba8_color.cpp
+	src/sgevollib/json/parse_rgba8_color.hpp
+	src/sgevollib/locked_value.hpp
+	src/sgevollib/media_path.cpp
+	src/sgevollib/media_path.hpp
+	src/sgevollib/model/object.cpp
+	src/sgevollib/model/object.hpp
+	src/sgevollib/model/vertex_format.hpp
+	src/sgevollib/model/vf.hpp
+	src/sgevollib/noise_volume.cpp
+	src/sgevollib/noise_volume.hpp
+	src/sgevollib/perlin2d.cpp
+	src/sgevollib/perlin2d.hpp
+	src/sgevollib/perlin3d.cpp
+	src/sgevollib/perlin3d.hpp
+	src/sgevollib/shadow_volume.cpp
+	src/sgevollib/shadow_volume.hpp
+	src/sgevollib/simplex2d.cpp
+	src/sgevollib/simplex2d.hpp
+	src/sgevollib/simplex3d.cpp
+	src/sgevollib/simplex3d.hpp
+	src/sgevollib/simplex_noise.hpp
+	src/sgevollib/stars/object.cpp
+	src/sgevollib/stars/object.hpp
+	src/sgevollib/stars/vf.hpp
+	src/sgevollib/texture3d.cpp
+	src/sgevollib/texture3d.hpp
+	src/sgevollib/to_ppm.hpp
+	src/sgevollib/vf.hpp
+	src/sgevollib/zip_with.hpp
 )
 
-SET_SOURCE_FILES_PROPERTIES(
-	src/sgevol/media_path.cpp
-	PROPERTIES
-	COMPILE_FLAGS
-	-DMEDIA_PATH="\\\"${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME}/media\\\""
+# Source groups are a MSVC file
+FCPPT_UTILS_ADD_SOURCE_GROUPS(
+	"${SGEVOLLIB_FILES}"
 )
+
+ADD_LIBRARY(
+	sgevollib STATIC ${SGEVOLLIB_FILES})
+
+# TODO
+#SET_SOURCE_FILES_PROPERTIES(
+#	media_path.cpp
+#	PROPERTIES
+#	COMPILE_FLAGS
+#	-DMEDIA_PATH="\\\"${media_path}\\\""
+#)
+#
+#SET_SOURCE_FILES_PROPERTIES(
+#	src/sgevol/media_path.cpp
+#	PROPERTIES
+#	COMPILE_FLAGS
+#	-DMEDIA_PATH="\\\"${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME}/media\\\""
+#)
 
 ADD_EXECUTABLE(
-	app
-	src/sgevol/json/parse_color.hpp
-	src/sgevol/json/parse_rgba8_color.hpp
-	src/sgevol/json/parse_rgba8_color.cpp
-	src/sgevol/cloud_sphere/object.cpp
-	src/sgevol/model/object.cpp
-	src/sgevol/stars/object.cpp
-	src/sgevol/name.cpp
+	sgevol
+	WIN32
+	${SGEVOLLIB_FILES}
 	src/sgevol/main.cpp
-	src/sgevol/media_path.cpp
-	src/sgevol/shadow_volume.cpp
-	src/sgevol/texture3d.cpp
-	src/sgevol/noise_volume.cpp
 )
 
 TARGET_LINK_LIBRARIES(
-	app
+	sgevol
+	sgevollib
 	${Boost_LIBRARIES}
 	${Fcppt_core_LIBRARIES}
 	${Fcppt_filesystem_LIBRARIES}
@@ -117,23 +162,16 @@ TARGET_LINK_LIBRARIES(
 	${SGE_LIBRARIES}
 )
 
+
 ADD_EXECUTABLE(
 	cubetest
-	src/sgevol/cube/object.cpp
+	WIN32
 	src/sgevol/cubetest.cpp
-	src/sgevol/json/parse_color.hpp
-	src/sgevol/json/parse_rgba8_color.cpp
-	src/sgevol/json/parse_rgba8_color.hpp
-	src/sgevol/media_path.cpp
-	src/sgevol/name.cpp
-	src/sgevol/noise_volume.cpp
-	src/sgevol/shadow_volume.cpp
-	src/sgevol/stars/object.cpp
-	src/sgevol/texture3d.cpp
 )
 
 TARGET_LINK_LIBRARIES(
 	cubetest
+	sgevollib
 	${Boost_LIBRARIES}
 	${Fcppt_core_LIBRARIES}
 	${Fcppt_filesystem_LIBRARIES}

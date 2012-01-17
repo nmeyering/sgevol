@@ -5,7 +5,7 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
-const float stepsize = 0.005;
+const float stepsize = 5e-3;
 const int steps = int(sqrt(3.0)/stepsize);
 const vec3 center = vec3(0.5,0.5,0.5);
 const float PI = 3.1415926;
