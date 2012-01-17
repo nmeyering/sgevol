@@ -23,15 +23,14 @@ perlin2d::next_gradient(
 )
 {
 	vec2 tmp;
-	while( true )
+	do
 	{
 		tmp = vec2(
 			rng(),
-			rng()
-		);
-		if (fcppt::math::vector::length( tmp ) <= 1.f)
-			return fcppt::math::vector::normalize( tmp );
+			rng());
 	}
+	while(fcppt::math::vector::length(tmp) > 1.f);
+	return fcppt::math::vector::normalize(tmp);
 }
 
 perlin2d::perlin2d(
