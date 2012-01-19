@@ -141,7 +141,6 @@ ADD_LIBRARY(
 
 ADD_EXECUTABLE(
 	sgevol
-	${SGEVOLLIB_FILES}
 	src/sgevol/main.cpp
 )
 
@@ -158,7 +157,6 @@ TARGET_LINK_LIBRARIES(
 
 ADD_EXECUTABLE(
 	cubetest
-	${SGEVOLLIB_FILES}
 	src/sgevol/cubetest.cpp
 )
 
