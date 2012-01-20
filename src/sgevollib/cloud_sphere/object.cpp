@@ -146,7 +146,8 @@ shader_(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			tex_,
-			sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
+			//sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
+			sge::renderer::texture::mipmap::off(),
 			// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
 			// man die unbedingt wieder auslesen will
 			sge::renderer::resource_flags::none);
@@ -160,7 +161,8 @@ shader_(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			noise_,
-			sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
+			//sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
+			sge::renderer::texture::mipmap::off(),
 			sge::renderer::resource_flags::none));
 
 	shader_.update_texture(

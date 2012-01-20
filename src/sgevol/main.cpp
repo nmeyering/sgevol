@@ -305,6 +305,11 @@ try
 				config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("star-size")));
+	bool spherical_texture =
+		sge::parse::json::find_and_convert_member<bool>(
+			config_file,
+			sge::parse::json::path(
+			FCPPT_TEXT("spherical-texture")));
 	bool load_texture =
 		sge::parse::json::find_and_convert_member<bool>(
 			config_file,
@@ -368,7 +373,7 @@ try
 				sge::renderer::parameters(
 					sge::renderer::visual_depth::depth32,
 					sge::renderer::depth_stencil_buffer::d24,
-					sge::renderer::vsync::on,
+					sge::renderer::vsync::off,
 					sge::renderer::no_multi_sampling),
 				sge::viewport::fill_on_resize()))
 		(sge::systems::image2d(
@@ -421,9 +426,15 @@ try
 				fcppt::filesystem::path(load_path));
 	else
 		tex_action =
-			std::tr1::bind(
-				&sgevollib::texture3d::fill_spherical,
-				&mytex);
+			spherical_texture
+				?
+				std::tr1::bind(
+					&sgevollib::texture3d::fill_spherical,
+					&mytex)
+				:
+				std::tr1::bind(
+					&sgevollib::texture3d::fill,
+					&mytex);
 
 	fcppt::thread::object load_thread(
 		boost::function<void()>(
@@ -496,8 +507,8 @@ try
 				0.f,0.f,-3.0))));
 
 	sge::camera::base
-		*cam = &spherical_cam,
-		*alternative_cam = &fps_cam;
+		*cam = &fps_cam,
+		*alternative_cam = &spherical_cam;
 
 	cam->active(true);
 
@@ -809,7 +820,7 @@ try
 		stars.render();
 
 		globe.render();
-#if 1
+#if 0
 		{
 			sge::renderer::texture::filter::scoped const scoped_filter(
 				rend,
@@ -827,7 +838,7 @@ try
 			drawer,
 			sge::font::text::from_fcppt_string(
 				fps_counter.frames_str())
-			+ SGE_FONT_TEXT_LIT(" fps"),
+			+ SGE_FONT_TEXT_LIT(""),
 			fcppt::math::box::structure_cast<sge::font::rect>(
 				rend.onscreen_target().viewport().get()),
 		sge::font::text::align_h::left,

@@ -10,6 +10,7 @@ const int steps = int(sqrt(3.0)/stepsize);
 const vec3 center = vec3(0.5,0.5,0.5);
 const float PI = 3.1415926;
 //const float opacity = 10.0;
+float radius_limit = 0.498 * radius;
 
 float simplex_noise(vec3);
 
@@ -43,13 +44,14 @@ main()
 	for(int i = 0; i < steps; i++)
 	{
 		value = texture(tex, position).r;
-
-		//float xxx = polar(position * 2.0 - 1.0).y;
-		//vec3 color = vec3(1.0 - xxx, xxx, 0.0);
 		dst += (1.0 - dst.a) * factor * vec4(1.0,1.0,1.0, value);
-
 		position = position + direction * stepsize;
 
+
+		/*
+		// ray termination - threshold
+		if(dst.a > 0.99)
+			break;
 		// ray termination - cube
 		vec3 temp1 = sign(position);
 		vec3 temp2 = sign(vec3(1.0, 1.0, 1.0) - position);
@@ -58,9 +60,12 @@ main()
 		if (inside < 3.0)
 			break;
 
-		// ray termination - threshold
-		if(dst.a > 0.95)
+		if (distance(position, center) < radius_limit)
 			break;
+		if (distance(position, center) > 0.51)
+			break;
+		*/
+
 	}
 
 	float m = max(max(dst.r, dst.g), max(dst.b, dst.a));

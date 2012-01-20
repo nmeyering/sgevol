@@ -292,6 +292,11 @@ try
 				config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("star-size")));
+	bool spherical_texture =
+		sge::parse::json::find_and_convert_member<bool>(
+			config_file,
+			sge::parse::json::path(
+			FCPPT_TEXT("spherical-texture")));
 	bool load_texture =
 		sge::parse::json::find_and_convert_member<bool>(
 			config_file,
@@ -355,7 +360,7 @@ try
 				sge::renderer::parameters(
 					sge::renderer::visual_depth::depth32,
 					sge::renderer::depth_stencil_buffer::d24,
-					sge::renderer::vsync::on,
+					sge::renderer::vsync::off,
 					sge::renderer::no_multi_sampling),
 				sge::viewport::fill_on_resize()))
 		(sge::systems::image2d(
@@ -408,9 +413,15 @@ try
 				fcppt::filesystem::path(load_path));
 	else
 		tex_action =
-			std::tr1::bind(
-				&sgevollib::texture3d::fill_spherical,
-				&mytex);
+			spherical_texture
+				?
+				std::tr1::bind(
+					&sgevollib::texture3d::fill_spherical,
+					&mytex)
+				:
+				std::tr1::bind(
+					&sgevollib::texture3d::fill,
+					&mytex);
 
 	fcppt::thread::object load_thread(
 		boost::function<void()>(
@@ -584,7 +595,7 @@ try
 		sgevollib::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
-			/ FCPPT_TEXT("simple.glsl"),
+			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str(),
 		cam,
 		opacity_factor,
 		mytex.const_view(),
@@ -754,7 +765,7 @@ try
 		// Beginne Renderdurchgang
 		sge::renderer::scoped_block const block_(rend);
 
-		stars.render();
+		//stars.render();
 
 		cube.render();
 

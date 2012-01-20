@@ -13,7 +13,7 @@
 #include <fcppt/config/external_end.hpp>
 
 
-#include "perlin2d.hpp"
+#include <sgevollib/perlin2d.hpp>
 
 using sgevollib::perlin2d;
 
