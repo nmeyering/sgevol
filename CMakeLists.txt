@@ -59,6 +59,7 @@ FIND_PACKAGE(
 	core
 	fonttext
 	image
+	image2d
 	image3d
 	input
 	log
@@ -162,6 +163,21 @@ ADD_EXECUTABLE(
 
 TARGET_LINK_LIBRARIES(
 	cubetest
+	sgevollib
+	${Boost_LIBRARIES}
+	${Fcppt_core_LIBRARIES}
+	${Fcppt_filesystem_LIBRARIES}
+	${Fcppt_thread_LIBRARIES}
+	${SGE_LIBRARIES}
+)
+
+ADD_EXECUTABLE(
+	planar_noise
+	src/sgevol/planar_noise.cpp
+)
+
+TARGET_LINK_LIBRARIES(
+	planar_noise
 	sgevollib
 	${Boost_LIBRARIES}
 	${Fcppt_core_LIBRARIES}

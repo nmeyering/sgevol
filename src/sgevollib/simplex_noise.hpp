@@ -231,7 +231,7 @@ simplex_noise<Float,N>::sample(
 	}
 
 	// FIXME: replace this magic number with something sensible
-	return 40.f * res;
+	return static_cast<Float>(40.0) * res;
 }
 
 }
