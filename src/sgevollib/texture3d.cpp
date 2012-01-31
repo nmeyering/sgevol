@@ -38,6 +38,19 @@ namespace
 {
 typedef sgevollib::texture3d::vec3 vec3;
 
+float
+checkerboard(
+	vec3 const &p,
+	float const scale)
+{
+	return
+		(std::fmod(p.x(),1.f/scale) > (0.5f/scale) !=
+		std::fmod(p.y(),1.f/scale) > (0.5f/scale)) ||
+		(std::fmod(p.x(),1.f/scale) > (0.5f/scale) !=
+		std::fmod(p.z(),1.f/scale) > (0.5f/scale))
+					? 0.f : 1.f;
+}
+
 vec3
 to_spherical(
 	const vec3 &p)
@@ -261,11 +274,11 @@ texture3d::fill_spherical()
 	typedef v::dim::value_type dimtype;
 
 	vec3 center(
-			static_cast< float >( dimension_ ) * .5f,
-			static_cast< float >( dimension_ ) * .5f,
-			static_cast< float >( dimension_ ) * .5f);
+			static_cast<float>(dimension_) * .5f,
+			static_cast<float>(dimension_) * .5f,
+			static_cast<float>(dimension_) * .5f);
 
-	sgevollib::simplex_noise<float,3> noise( 128, 256 );
+	sgevollib::simplex_noise<float,3> noise(128, 256);
 	vec3 pos = vec3::null();
 
 	float const dim = static_cast<float>(dimension_);
@@ -286,59 +299,21 @@ texture3d::fill_spherical()
 				vec3 tmp(
 					static_cast<float>(x) / dim,
 					2.f * pi * static_cast<float>(y) / dim,
-					pi * (static_cast<float>(z) / dim - .5f));
+					pi * static_cast<float>(z) / dim);
 				tmp = (to_cartesian(tmp) + vec3(1.f,1.f,1.f)) * .5f;
 
 				#if 1
-				#if 1
 				alpha =
 					fcppt::math::clamp(
-						0.0625f * noise.sample( scale * 0.2f * tmp ) +
-						0.125f * noise.sample( scale * 0.10f * tmp ) +
-						0.25f * noise.sample( scale * 0.05f * tmp ) +
-						0.5f * noise.sample( scale * 0.025f * tmp )
+						0.0625f * noise.sample(scale * 0.2f * tmp) +
+						0.125f * noise.sample(scale * 0.10f * tmp) +
+						0.25f * noise.sample(scale * 0.05f * tmp) +
+						0.5f * noise.sample(scale * 0.025f * tmp)
 						,0.f
 						,1.f);
-				//sphere
-				#if 0
-				alpha *=
-					fcppt::math::clamp(
-						1.0f -
-						(0.5f + fcppt::math::vector::length( pos - center )) /
-						(0.5f * dim),
-						/*
-						(
-							fcppt::math::vector::length(tmp - center) <
-								0.5f * dim ?
-								1.f :
-								0.f ),
-						*/
-						0.f,
-						1.f
-					);
-				#endif
 				#else
-				alpha = fcppt::math::clamp(
-					1.0f -
-					8.f * tmp[1] / dim,
-					0.f,
-					1.f
-				);
-
-				alpha +=
-					(fcppt::math::vector::length(tmp -
-						1.5f * center) /
-					(0.2f * dim)) < 1.f ?
-						1.f:
-						0.f;
-
-				alpha +=
-					(fcppt::math::vector::length(tmp -
-						0.5f * center) /
-					(0.2f * dim)) < 1.f ?
-						1.f:
-						0.f;
-				#endif
+				alpha =
+					checkerboard(tmp, 3.f);
 				#endif
 
 				view_[ v::dim(x,y,z) ] =
@@ -354,13 +329,13 @@ texture3d::fill()
 	double alpha = 1.0;
 	typedef v::dim::value_type dimtype;
 	vec3 center(
-			static_cast< float >( dimension_ ) * .5f,
-			static_cast< float >( dimension_ ) * .5f,
-			static_cast< float >( dimension_ ) * .5f);
+			static_cast<float>(dimension_) * .5f,
+			static_cast<float>(dimension_) * .5f,
+			static_cast<float>(dimension_) * .5f);
 	sgevollib::simplex_noise<float,3> noise(128, 256);
 	vec3 tmp = vec3::null();
 	float const dim = static_cast<float>(dimension_);
-	float const scale = 512.f / dim;
+	float const scale = 128.f / dim;
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
 		progress(100.0f * static_cast<float>(z+1) / dim);
@@ -368,27 +343,27 @@ texture3d::fill()
 			for (dimtype x = 0; x < dimension_; ++x)
 			{
 				tmp[0] =
-					static_cast< float >( x );
+					static_cast<float>(x);
 				tmp[1] =
-					static_cast< float >( y );
+					static_cast<float>(y);
 				tmp[2] =
-					static_cast< float >( z );
+					static_cast<float>(z);
 
-				#if 1
+				#if 0
 				alpha =
 					fcppt::math::clamp(
-						0.0625f * noise.sample( scale * 0.2f * tmp ) +
-						0.125f * noise.sample( scale * 0.10f * tmp ) +
-						0.25f * noise.sample( scale * 0.05f * tmp ) +
-						0.5f * noise.sample( scale * 0.025f * tmp )
-						,0.f
-						,1.f);
+						0.0625f * noise.sample(scale * 0.2f * tmp) +
+						0.125f * noise.sample(scale * 0.10f * tmp) +
+						0.25f * noise.sample(scale * 0.05f * tmp) +
+						0.5f * noise.sample(scale * 0.025f * tmp),
+						0.f,
+						1.f);
 				//sphere
 				#if 1
 				alpha *= static_cast<double>(
 					fcppt::math::clamp(
 						1.0f -
-						(0.5f + fcppt::math::vector::length( tmp - center )) /
+						(0.5f + fcppt::math::vector::length(tmp - center)) /
 						(0.5f * dim),
 						/*
 						(
@@ -398,8 +373,7 @@ texture3d::fill()
 								0.f ),
 						*/
 						0.f,
-						1.f
-					));
+						1.f));
 				#endif
 				#else
 				alpha = fcppt::math::clamp(

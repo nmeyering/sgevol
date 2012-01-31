@@ -29,6 +29,7 @@
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/texture/planar_ptr.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/renderer/vf/dynamic/part_index.hpp>
 #include <sge/shader/activation_method.hpp>
@@ -58,7 +59,8 @@ sgevollib::cloud_sphere::object::object(
 	sge::renderer::scalar _radius,
 	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,
-	sge::image3d::view::const_object const &_noise)
+	sge::image3d::view::const_object const &_noise,
+	sge::renderer::texture::planar_ptr &_clouds)
 :
 renderer_(
 	_renderer),
@@ -82,6 +84,8 @@ tex_(
 	_tex),
 noise_(
 	_noise),
+clouds_(
+	_clouds),
 shader_(
 	sge::shader::object_parameters(
 		renderer_,
@@ -130,7 +134,9 @@ shader_(
 				"tex", sge::renderer::texture::volume_ptr()))
 			(sge::shader::sampler(
 				"noise", sge::renderer::texture::volume_ptr()))
-				)
+			(sge::shader::sampler(
+				"clouds", clouds_))
+		)
 				.vertex_shader(
 					_vertex_shader_file)
 				.fragment_shader(
@@ -168,6 +174,7 @@ shader_(
 	shader_.update_texture(
 		"noise",
 		shadertex);
+
 }
 
 sgevollib::cloud_sphere::object::~object()
@@ -232,7 +239,7 @@ sgevollib::cloud_sphere::object::render()
 	*/
 	renderer_.state(
 		sge::renderer::state::list(
-			sge::renderer::state::cull_mode::counter_clockwise));
+			sge::renderer::state::cull_mode::clockwise));
 
 	shader_.update_uniform(
 		"mvp",

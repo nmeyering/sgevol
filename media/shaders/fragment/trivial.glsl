@@ -33,7 +33,8 @@ main()
 	{
 		value = texture(tex, position).r;
 
-		dst += (1.0 - dst.a) * density * vec4(1.0,0.2,0.1, value);
+		//dst += (1.0 - dst.a) * density * vec4((2.0 * position) - 1.0, value);
+		dst += (1.0 - dst.a) * density * vec4(1.0,1.0,1.0, value);
 
 		// position = starting_position + stepsize * direction * i;
 		position += direction * stepsize;

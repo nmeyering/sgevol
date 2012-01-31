@@ -284,6 +284,11 @@ try
 			config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("globe-radius")));
+	fcppt::string cloud_texture_path =
+		sge::parse::json::find_and_convert_member<fcppt::string>(
+			config_file,
+			sge::parse::json::path(
+			FCPPT_TEXT("cloud-texture")));
 	sge::renderer::scalar opacity_factor =
 		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
 			config_file,
@@ -373,7 +378,7 @@ try
 				sge::renderer::parameters(
 					sge::renderer::visual_depth::depth32,
 					sge::renderer::depth_stencil_buffer::d24,
-					sge::renderer::vsync::off,
+					sge::renderer::vsync::on,
 					sge::renderer::no_multi_sampling),
 				sge::viewport::fill_on_resize()))
 		(sge::systems::image2d(
@@ -504,7 +509,7 @@ try
 		.gizmo(
 			sge::camera::identity_gizmo().position(
 				sge::renderer::vector3(
-				0.f,0.f,-3.0))));
+				0.f,0.f,-1.5))));
 
 	sge::camera::base
 		*cam = &fps_cam,
@@ -634,6 +639,16 @@ try
 		globe_radius,
 		cam);
 
+	sge::renderer::texture::planar_ptr cloudtex(
+		sge::renderer::texture::create_planar_from_path(
+			sgevollib::media_path()
+				/ FCPPT_TEXT("textures")
+				/ cloud_texture_path,
+				rend,
+				sys.image_system(),
+				sge::renderer::texture::mipmap::off(),
+				sge::renderer::resource_flags::none));
+
 	sgevollib::cloud_sphere::object sphere(
 		rend,
 		globe_model,
@@ -649,8 +664,8 @@ try
 		globe_radius,
 		opacity_factor,
 		mytex.const_view(),
-		noise.const_view());
-
+		noise.const_view(),
+		cloudtex);
 
 	sgevollib::stars::object stars(
 		star_count,

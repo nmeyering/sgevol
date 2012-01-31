@@ -360,7 +360,7 @@ try
 				sge::renderer::parameters(
 					sge::renderer::visual_depth::depth32,
 					sge::renderer::depth_stencil_buffer::d24,
-					sge::renderer::vsync::off,
+					sge::renderer::vsync::on,
 					sge::renderer::no_multi_sampling),
 				sge::viewport::fill_on_resize()))
 		(sge::systems::image2d(

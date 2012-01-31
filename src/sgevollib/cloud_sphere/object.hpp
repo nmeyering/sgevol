@@ -3,6 +3,7 @@
 
 #include <sge/camera/base.hpp>
 #include <sge/image3d/view/const_object.hpp>
+#include <sge/image2d/view/const_object.hpp>
 #include <sge/model/obj/instance_ptr.hpp>
 #include <sge/model/obj/loader_ptr.hpp>
 #include <sge/model/obj/vb_converter/convert.hpp>
@@ -28,10 +29,11 @@ public:
 		fcppt::filesystem::path const &_vertex_shader_file,
 		fcppt::filesystem::path const &_fragment_shader_file,
 		sge::camera::base* &,
-		sge::renderer::scalar radius,
-		sge::renderer::scalar opacity,
-		sge::image3d::view::const_object const &_tex,
-		sge::image3d::view::const_object const &_noise);
+		sge::renderer::scalar,
+		sge::renderer::scalar,
+		sge::image3d::view::const_object const &,
+		sge::image3d::view::const_object const &,
+		sge::renderer::texture::planar_ptr &);
 
 	void render();
 
@@ -59,6 +61,7 @@ private:
 	sge::renderer::scalar opacity_;
 	sge::image3d::view::const_object const &tex_;
 	sge::image3d::view::const_object const &noise_;
+	sge::renderer::texture::planar_ptr &clouds_;
 	sge::shader::object shader_;
 };
 
