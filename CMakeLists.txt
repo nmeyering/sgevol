@@ -185,3 +185,18 @@ TARGET_LINK_LIBRARIES(
 	${Fcppt_thread_LIBRARIES}
 	${SGE_LIBRARIES}
 )
+
+ADD_EXECUTABLE(
+	cloud_data_to_png
+	src/sgevol/cloud_data_to_png.cpp
+)
+
+TARGET_LINK_LIBRARIES(
+	cloud_data_to_png
+	sgevollib
+	${Boost_LIBRARIES}
+	${Fcppt_core_LIBRARIES}
+	${Fcppt_filesystem_LIBRARIES}
+	${Fcppt_thread_LIBRARIES}
+	${SGE_LIBRARIES}
+)
