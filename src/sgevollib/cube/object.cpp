@@ -36,7 +36,6 @@
 #include <sge/shader/scoped.hpp>
 #include <sge/shader/variable_sequence.hpp>
 #include <sge/shader/vf_to_string.hpp>
-#include <sge/timer/reset_when_expired.hpp>
 #include <fcppt/format.hpp>
 #include <fcppt/noncopyable.hpp>
 #include <fcppt/assign/make_container.hpp>
@@ -131,6 +130,11 @@ shader_(
 					/ FCPPT_TEXT("fragment")
 					/ FCPPT_TEXT("simplex_noise.glsl"))
 				.fragment_shader(
+					sgevollib::media_path()
+					/ FCPPT_TEXT("shaders")
+					/ FCPPT_TEXT("fragment")
+					/ FCPPT_TEXT("bounding_tests.glsl"))
+				.fragment_shader(
 					_fragment_shader_file))
 {
 	// Um lesend oder schreibend auf einen Vertexbuffer zugreifen zu können, muss
@@ -210,7 +214,7 @@ sgevollib::cube::object::~object()
 }
 
 void
-sgevollib::cube::object::render()
+sgevollib::cube::object::render(float offset)
 {
 	sge::renderer::texture::set_address_mode3(
 		renderer_,
@@ -238,36 +242,29 @@ sgevollib::cube::object::render()
 		sge::renderer::vertex_count(vb_->size()),
 		sge::renderer::nonindexed_primitive_type::triangle);
 
-	/*
-	if (sge::timer::reset_when_expired(offset_timer))
-		offset += fcppt::math::pi<float>()/50.f;
-		if (offset > fcppt::math::twopi<float>())
-			offset = 0.f;
-	*/
-
-	/*
 	if(
-			std::abs( cam.gizmo().position().x() ) >= 1.0f ||
-			std::abs( cam.gizmo().position().y() ) >= 1.0f ||
-			std::abs( cam.gizmo().position().z() ) >= 1.0f
+			std::abs( cam_->gizmo().position().x() ) >= 1.0f ||
+			std::abs( cam_->gizmo().position().y() ) >= 1.0f ||
+			std::abs( cam_->gizmo().position().z() ) >= 1.0f
 		)
 	{
-		rend.state(
-			sge::renderer::state::list(
-				sge::renderer::state::cull_mode::counter_clockwise
-			));
-	}
-	else
-	{
-		rend.state(
+		renderer_.state(
 			sge::renderer::state::list(
 				sge::renderer::state::cull_mode::clockwise
 			));
 	}
-	*/
+	else
+	{
+		renderer_.state(
+			sge::renderer::state::list(
+				sge::renderer::state::cull_mode::counter_clockwise
+			));
+	}
+	/*
 	renderer_.state(
 		sge::renderer::state::list(
 			sge::renderer::state::cull_mode::clockwise));
+	*/
 
 	shader_.update_uniform(
 		"mvp",
@@ -282,6 +279,10 @@ sgevollib::cube::object::render()
 	shader_.update_uniform(
 		"opacity",
 		opacity_);
+
+	shader_.update_uniform(
+		"offset",
+		offset);
 
 	shader_.update_uniform(
 		"mv",

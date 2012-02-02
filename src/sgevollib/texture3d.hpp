@@ -3,12 +3,12 @@
 
 #include <sgevollib/locked_value.hpp>
 #include <sge/image/store.hpp>
-#include <sge/image/color/l8.hpp>
-#include <sge/image/color/l8_format.hpp>
-#include <sge/image3d/l8.hpp>
+#include <sge/image/color/r32f.hpp>
+#include <sge/image/color/r32f_format.hpp>
+#include <sge/image3d/r32f.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/image3d/view/object.hpp>
-#include <mizuiro/color/channel/luminance.hpp>
+#include <mizuiro/color/channel/red.hpp>
 #include <fcppt/string.hpp>
 #include <fcppt/math/vector/basic_impl.hpp>
 #include <fcppt/math/vector/static.hpp>
@@ -20,10 +20,10 @@ class texture3d
 {
 FCPPT_NONCOPYABLE(texture3d);
 public:
-	typedef sge::image3d::l8 store;
-	typedef sge::image::color::l8 color_type;
-	typedef mizuiro::color::channel::luminance channel_type;
-	typedef sge::image::color::l8_format color_format;
+	typedef sge::image3d::r32f store;
+	typedef sge::image::color::r32f color_type;
+	typedef mizuiro::color::channel::red channel_type;
+	typedef sge::image::color::r32f_format color_format;
 	typedef store::view_type v;
 	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
 

@@ -35,7 +35,7 @@ public:
 		sge::image3d::view::const_object const &,
 		sge::renderer::texture::planar_ptr &);
 
-	void render();
+	void render(float);
 
 	void opacity(
 		sge::renderer::scalar const _opacity)

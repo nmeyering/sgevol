@@ -47,7 +47,7 @@
 #include <fcppt/filesystem/path.hpp>
 #include <fcppt/math/pi.hpp>
 #include <fcppt/math/twopi.hpp>
-
+#include <iostream>
 
 sgevollib::model::object::object(
 	sge::renderer::device &_renderer,
@@ -144,7 +144,7 @@ sgevollib::model::object::render()
 
 	renderer_.state(
 		sge::renderer::state::list(
-			sge::renderer::state::cull_mode::clockwise));
+			sge::renderer::state::cull_mode::counter_clockwise));
 
 	// mvp updaten
 	shader_.update_uniform(

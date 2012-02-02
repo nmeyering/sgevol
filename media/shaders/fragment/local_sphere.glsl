@@ -27,7 +27,7 @@ vec3 sun = normalize(vec3(sin(offset),0.0,cos(offset)));
 // vec3 sun = normalize(vec3(0.0,-1.0,0.0));
 const vec3 sky = vec3(0.0,1.0,0.0);
 
-// float radius_limit = 0.498 * radius;
+float radius_limit = 0.498 * radius;
 float factor = opacity;
 
 vec3
@@ -81,10 +81,8 @@ main()
 
 		position = position + direction * stepsize;
 
-		/*
-		if (outside_sphere(position, center, radius_limit))
+		if (!outside_sphere(position, center, radius_limit))
 			break;
-		*/
 
 		// ray termination
 		if (outside_unit_cube(position))

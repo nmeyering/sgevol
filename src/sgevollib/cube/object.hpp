@@ -28,7 +28,7 @@ public:
 		sge::image3d::view::const_object const &_tex,
 		sge::image3d::view::const_object const &_noise);
 
-	void render();
+	void render(float);
 
 	void opacity(
 		sge::renderer::scalar const _opacity)

@@ -11,32 +11,32 @@ const float stepsize = 5e-3;
 // Hauptdiagonale des Würfels ist die längste mögliche Strecke
 const int steps = int(sqrt(3.0)/stepsize);
 
-// höhere Werte ~= höhere Dichte
-// const float opacity = 25.0;
+bool
+outside_unit_cube(const vec3);
 
 void
 main()
 {
 	vec4 dst = vec4(0.0, 0.0, 0.0, 0.0);
 	vec3 direction = normalize(position_interp - camera);
-	// scaling density for uniform cloud data
-	float density = stepsize * opacity;
+	// scaling factor for uniform cloud data
+	float factor = opacity;
 	float value;
 
-	// cube_scale = 64.0 oder so muss von außen reinkommen
-	// vec3 position = position_interp / cube_scale;
-	vec3 position = 0.5 * (position_interp + 1.0);
-
-	vec3 starting_position = position;
+	vec3 position;
+	if(any(greaterThan(abs(camera), vec3(1.0))))
+		position = position_interp;
+	else
+		position = camera;
+	position = (position + 1.0) * 0.5;
 
 	for(int i = 0; i < steps; i++)
 	{
 		value = texture(tex, position).r;
 
-		//dst += (1.0 - dst.a) * density * vec4((2.0 * position) - 1.0, value);
-		dst += (1.0 - dst.a) * density * vec4(1.0,1.0,1.0, value);
+		vec3 col = vec3(1.0);
+		dst += (1.0 - dst.a) * factor * value * vec4(col, 1.0);
 
-		// position = starting_position + stepsize * direction * i;
 		position += direction * stepsize;
 
 		// ray termination - threshold
@@ -44,9 +44,7 @@ main()
 			break;
 
 		// ray termination - cube borders
-		vec3 temp1 = sign(position);
-		vec3 temp2 = sign(1.0 - position);
-		if (dot(temp1, temp2) < 3.0)
+		if (outside_unit_cube(position))
 			break;
 	}
 

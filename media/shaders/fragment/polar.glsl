@@ -13,11 +13,11 @@ float simplex_noise(vec3);
 
 vec3
 polar(
-			 vec3 p)
+			 in vec3 p)
 {
 	float r = length(p);
-	float phi = atan(p.y,p.x);
-	float theta = acos(p.z/r);
+	float phi = atan(p.z,p.x);
+	float theta = acos(p.y/r);
 	return vec3(
 		r,
 		phi/(2.0 * PI) + 0.5,
@@ -50,18 +50,16 @@ main()
 		// value = texture(tex, polar(position * 2.0 - 1.0)).r;
 		// value = texture(tex, position).r;
 
-		vec3	pos01 = position * 2.0 - 1.0,
-					polar_pos = polar(pos01);
+		vec3	pos01 = position * 2.0 - 1.0;
+		vec3	polar_pos = polar(pos01);
 
 		value =
-			/*
 			texture(
 				tex,
 				vec3(
 					polar_pos.x * cloud_height + radius_limit,
 					polar_pos.yz)
 				).r *
-				*/
 			texture(
 				clouds,
 				polar_pos.yz).r;

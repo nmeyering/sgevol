@@ -60,30 +60,39 @@ main(
 	// std::vector<float> vec;
 	// vec.reserve(w * h);
 
-	sge::image2d::l8 store(sge::image2d::dim(w,h));
-
-	float f = 0.f;
-	float const size = 256.f;
-
-	for(unsigned line = 0; line < w * h && (file >> f); ++line)
+	for(unsigned frame = 0; frame < 100; ++frame)
 	{
-		store.view()[
-				sge::image2d::l8::view_type::dim(
-						line % w,
-						line / w)
-			].set(
-				mizuiro::color::channel::luminance(),
-				static_cast<boost::uint8_t>(
-					f * size));
-	}
+		sge::image2d::l8 store(sge::image2d::dim(w,h));
 
-	sge::image2d::save_from_view(
-		sys.image_system(),
-		sge::image2d::view::to_const(
-			sge::image2d::view::object(
-				store.wrapped_view())),
-		fcppt::filesystem::path(
-			argv[2]));
+		float f = 0.f;
+		float const size = 256.f;
+
+		for(unsigned line = 0; line < w * h && (file >> f); ++line)
+		{
+			store.view()[
+					sge::image2d::l8::view_type::dim(
+							line % w,
+							line / w)
+				].set(
+					mizuiro::color::channel::luminance(),
+					static_cast<boost::uint8_t>(
+						f * size));
+		}
+
+		std::string filename(
+				argv[2]);
+		filename += "_";
+		filename += boost::lexical_cast<std::string>(frame);
+		filename += ".png";
+
+		sge::image2d::save_from_view(
+			sys.image_system(),
+			sge::image2d::view::to_const(
+				sge::image2d::view::object(
+					store.wrapped_view())),
+			fcppt::filesystem::path(
+				filename));
+	}
 
 	file.close();
 		return EXIT_SUCCESS;

@@ -23,7 +23,7 @@ const mat3 inv_m = mat3(1.0) + inv_factor;
 
 vec3[N+1]
 corners(
-	vec3 point)
+	in vec3 point)
 {
 	vec3 res[N+1];
 	vec3 cur;

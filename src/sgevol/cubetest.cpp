@@ -360,7 +360,7 @@ try
 				sge::renderer::parameters(
 					sge::renderer::visual_depth::depth32,
 					sge::renderer::depth_stencil_buffer::d24,
-					sge::renderer::vsync::on,
+					sge::renderer::vsync::off,
 					sge::renderer::no_multi_sampling),
 				sge::viewport::fill_on_resize()))
 		(sge::systems::image2d(
@@ -494,8 +494,8 @@ try
 				0.f,0.f,-3.0))));
 
 	sge::camera::base
-		*cam = &spherical_cam,
-		*alternative_cam = &fps_cam;
+		*cam = &fps_cam,
+		*alternative_cam = &spherical_cam;
 
 	cam->active(true);
 
@@ -639,6 +639,13 @@ try
 		)
 	);
 
+	sge::timer::basic<sge::timer::clocks::standard> offset_timer(
+		sge::timer::parameters<sge::timer::clocks::standard>(
+			fcppt::chrono::milliseconds(
+				40)));
+
+	float offset = 0.f;
+
 	// console begin
 	sge::console::object console(
 		SGE_FONT_TEXT_LIT('/')
@@ -762,12 +769,17 @@ try
 			sge::timer::elapsed<sge::camera::duration>(
 				frame_timer));
 
+		if (sge::timer::reset_when_expired(offset_timer))
+			offset += fcppt::math::pi<float>()/50.f;
+		if (offset > fcppt::math::twopi<float>())
+			offset = 0.f;
+
 		// Beginne Renderdurchgang
 		sge::renderer::scoped_block const block_(rend);
 
 		//stars.render();
 
-		cube.render();
+		cube.render(offset);
 
 		sge::font::text::draw(
 			*fps_metrics,

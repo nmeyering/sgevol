@@ -21,6 +21,8 @@ outside_sphere(
 	const vec3,
 	const float);
 
+const vec3 center = vec3(0.5,0.5,0.5);
+float radius_limit = 0.498 * radius;
 float factor = opacity;
 
 void
@@ -51,6 +53,12 @@ main()
 			if (light < 0.01)
 				break;
 
+			if (!outside_sphere(occ_pos, center, radius_limit))
+			{
+				light = 0.f;
+				break;
+			}
+
 			if (outside_unit_cube(occ_pos))
 				break;
 		}
@@ -62,6 +70,9 @@ main()
 			break;
 
 		position += direction * stepsize;
+
+		if (!outside_sphere(position, center, radius_limit))
+			break;
 
 		if (outside_unit_cube(position))
 			break;

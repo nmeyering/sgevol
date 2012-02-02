@@ -145,6 +145,11 @@ shader_(
 					/ FCPPT_TEXT("fragment")
 					/ FCPPT_TEXT("simplex_noise.glsl"))
 				.fragment_shader(
+					sgevollib::media_path()
+					/ FCPPT_TEXT("shaders")
+					/ FCPPT_TEXT("fragment")
+					/ FCPPT_TEXT("bounding_tests.glsl"))
+				.fragment_shader(
 					_fragment_shader_file))
 {
 	sge::renderer::texture::volume_ptr
@@ -182,7 +187,7 @@ sgevollib::cloud_sphere::object::~object()
 }
 
 void
-sgevollib::cloud_sphere::object::render()
+sgevollib::cloud_sphere::object::render(float offset)
 {
 	sge::renderer::texture::set_address_mode3(
 		renderer_,
@@ -211,13 +216,6 @@ sgevollib::cloud_sphere::object::render()
 		sge::renderer::nonindexed_primitive_type::triangle);
 
 	/*
-	if (sge::timer::reset_when_expired(offset_timer))
-		offset += fcppt::math::pi<float>()/50.f;
-		if (offset > fcppt::math::twopi<float>())
-			offset = 0.f;
-	*/
-
-	/*
 	if(
 			std::abs( cam.gizmo().position().x() ) >= 1.0f ||
 			std::abs( cam.gizmo().position().y() ) >= 1.0f ||
@@ -239,7 +237,7 @@ sgevollib::cloud_sphere::object::render()
 	*/
 	renderer_.state(
 		sge::renderer::state::list(
-			sge::renderer::state::cull_mode::clockwise));
+			sge::renderer::state::cull_mode::counter_clockwise));
 
 	shader_.update_uniform(
 		"mvp",
@@ -254,6 +252,10 @@ sgevollib::cloud_sphere::object::render()
 	shader_.update_uniform(
 		"opacity",
 		opacity_);
+
+	shader_.update_uniform(
+		"offset",
+		offset);
 
 	shader_.update_uniform(
 		"mv",

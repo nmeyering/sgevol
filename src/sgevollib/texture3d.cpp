@@ -44,10 +44,10 @@ checkerboard(
 	float const scale)
 {
 	return
-		(std::fmod(p.x(),1.f/scale) > (0.5f/scale) !=
-		std::fmod(p.y(),1.f/scale) > (0.5f/scale)) ||
-		(std::fmod(p.x(),1.f/scale) > (0.5f/scale) !=
-		std::fmod(p.z(),1.f/scale) > (0.5f/scale))
+		(((std::fmod(p.x(),1.f/scale) > (0.5f/scale)) !=
+		(std::fmod(p.y(),1.f/scale) > (0.5f/scale))) ||
+		((std::fmod(p.x(),1.f/scale) > (0.5f/scale)) !=
+		(std::fmod(p.z(),1.f/scale) > (0.5f/scale))))
 					? 0.f : 1.f;
 }
 
@@ -302,19 +302,15 @@ texture3d::fill_spherical()
 					pi * static_cast<float>(z) / dim);
 				tmp = (to_cartesian(tmp) + vec3(1.f,1.f,1.f)) * .5f;
 
-				#if 1
 				alpha =
 					fcppt::math::clamp(
-						0.0625f * noise.sample(scale * 0.2f * tmp) +
-						0.125f * noise.sample(scale * 0.10f * tmp) +
-						0.25f * noise.sample(scale * 0.05f * tmp) +
-						0.5f * noise.sample(scale * 0.025f * tmp)
-						,0.f
-						,1.f);
-				#else
-				alpha =
-					checkerboard(tmp, 3.f);
-				#endif
+							0.25f + 0.5f * (
+							0.0625f * noise.sample(scale * 0.2f * tmp) +
+							0.125f * noise.sample(scale * 0.10f * tmp) +
+							0.25f * noise.sample(scale * 0.05f * tmp) +
+							0.5f * noise.sample(scale * 0.025f * tmp)),
+						0.f,
+						1.f);
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(
@@ -335,7 +331,8 @@ texture3d::fill()
 	sgevollib::simplex_noise<float,3> noise(128, 256);
 	vec3 tmp = vec3::null();
 	float const dim = static_cast<float>(dimension_);
-	float const scale = 128.f / dim;
+	float const scale = 256.f / dim;
+	float const margin = 0.05f * dim;
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
 		progress(100.0f * static_cast<float>(z+1) / dim);
@@ -349,17 +346,28 @@ texture3d::fill()
 				tmp[2] =
 					static_cast<float>(z);
 
-				#if 0
+				#if 1
+				// alpha = checkerboard(tmp / dim,3.f);
 				alpha =
 					fcppt::math::clamp(
-						0.0625f * noise.sample(scale * 0.2f * tmp) +
-						0.125f * noise.sample(scale * 0.10f * tmp) +
-						0.25f * noise.sample(scale * 0.05f * tmp) +
-						0.5f * noise.sample(scale * 0.025f * tmp),
+							(
+							0.0625f * noise.sample(scale * 0.2f * tmp) +
+							0.125f * noise.sample(scale * 0.10f * tmp) +
+							0.25f * noise.sample(scale * 0.05f * tmp) +
+							0.5f * noise.sample(scale * 0.025f * tmp)),
 						0.f,
 						1.f);
-				//sphere
 				#if 1
+				//margins
+				/*
+				alpha *= (
+					(tmp.x() < margin || tmp.x() > dim - margin) ||
+					(tmp.y() < margin || tmp.y() > dim - margin) ||
+					(tmp.z() < margin || tmp.z() > dim - margin)) ?
+						0.f :
+						1.f;
+				*/
+				//sphere
 				alpha *= static_cast<double>(
 					fcppt::math::clamp(
 						1.0f -
