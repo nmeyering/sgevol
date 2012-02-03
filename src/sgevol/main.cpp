@@ -846,7 +846,7 @@ try
 
 		stars.render();
 
-		globe.render();
+		globe.render(offset);
 #if 0
 		{
 			sge::renderer::texture::filter::scoped const scoped_filter(
@@ -857,7 +857,7 @@ try
 			sphere.render();
 		}
 #else
-			sphere.render(offset);
+		sphere.render(offset);
 #endif
 
 		sge::font::text::draw(

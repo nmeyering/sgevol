@@ -99,7 +99,12 @@ shader_(
 				sge::shader::variable_type::uniform,
 				sge::shader::matrix(
 					sge::renderer::matrix4::identity(),
-					sge::shader::matrix_flags::none))),
+					sge::shader::matrix_flags::none)))
+			(sge::shader::variable(
+				"offset",
+				sge::shader::variable_type::uniform,
+				static_cast<sge::renderer::scalar>(
+					0.f))),
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
 				"tex", tex_))
@@ -116,7 +121,7 @@ sgevollib::model::object::~object()
 }
 
 void
-sgevollib::model::object::render()
+sgevollib::model::object::render(float offset)
 {
 	sge::renderer::texture::set_address_mode2(
 		renderer_,
@@ -158,4 +163,8 @@ sgevollib::model::object::render()
 		sge::shader::matrix(
 		cam_->world(),
 		sge::shader::matrix_flags::none));
+
+	shader_.update_uniform(
+		"offset",
+		offset);
 }

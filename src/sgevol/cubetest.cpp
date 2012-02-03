@@ -360,7 +360,7 @@ try
 				sge::renderer::parameters(
 					sge::renderer::visual_depth::depth32,
 					sge::renderer::depth_stencil_buffer::d24,
-					sge::renderer::vsync::off,
+					sge::renderer::vsync::on,
 					sge::renderer::no_multi_sampling),
 				sge::viewport::fill_on_resize()))
 		(sge::systems::image2d(
@@ -586,6 +586,17 @@ try
 			fcppt::filesystem::path(
 			save_path));
 
+	sge::renderer::texture::planar_ptr phase_tex(
+		sge::renderer::texture::create_planar_from_path(
+			sgevollib::media_path()
+				/ FCPPT_TEXT("textures")
+				/ FCPPT_TEXT("phase.png"),
+				rend,
+				sys.image_system(),
+				sge::renderer::texture::mipmap::off(),
+					sge::renderer::resource_flags::none
+				));
+
 	sgevollib::cube::object cube(
 		rend,
 		sgevollib::media_path()
@@ -599,7 +610,8 @@ try
 		cam,
 		opacity_factor,
 		mytex.const_view(),
-		noise.const_view());
+		noise.const_view(),
+		phase_tex);
 
 	sgevollib::stars::object stars(
 		star_count,
@@ -770,7 +782,7 @@ try
 				frame_timer));
 
 		if (sge::timer::reset_when_expired(offset_timer))
-			offset += fcppt::math::pi<float>()/50.f;
+			offset += fcppt::math::pi<float>()/80.f;
 		if (offset > fcppt::math::twopi<float>())
 			offset = 0.f;
 

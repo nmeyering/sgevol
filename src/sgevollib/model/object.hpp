@@ -34,7 +34,7 @@ public:
 		float _radius,
 		sge::camera::base* &);
 
-	void render();
+	void render(float);
 
 	~object();
 private:

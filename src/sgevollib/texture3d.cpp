@@ -331,7 +331,7 @@ texture3d::fill()
 	sgevollib::simplex_noise<float,3> noise(128, 256);
 	vec3 tmp = vec3::null();
 	float const dim = static_cast<float>(dimension_);
-	float const scale = 256.f / dim;
+	float const scale = 128.f / dim;
 	float const margin = 0.05f * dim;
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
@@ -350,11 +350,11 @@ texture3d::fill()
 				// alpha = checkerboard(tmp / dim,3.f);
 				alpha =
 					fcppt::math::clamp(
-							(
-							0.0625f * noise.sample(scale * 0.2f * tmp) +
-							0.125f * noise.sample(scale * 0.10f * tmp) +
-							0.25f * noise.sample(scale * 0.05f * tmp) +
-							0.5f * noise.sample(scale * 0.025f * tmp)),
+							0.2f + 0.8f * (
+							0.0625f * noise.sample(scale * 0.8f * tmp) +
+							0.125f * noise.sample(scale * 0.4f * tmp) +
+							0.25f * noise.sample(scale * 0.2f * tmp) +
+							0.5f * noise.sample(scale * 0.1f * tmp)),
 						0.f,
 						1.f);
 				#if 1

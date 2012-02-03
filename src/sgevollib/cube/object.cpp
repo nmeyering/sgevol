@@ -54,7 +54,8 @@ sgevollib::cube::object::object(
 	sge::camera::base* &_cam,
 	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,
-	sge::image3d::view::const_object const &_noise)
+	sge::image3d::view::const_object const &_noise,
+	sge::renderer::texture::planar_ptr &_phase_tex)
 :
 renderer_(
 	_renderer),
@@ -77,6 +78,8 @@ tex_(
 	_tex),
 noise_(
 	_noise),
+phase_tex_(
+	_phase_tex),
 shader_(
 	sge::shader::object_parameters(
 		renderer_,
@@ -121,7 +124,9 @@ shader_(
 				"tex", sge::renderer::texture::volume_ptr()))
 			(sge::shader::sampler(
 				"noise", sge::renderer::texture::volume_ptr()))
-				)
+			(sge::shader::sampler(
+				"phasetex", phase_tex_))
+			)
 				.vertex_shader(
 					_vertex_shader_file)
 				.fragment_shader(

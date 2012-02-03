@@ -81,16 +81,13 @@ main()
 
 		position = position + direction * stepsize;
 
-		if (!outside_sphere(position, center, radius_limit))
+		if (outside_sphere(position, center, radius_limit))
 			break;
 
 		// ray termination
 		if (outside_unit_cube(position))
 			break;
 	}
-	float m = max(max(dst.r, dst.g), max(dst.b, dst.a));
-	vec4 result = dst;
-	if(m > 1.0)
-		result = vec4(dst.r / m, dst.g / m, dst.b / m, dst.a);
-	frag_color = result;
+	dst = vec4((1.0 / dst.a) * dst.rgb, dst.a);
+	frag_color = dst;
 }

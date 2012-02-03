@@ -200,3 +200,18 @@ TARGET_LINK_LIBRARIES(
 	${Fcppt_thread_LIBRARIES}
 	${SGE_LIBRARIES}
 )
+
+ADD_EXECUTABLE(
+	create_phase_function
+	src/sgevol/create_phase_function.cpp
+)
+
+TARGET_LINK_LIBRARIES(
+	create_phase_function
+	sgevollib
+	${Boost_LIBRARIES}
+	${Fcppt_core_LIBRARIES}
+	${Fcppt_filesystem_LIBRARIES}
+	${Fcppt_thread_LIBRARIES}
+	${SGE_LIBRARIES}
+)

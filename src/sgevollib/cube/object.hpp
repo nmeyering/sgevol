@@ -26,7 +26,8 @@ public:
 		sge::camera::base* &,
 		sge::renderer::scalar opacity,
 		sge::image3d::view::const_object const &_tex,
-		sge::image3d::view::const_object const &_noise);
+		sge::image3d::view::const_object const &_noise,
+		sge::renderer::texture::planar_ptr &);
 
 	void render(float);
 
@@ -53,6 +54,7 @@ private:
 	sge::renderer::scalar opacity_;
 	sge::image3d::view::const_object const &tex_;
 	sge::image3d::view::const_object const &noise_;
+	sge::renderer::texture::planar_ptr &phase_tex_;
 	sge::shader::object shader_;
 };
 
