@@ -15,7 +15,7 @@
 	"save-texture" : false,
 	"spherical-texture" : false,
 	"background-color" : [0.2,0.2,0.2,1.0],
-	"globe-texture" : "earthmap10k.png",
+	"globe-texture" : "world_1024.png",
 	"globe-radius" : 0.95,
 	"cloud-texture" : "clouds.png",
 	"opacity-factor" : 1.0,
