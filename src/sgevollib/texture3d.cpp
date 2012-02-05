@@ -328,10 +328,10 @@ texture3d::fill()
 			static_cast<float>(dimension_) * .5f,
 			static_cast<float>(dimension_) * .5f,
 			static_cast<float>(dimension_) * .5f);
-	sgevollib::simplex_noise<float,3> noise(128, 256);
+	sgevollib::simplex_noise<float,3> noise(1024, 256);
 	vec3 tmp = vec3::null();
 	float const dim = static_cast<float>(dimension_);
-	float const scale = 128.f / dim;
+	float const scale = 64.f / dim;
 	float const margin = 0.05f * dim;
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
@@ -347,16 +347,19 @@ texture3d::fill()
 					static_cast<float>(z);
 
 				#if 1
-				// alpha = checkerboard(tmp / dim,3.f);
+				#if 0
+				alpha = checkerboard(tmp / dim,3.f);
+				#else
 				alpha =
 					fcppt::math::clamp(
-							0.2f + 0.8f * (
+							0.3f + 0.7f * (
 							0.0625f * noise.sample(scale * 0.8f * tmp) +
 							0.125f * noise.sample(scale * 0.4f * tmp) +
 							0.25f * noise.sample(scale * 0.2f * tmp) +
 							0.5f * noise.sample(scale * 0.1f * tmp)),
 						0.f,
 						1.f);
+				#endif
 				#if 1
 				//margins
 				/*
@@ -368,20 +371,17 @@ texture3d::fill()
 						1.f;
 				*/
 				//sphere
-				alpha *= static_cast<double>(
+				double sharpness = 0.75;
+				alpha *=
 					fcppt::math::clamp(
-						1.0f -
-						(0.5f + fcppt::math::vector::length(tmp - center)) /
-						(0.5f * dim),
-						/*
-						(
-							fcppt::math::vector::length(tmp - center) <
-								0.5f * dim ?
-								1.f :
-								0.f ),
-						*/
-						0.f,
-						1.f));
+						(-1.0 +
+						 0.5 * sharpness +
+						 static_cast<double>(fcppt::math::vector::length(
+							 tmp - center))/(0.5 * dim)
+						) /
+						(sharpness - 1.0),
+						0.0,
+						1.0);
 				#endif
 				#else
 				alpha = fcppt::math::clamp(

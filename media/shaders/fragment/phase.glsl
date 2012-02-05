@@ -30,11 +30,8 @@ phase(
 {
 	return
 	clamp(
-	pow(
-		(g - 1.0) * (g - 1.0) /
-			(1.0 + g * g -
-			 2.0 * g * theta),
-		1.5),
+		(1.0 - g * g) /
+		pow(1 + g * g - 2.0 * g * theta, 1.5),
 		0.0,
 		1.0);
 }
@@ -59,20 +56,26 @@ main()
 	position = (position + 1.0) * 0.5;
 	vec3 startpos = position;
 
+	vec2 sample = vec2(0.0);
+
 	for( int i = 0; i < steps; i++ )
 	{
 		float value = clamp(5.0 * texture(tex, position).r,0.0,1.0);
 
+		sample.x = value;
+
 		float light =
 			phase(
 					dot(sun, -direction),
-					2.0 * value - 1.0);
+					-2.0 * value + 1.0);
 
 		vec3 col = light * suncolor + ambient;
 
-		dst += (1.0 - dst.a) * factor * value * vec4(col, 1.0);
+		dst += (1.0 - dst.a) * factor * sample.y * vec4(col, 1.0);
 
-		if(dst.a > 0.99)
+		sample.y = 0.5 * (sample.x + sample.y);
+
+		if(dst.a > 0.95)
 			break;
 
 		// position = position + direction * stepsize;

@@ -12,6 +12,7 @@ vec3 sun_direction = normalize(vec3(sin(offset),0.0,cos(offset)));
 
 void main()
 {
+	#if 1
 	float
 		intensity =
 			ambient +
@@ -28,4 +29,7 @@ void main()
 				tex,
 				texcoord_interp).xyz,
 			1.0);
+	#else
+	frag_color = vec4(normal_interp,1.0);
+	#endif
 }

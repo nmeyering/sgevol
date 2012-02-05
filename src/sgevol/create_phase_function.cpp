@@ -14,7 +14,7 @@
 #include <sge/media/extension_set.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/math/clamp.hpp>
-#include <fcppt/math/twopi.hpp>
+#include <fcppt/math/pi.hpp>
 #include <sge/media/optional_extension_set.hpp>
 #include <boost/lexical_cast.hpp>
 #include <cmath>
@@ -24,8 +24,8 @@
 namespace
 {
 
-// theta is in [0,1] (cosine of an angle)
-// g is in [0,1] as well
+// angle theta is in [0,1] (cosine of an angle)
+// anisotropy g is in [-1,1]
 double
 phase(
 	double theta,
@@ -36,7 +36,7 @@ phase(
 			(g - 1.0) * (g - 1.0) /
 				(1.0 + g * g -
 				 2.0 * g *
-				 std::cos(fcppt::math::twopi<double>() * theta)),
+				 std::cos(fcppt::math::pi<double>() * theta)),
 			1.5);
 }
 
@@ -82,7 +82,7 @@ main(
 						256.0 *
 						phase(
 							static_cast<double>(i) / static_cast<double>(w),
-							static_cast<double>(j) / static_cast<double>(h))));
+							2.0 * static_cast<double>(j) / static_cast<double>(h) - 1.0)));
 		}
 	}
 
