@@ -377,7 +377,7 @@ texture3d::fill()
 						(-1.0 +
 						 0.5 * sharpness +
 						 static_cast<double>(fcppt::math::vector::length(
-							 tmp - center))/(0.5 * dim)
+							 tmp - center))/(dim)
 						) /
 						(sharpness - 1.0),
 						0.0,

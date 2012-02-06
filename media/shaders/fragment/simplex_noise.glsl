@@ -90,7 +90,7 @@ contrib(
 
 float
 simplex_noise(
-	vec3 point)
+	const vec3 point)
 {
 	float res = 0.0;
 	vec3 tmp = stretch_m * point;
