@@ -264,16 +264,11 @@ try
 			config_file,
 			sge::parse::json::path(
 			FCPPT_TEXT("shader-file")));
-	fcppt::string save_path =
+	fcppt::string texture_path =
 		sge::parse::json::find_and_convert_member<fcppt::string>(
 			config_file,
 			sge::parse::json::path(
-			FCPPT_TEXT("save-path")));
-	fcppt::string load_path =
-		sge::parse::json::find_and_convert_member<fcppt::string>(
-			config_file,
-			sge::parse::json::path(
-			FCPPT_TEXT("load-path")));
+			FCPPT_TEXT("path")));
 	fcppt::string globe_tex_path =
 		sge::parse::json::find_and_convert_member<fcppt::string>(
 			config_file,
@@ -428,7 +423,7 @@ try
 			std::tr1::bind(
 				&sgevollib::texture3d::load,
 				&mytex,
-				fcppt::filesystem::path(load_path));
+				fcppt::filesystem::path(texture_path));
 	else
 		tex_action =
 			spherical_texture
@@ -603,7 +598,7 @@ try
 	if (save_texture)
 		mytex.save(
 			fcppt::filesystem::path(
-			save_path));
+			texture_path));
 
 	sge::renderer::texture::planar_ptr globe_tex(
 		sge::renderer::texture::create_planar_from_path(

@@ -23,6 +23,7 @@ outside_sphere(
 	const vec3,
 	const float);
 
+/*
 float
 phase(
 	const float theta,
@@ -35,6 +36,7 @@ phase(
 		0.0,
 		1.0);
 }
+*/
 
 vec3 sun = normalize(vec3(sin(offset),0.0,cos(offset)));
 
@@ -65,13 +67,13 @@ main()
 		sample.x = value;
 
 		float light =
-			phase(
-					dot(sun, -direction),
-					-2.0 * value + 1.0);
+			texture(phasetex,vec2(
+					0.5 * dot(sun, -direction) + 0.5,
+					1.0 - value)).r;
 
 		vec3 col = light * suncolor + ambient;
 
-		dst += (1.0 - dst.a) * factor * sample.y * vec4(col, 1.0);
+		dst += (1.0 - dst.a) * factor * factor * sample.y * vec4(col, 1.0);
 
 		sample.y = 0.5 * (sample.x + sample.y);
 

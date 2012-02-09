@@ -14,7 +14,7 @@
 #include <sge/media/extension_set.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/math/clamp.hpp>
-#include <fcppt/math/pi.hpp>
+#include <fcppt/math/twopi.hpp>
 #include <sge/media/optional_extension_set.hpp>
 #include <boost/lexical_cast.hpp>
 #include <cmath>
@@ -33,10 +33,9 @@ phase(
 {
 	return
 		std::pow(
-			(g - 1.0) * (g - 1.0) /
+			(1.0 - g * g) /
 				(1.0 + g * g -
-				 2.0 * g *
-				 std::cos(fcppt::math::pi<double>() * theta)),
+				 2.0 * g * std::cos(fcppt::math::twopi<double>() * theta)),
 			1.5);
 }
 
@@ -81,8 +80,8 @@ main(
 					static_cast<boost::uint8_t>(
 						256.0 *
 						phase(
-							static_cast<double>(i) / static_cast<double>(w),
-							2.0 * static_cast<double>(j) / static_cast<double>(h) - 1.0)));
+							2.0 * (static_cast<double>(i) / static_cast<double>(w)) - 1.0,
+							static_cast<double>(j) / static_cast<double>(h))));
 		}
 	}
 

@@ -39,6 +39,59 @@ namespace
 typedef sgevollib::texture3d::vec3 vec3;
 
 float
+cloudy_noise(
+		vec3 const &_p,
+		float const _freq,
+		sgevollib::simplex_noise<float,3> &_noise,
+		float const _skew = 0.5f)
+{
+	return
+		fcppt::math::clamp(
+				(1.f - _skew) + _skew * (
+				0.0625f * _noise.sample(_freq * 0.8f * _p) +
+				0.125f 	* _noise.sample(_freq * 0.4f * _p) +
+				0.25f 	* _noise.sample(_freq * 0.2f * _p) +
+				0.5f 		* _noise.sample(_freq * 0.1f * _p)),
+			0.f,
+			1.f);
+}
+
+float
+margin_falloff(
+		vec3 const &_p,
+		float const _dim,
+		float const _margin)
+{
+	return (
+		(_p.x() < _margin || _p.x() > _dim - _margin) ||
+		(_p.y() < _margin || _p.y() > _dim - _margin) ||
+		(_p.z() < _margin || _p.z() > _dim - _margin)) ?
+			0.f :
+			1.f;
+}
+
+float
+sphere_falloff(
+		vec3 const &_p,
+		vec3 const &_center,
+		float const _dim,
+		float const _sharpness)
+{
+	float radius =
+		fcppt::math::vector::length(
+			_p -
+			_center
+		) / _dim;
+
+	return
+		fcppt::math::clamp(
+			(radius - 0.5f) /
+			(_sharpness - 1.0f),
+			0.0f,
+			1.0f);
+}
+
+float
 checkerboard(
 	vec3 const &p,
 	float const scale)
@@ -53,7 +106,7 @@ checkerboard(
 
 vec3
 to_spherical(
-	const vec3 &p)
+	vec3 const &p)
 {
 	using fcppt::math::vector::length;
 	using std::acos;
@@ -278,11 +331,11 @@ texture3d::fill_spherical()
 			static_cast<float>(dimension_) * .5f,
 			static_cast<float>(dimension_) * .5f);
 
-	sgevollib::simplex_noise<float,3> noise(128, 256);
+	sgevollib::simplex_noise<float,3> noise(1024, 256);
 	vec3 pos = vec3::null();
 
 	float const dim = static_cast<float>(dimension_);
-	float const scale = 512.f;
+	float const scale = 128.f / dim;
 	float const pi = fcppt::math::pi<float>();
 
 	float alpha = 0.f;
@@ -302,15 +355,8 @@ texture3d::fill_spherical()
 					pi * static_cast<float>(z) / dim);
 				tmp = (to_cartesian(tmp) + vec3(1.f,1.f,1.f)) * .5f;
 
-				alpha =
-					fcppt::math::clamp(
-							0.25f + 0.5f * (
-							0.0625f * noise.sample(scale * 0.2f * tmp) +
-							0.125f * noise.sample(scale * 0.10f * tmp) +
-							0.25f * noise.sample(scale * 0.05f * tmp) +
-							0.5f * noise.sample(scale * 0.025f * tmp)),
-						0.f,
-						1.f);
+				alpha = cloudy_noise(tmp, scale, noise, 0.9f);
+				alpha *= sphere_falloff(tmp, center, dim, 0.9f);
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(
@@ -322,7 +368,7 @@ texture3d::fill_spherical()
 void
 texture3d::fill()
 {
-	double alpha = 1.0;
+	float alpha = 0.f;
 	typedef v::dim::value_type dimtype;
 	vec3 center(
 			static_cast<float>(dimension_) * .5f,
@@ -331,7 +377,7 @@ texture3d::fill()
 	sgevollib::simplex_noise<float,3> noise(1024, 256);
 	vec3 tmp = vec3::null();
 	float const dim = static_cast<float>(dimension_);
-	float const scale = 64.f / dim;
+	float const scale = 32.f / dim;
 	float const margin = 0.05f * dim;
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
@@ -346,65 +392,9 @@ texture3d::fill()
 				tmp[2] =
 					static_cast<float>(z);
 
-				#if 1
-				#if 0
-				alpha = checkerboard(tmp / dim,3.f);
-				#else
-				alpha =
-					fcppt::math::clamp(
-							0.3f + 0.7f * (
-							0.0625f * noise.sample(scale * 0.8f * tmp) +
-							0.125f * noise.sample(scale * 0.4f * tmp) +
-							0.25f * noise.sample(scale * 0.2f * tmp) +
-							0.5f * noise.sample(scale * 0.1f * tmp)),
-						0.f,
-						1.f);
-				#endif
-				#if 1
-				//margins
-				/*
-				alpha *= (
-					(tmp.x() < margin || tmp.x() > dim - margin) ||
-					(tmp.y() < margin || tmp.y() > dim - margin) ||
-					(tmp.z() < margin || tmp.z() > dim - margin)) ?
-						0.f :
-						1.f;
-				*/
-				//sphere
-				double sharpness = 0.75;
-				alpha *=
-					fcppt::math::clamp(
-						(-1.0 +
-						 0.5 * sharpness +
-						 static_cast<double>(fcppt::math::vector::length(
-							 tmp - center))/(dim)
-						) /
-						(sharpness - 1.0),
-						0.0,
-						1.0);
-				#endif
-				#else
-				alpha = fcppt::math::clamp(
-					1.0f -
-					8.f * tmp[1] / dim,
-					0.f,
-					1.f
-				);
-
-				alpha +=
-					(fcppt::math::vector::length(tmp -
-						1.5f * center) /
-					(0.2f * dim)) < 1.f ?
-						1.f:
-						0.f;
-
-				alpha +=
-					(fcppt::math::vector::length(tmp -
-						0.5f * center) /
-					(0.2f * dim)) < 1.f ?
-						1.f:
-						0.f;
-				#endif
+				//alpha = checkerboard(tmp, 4.f/dim);
+				alpha = cloudy_noise(tmp, scale, noise, 0.95f);
+				alpha *= sphere_falloff(tmp, center, dim, 0.80f);
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(

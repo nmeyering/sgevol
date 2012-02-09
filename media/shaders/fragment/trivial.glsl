@@ -17,7 +17,7 @@ outside_unit_cube(const vec3);
 void
 main()
 {
-	vec4 dst = vec4(0.8,0.8,0.9,0.0);
+	vec4 dst = vec4(0.0,0.0,0.0,0.0);
 	vec3 direction = normalize(position_interp - camera);
 	// scaling factor for uniform cloud data
 	float factor = opacity;
