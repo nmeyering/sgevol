@@ -206,6 +206,39 @@ quit(
 {
 	_value = false;
 }
+
+void
+decrement_opacity(
+	sgevollib::cloud_sphere::object &_sphere)
+{
+	_sphere.opacity(
+			_sphere.opacity() * .5f);
+}
+
+void
+increment_opacity(
+	sgevollib::cloud_sphere::object &_sphere)
+{
+	_sphere.opacity(
+			_sphere.opacity() * 2.f);
+}
+
+void
+decrement_skip(
+	sgevollib::cloud_sphere::object &_sphere)
+{
+	_sphere.skip(
+			_sphere.skip() - 1);
+}
+
+void
+increment_skip(
+	sgevollib::cloud_sphere::object &_sphere)
+{
+	_sphere.skip(
+			_sphere.skip() + 1);
+}
+
 }
 
 int
@@ -658,6 +691,7 @@ try
 		cam,
 		globe_radius,
 		opacity_factor,
+		0,
 		mytex.const_view(),
 		noise.const_view(),
 		cloudtex);
@@ -696,9 +730,14 @@ try
 				sge::config::media_path()
 				/ FCPPT_TEXT("fonts")
 				/ FCPPT_TEXT("default.ttf"),
-				static_cast<sge::font::size_type>(32)
-		)
-	);
+				static_cast<sge::font::size_type>(32)));
+
+	sge::font::metrics_ptr const help_metrics(
+		sys.font_system().create_font(
+				sge::config::media_path()
+				/ FCPPT_TEXT("fonts")
+				/ FCPPT_TEXT("default.ttf"),
+				static_cast<sge::font::size_type>(16)));
 
 	sge::timer::basic<sge::timer::clocks::standard> offset_timer(
 		sge::timer::parameters<sge::timer::clocks::standard>(
@@ -767,9 +806,7 @@ try
 				sge::config::media_path()
 				/ FCPPT_TEXT("fonts")
 				/ FCPPT_TEXT("default.ttf"),
-				static_cast<sge::font::size_type>(16)
-		)
-	);
+				static_cast<sge::font::size_type>(16)));
 
 	sge::console::gfx console_gfx(
 		console,
@@ -820,8 +857,39 @@ try
 						alternative_cam)))));
 
 	console_gfx.active(false);
-
 	// console end
+
+	fcppt::signal::scoped_connection decrement_opacity_conn(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::lbracket,
+				std::tr1::bind(
+					&::decrement_opacity,
+					fcppt::ref(sphere)))));
+
+	fcppt::signal::scoped_connection increment_opacity_conn(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::rbracket,
+				std::tr1::bind(
+					&::increment_opacity,
+					fcppt::ref(sphere)))));
+
+	fcppt::signal::scoped_connection decrement_skip_conn(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::minus,
+				std::tr1::bind(
+					&::decrement_skip,
+					fcppt::ref(sphere)))));
+
+	fcppt::signal::scoped_connection increment_skip_conn(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::add,
+				std::tr1::bind(
+					&::increment_skip,
+					fcppt::ref(sphere)))));
 	while(running)
 	{
 		// Sonst werden keine Input-Events geschickt
@@ -865,6 +933,20 @@ try
 				rend.onscreen_target().viewport().get()),
 		sge::font::text::align_h::left,
 			sge::font::text::align_v::top,
+			sge::font::text::flags::none
+		);
+
+		sge::font::text::draw(
+			*help_metrics,
+			drawer,
+			SGE_FONT_TEXT_LIT(
+				"keys:\n"
+				"[, ]: change density\n"
+				"-, +: change raycasting offset"),
+			fcppt::math::box::structure_cast<sge::font::rect>(
+				rend.onscreen_target().viewport().get()),
+		sge::font::text::align_h::left,
+			sge::font::text::align_v::bottom,
 			sge::font::text::flags::none
 		);
 

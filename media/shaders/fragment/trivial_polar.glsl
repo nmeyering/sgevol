@@ -37,7 +37,7 @@ const float stepsize = 1e-3;
 const int steps = int(sqrt(3.0)/stepsize);
 const vec3 center = vec3(0.5,0.5,0.5);
 float radius_limit = 0.498 * radius;
-float cloud_height = 1.0 - radius_limit;
+float cloud_height = 1.0 - radius;
 
 void
 main()
@@ -49,30 +49,27 @@ main()
 	float factor = opacity * (stepsize / 2e-2);
 
 	vec3 position = (position_interp + 1.0) * 0.5;
+	vec3 starting_position = position;
 
 	//stochastic jittering
 	//position -= stepsize * simplex_noise(vec3(gl_FragCoord.xy,0.0));
 
-	for(int i = 0; i < steps; i++)
+	for(int i = skip; i < steps; i++)
 	{
 		vec3 polar_pos = polar(position * 2.0 - 1.0);
+		polar_pos.x = (polar_pos.x - radius) / cloud_height;
 		value =
 			texture(
 				tex,
-				vec3(
-					polar_pos.x * cloud_height + radius_limit,
-					polar_pos.yz
-				)).r;
-			/*
-			texture(
-				clouds,
-				polar_pos.yz).r;
-				*/
-		float cloudiness = texture(clouds, polar_pos.yz).r;
-		vec3 col = vec3(cloudiness, 0.0, 1.0 - cloudiness);
-		dst += (1.0 - dst.a) * factor * value * vec4(col, 1.0);
+				polar_pos).r;
 
-		position += direction * stepsize;
+		float cloudiness = texture(clouds, polar_pos.yz).r;
+		//vec3 col = vec3(cloudiness, 0.0, 1.0 - cloudiness);
+		vec3 col = vec3(1.0);
+		float height = polar_pos.x;
+		dst += (1.0 - dst.a) * factor * value * vec4(col, cloudiness);
+
+		position = starting_position + i * direction * stepsize;
 
 		// ray termination - threshold
 		if(dst.a > 0.98)

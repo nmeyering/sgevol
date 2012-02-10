@@ -335,8 +335,9 @@ texture3d::fill_spherical()
 	vec3 pos = vec3::null();
 
 	float const dim = static_cast<float>(dimension_);
-	float const scale = 128.f / dim;
+	float const scale = 256.f / dim;
 	float const pi = fcppt::math::pi<float>();
+	float const radius = 0.95f;
 
 	float alpha = 0.f;
 
@@ -350,13 +351,15 @@ texture3d::fill_spherical()
 			for (dimtype x = 0; x < dimension_; ++x)
 			{
 				vec3 tmp(
-					static_cast<float>(x) / dim,
+					radius + (1.f - radius) * (static_cast<float>(x) / dim),
 					2.f * pi * static_cast<float>(y) / dim,
 					pi * static_cast<float>(z) / dim);
 				tmp = (to_cartesian(tmp) + vec3(1.f,1.f,1.f)) * .5f;
+				tmp *= dim;
 
-				alpha = cloudy_noise(tmp, scale, noise, 0.9f);
-				alpha *= sphere_falloff(tmp, center, dim, 0.9f);
+				alpha = cloudy_noise(tmp, scale, noise, 0.8f);
+				alpha *= fcppt::math::clamp(.95f - (static_cast<float>(x) / dim), 0.f, 1.f);
+				//alpha *= sphere_falloff(tmp, center, dim, 0.975f);
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(
@@ -394,6 +397,7 @@ texture3d::fill()
 
 				//alpha = checkerboard(tmp, 4.f/dim);
 				alpha = cloudy_noise(tmp, scale, noise, 0.95f);
+				//alpha = 1.f;
 				alpha *= sphere_falloff(tmp, center, dim, 0.80f);
 
 				view_[ v::dim(x,y,z) ] =

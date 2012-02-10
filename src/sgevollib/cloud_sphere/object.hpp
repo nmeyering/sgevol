@@ -1,6 +1,7 @@
 #ifndef SGEVOLLIB_CUBE_OBJECT_HPP_INCLUDED
 #define SGEVOLLIB_CUBE_OBJECT_HPP_INCLUDED
 
+#include <sge/renderer/glsl/uniform/int_type.hpp>
 #include <sge/camera/base.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/image2d/view/const_object.hpp>
@@ -31,6 +32,7 @@ public:
 		sge::camera::base* &,
 		sge::renderer::scalar,
 		sge::renderer::scalar,
+		sge::renderer::glsl::uniform::int_type,
 		sge::image3d::view::const_object const &,
 		sge::image3d::view::const_object const &,
 		sge::renderer::texture::planar_ptr &);
@@ -51,6 +53,20 @@ public:
 		return opacity_;
 	}
 
+	void
+	skip(
+		sge::renderer::glsl::uniform::int_type _skip)
+	{
+		skip_ =
+			_skip;
+	}
+
+	sge::renderer::glsl::uniform::int_type
+	skip()
+	{
+		return skip_;
+	}
+
 	~object();
 private:
 	sge::renderer::device &renderer_;
@@ -63,6 +79,7 @@ private:
 	sge::image3d::view::const_object const &noise_;
 	sge::renderer::texture::planar_ptr &clouds_;
 	sge::shader::object shader_;
+	sge::renderer::glsl::uniform::int_type skip_;
 };
 
 }

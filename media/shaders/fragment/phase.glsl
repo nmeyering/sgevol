@@ -69,7 +69,7 @@ main()
 		float light =
 			texture(phasetex,vec2(
 					0.5 * dot(sun, -direction) + 0.5,
-					1.0 - value)).r;
+					value)).r;
 
 		vec3 col = light * suncolor + ambient;
 

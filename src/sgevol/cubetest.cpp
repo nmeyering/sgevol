@@ -203,6 +203,23 @@ quit(
 {
 	_value = false;
 }
+
+void
+decrement_opacity(
+	sgevollib::cube::object &_cube)
+{
+	_cube.opacity(
+			_cube.opacity() * .5f);
+}
+
+void
+increment_opacity(
+	sgevollib::cube::object &_cube)
+{
+	_cube.opacity(
+			_cube.opacity() * 2.f);
+}
+
 }
 
 int
@@ -765,6 +782,22 @@ try
 						alternative_cam)))));
 
 	console_gfx.active(false);
+
+	fcppt::signal::scoped_connection decrement_opacity_conn(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::lbracket,
+				std::tr1::bind(
+					&::decrement_opacity,
+					fcppt::ref(cube)))));
+
+	fcppt::signal::scoped_connection increment_opacity_conn(
+		sys.keyboard_collector().key_callback(
+			sge::input::keyboard::action(
+				sge::input::keyboard::key_code::rbracket,
+				std::tr1::bind(
+					&::increment_opacity,
+					fcppt::ref(cube)))));
 
 	// console end
 	while(running)

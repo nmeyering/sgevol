@@ -1,3 +1,4 @@
+#include <sge/renderer/glsl/uniform/int_type.hpp>
 #include <sgevollib/media_path.hpp>
 #include <sgevollib/cloud_sphere/model_format.hpp>
 #include <sgevollib/cloud_sphere/object.hpp>
@@ -58,6 +59,7 @@ sgevollib::cloud_sphere::object::object(
 	sge::camera::base* &_cam,
 	sge::renderer::scalar _radius,
 	sge::renderer::scalar _opacity,
+	sge::renderer::glsl::uniform::int_type _skip,
 	sge::image3d::view::const_object const &_tex,
 	sge::image3d::view::const_object const &_noise,
 	sge::renderer::texture::planar_ptr &_clouds)
@@ -80,6 +82,8 @@ cam_(
 	_cam),
 opacity_(
 	_opacity),
+skip_(
+	_skip),
 tex_(
 	_tex),
 noise_(
@@ -119,6 +123,11 @@ shader_(
 				sge::shader::variable_type::uniform,
 				static_cast<sge::renderer::scalar>(
 					0.f)))
+			(sge::shader::variable(
+				"skip",
+				sge::shader::variable_type::uniform,
+				static_cast<sge::renderer::glsl::uniform::int_type>(
+					0)))
 			(sge::shader::variable(
 				"light",
 				sge::shader::variable_type::uniform,
@@ -256,6 +265,10 @@ sgevollib::cloud_sphere::object::render(float offset)
 	shader_.update_uniform(
 		"offset",
 		offset);
+
+	shader_.update_uniform(
+		"skip",
+		skip_);
 
 	shader_.update_uniform(
 		"mv",
