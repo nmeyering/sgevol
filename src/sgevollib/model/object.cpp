@@ -54,7 +54,8 @@ sgevollib::model::object::object(
 	sge::model::obj::instance_ptr _model,
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
-	sge::renderer::texture::planar_ptr _tex,
+	sge::renderer::texture::planar_ptr _day_tex,
+	sge::renderer::texture::planar_ptr _night_tex,
 	sge::renderer::scalar _radius,
 	sge::camera::base* &_cam)
 :
@@ -72,8 +73,10 @@ vb_(
 		sge::renderer::resource_flags_field(
 			sge::renderer::resource_flags::readable),
 		*model_)),
-tex_(
-	_tex),
+day_tex_(
+	_day_tex),
+night_tex_(
+	_night_tex),
 radius_(
 	_radius),
 cam_(
@@ -107,7 +110,9 @@ shader_(
 					0.f))),
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
-				"tex", tex_))
+				"day_tex", day_tex_))
+			(sge::shader::sampler(
+				"night_tex", night_tex_))
 				)
 				.vertex_shader(
 					_vertex_shader_file)

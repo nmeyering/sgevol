@@ -302,11 +302,16 @@ try
 			config_file,
 			sge::parse::json::path(
 			FCPPT_TEXT("path")));
-	fcppt::string globe_tex_path =
+	fcppt::string day_tex_path =
 		sge::parse::json::find_and_convert_member<fcppt::string>(
 			config_file,
 			sge::parse::json::path(
-			FCPPT_TEXT("globe-texture")));
+			FCPPT_TEXT("day-texture")));
+	fcppt::string night_tex_path =
+		sge::parse::json::find_and_convert_member<fcppt::string>(
+			config_file,
+			sge::parse::json::path(
+			FCPPT_TEXT("night-texture")));
 	sge::renderer::scalar globe_radius =
 		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
 			config_file,
@@ -633,11 +638,22 @@ try
 			fcppt::filesystem::path(
 			texture_path));
 
-	sge::renderer::texture::planar_ptr globe_tex(
+	sge::renderer::texture::planar_ptr day_tex(
 		sge::renderer::texture::create_planar_from_path(
 			sgevollib::media_path()
 				/ FCPPT_TEXT("textures")
-				/ globe_tex_path,
+				/ day_tex_path,
+				rend,
+				sys.image_system(),
+				sge::renderer::texture::mipmap::all_levels(
+					sge::renderer::texture::mipmap::auto_generate::yes),
+				sge::renderer::resource_flags::none));
+
+	sge::renderer::texture::planar_ptr night_tex(
+		sge::renderer::texture::create_planar_from_path(
+			sgevollib::media_path()
+				/ FCPPT_TEXT("textures")
+				/ night_tex_path,
 				rend,
 				sys.image_system(),
 				sge::renderer::texture::mipmap::all_levels(
@@ -663,7 +679,8 @@ try
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("fragment")
 			/ FCPPT_TEXT("tex_plain.glsl"),
-		globe_tex,
+		day_tex,
+		night_tex,
 		globe_radius,
 		cam);
 

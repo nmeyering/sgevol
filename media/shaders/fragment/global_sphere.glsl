@@ -10,7 +10,7 @@ const int steps = 300;
 const float absorption_factor = 32.0 * stepsize;
 
 const vec3 suncolor = 0.5 * vec3(2.0,2.0,1.90);
-const vec3 ambient = vec3(0.25);
+const vec3 ambient = vec3(0.0);
 
 bool
 outside_unit_cube(const vec3);
@@ -42,7 +42,7 @@ main()
 
 		float light = 1.0;
 		vec3 occ_pos = position;
-		vec3 occ_dir = sundir;
+		vec3 occ_dir = -sundir;
 
 		// volume shadow loop
 		for (int j = 0; j < steps; j++)

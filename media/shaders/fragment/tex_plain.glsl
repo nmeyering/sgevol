@@ -7,7 +7,7 @@ in vec3 normal_interp;
 in vec3 position_interp;
 out vec4 frag_color;
 
-const float ambient = 0.2;
+const float ambient = 0.0;
 vec3 sun_direction = normalize(vec3(sin(offset),0.0,cos(offset)));
 
 void main()
@@ -24,10 +24,14 @@ void main()
 
 	frag_color =
 		vec4(
-			intensity *
-			texture(
-				tex,
-				texcoord_interp).xyz,
+			mix(
+				texture(
+					day_tex,
+					texcoord_interp).xyz,
+				texture(
+					night_tex,
+					texcoord_interp).xyz,
+				intensity),
 			1.0);
 	#else
 	frag_color = vec4(normal_interp,1.0);
