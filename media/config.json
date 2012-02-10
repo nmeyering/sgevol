@@ -9,7 +9,7 @@
 	"texture-size" : 128,
 	"noise-size" : 16,
 	"shader-file" : "trivial_sphere",
-	"path" : "dump.tex",
+	"path" : "world_night.png",
 	"load-texture" : false,
 	"save-texture" : false,
 	"spherical-texture" : false,

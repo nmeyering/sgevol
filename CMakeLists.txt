@@ -141,73 +141,12 @@ ADD_LIBRARY(
 #)
 
 ADD_EXECUTABLE(
-	sgevol
-	src/sgevol/main.cpp
+	objviewer
+	src/sgevol/objviewer.cpp
 )
 
 TARGET_LINK_LIBRARIES(
-	sgevol
-	sgevollib
-	${Boost_LIBRARIES}
-	${Fcppt_core_LIBRARIES}
-	${Fcppt_filesystem_LIBRARIES}
-	${Fcppt_thread_LIBRARIES}
-	${SGE_LIBRARIES}
-)
-
-
-ADD_EXECUTABLE(
-	cubetest
-	src/sgevol/cubetest.cpp
-)
-
-TARGET_LINK_LIBRARIES(
-	cubetest
-	sgevollib
-	${Boost_LIBRARIES}
-	${Fcppt_core_LIBRARIES}
-	${Fcppt_filesystem_LIBRARIES}
-	${Fcppt_thread_LIBRARIES}
-	${SGE_LIBRARIES}
-)
-
-ADD_EXECUTABLE(
-	planar_noise
-	src/sgevol/planar_noise.cpp
-)
-
-TARGET_LINK_LIBRARIES(
-	planar_noise
-	sgevollib
-	${Boost_LIBRARIES}
-	${Fcppt_core_LIBRARIES}
-	${Fcppt_filesystem_LIBRARIES}
-	${Fcppt_thread_LIBRARIES}
-	${SGE_LIBRARIES}
-)
-
-ADD_EXECUTABLE(
-	cloud_data_to_png
-	src/sgevol/cloud_data_to_png.cpp
-)
-
-TARGET_LINK_LIBRARIES(
-	cloud_data_to_png
-	sgevollib
-	${Boost_LIBRARIES}
-	${Fcppt_core_LIBRARIES}
-	${Fcppt_filesystem_LIBRARIES}
-	${Fcppt_thread_LIBRARIES}
-	${SGE_LIBRARIES}
-)
-
-ADD_EXECUTABLE(
-	create_phase_function
-	src/sgevol/create_phase_function.cpp
-)
-
-TARGET_LINK_LIBRARIES(
-	create_phase_function
+	objviewer
 	sgevollib
 	${Boost_LIBRARIES}
 	${Fcppt_core_LIBRARIES}

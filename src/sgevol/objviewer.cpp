@@ -101,6 +101,7 @@
 #include <sge/renderer/texture/filter/point.hpp>
 #include <sge/renderer/texture/filter/scoped.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/sprite/object_impl.hpp>
 #include <sge/sprite/parameters_impl.hpp>
 #include <sge/systems/cursor_option.hpp>
@@ -162,16 +163,6 @@ namespace
 {
 
 void
-toggle_console(
-	sge::console::gfx &console,
-	sge::camera::base* &camera)
-{
-	bool const act = console.active();
-	console.active(!act);
-	camera->active(act);
-}
-
-void
 try_catch_action(
 	boost::function<void()> &f)
 {
@@ -187,37 +178,10 @@ try_catch_action(
 }
 
 void
-switch_cam(
-	sge::camera::base * &cur,
-	sge::camera::base * &alt)
-{
-	bool act = cur->active();
-	cur->active(!act);
-	alt->active(act);
-	std::swap(cur, alt);
-}
-
-void
 quit(
 	bool &_value)
 {
 	_value = false;
-}
-
-void
-decrement_opacity(
-	sgevollib::cube::object &_cube)
-{
-	_cube.opacity(
-			_cube.opacity() * .5f);
-}
-
-void
-increment_opacity(
-	sgevollib::cube::object &_cube)
-{
-	_cube.opacity(
-			_cube.opacity() * 2.f);
 }
 
 }
@@ -233,28 +197,6 @@ try
 			sge::parse::json::config::create_command_line_parameters(
 				argc,
 				argv));
-
-	fcppt::string console_bg =
-		sge::parse::json::find_and_convert_member<fcppt::string>(
-			config_file,
-			sge::parse::json::path(
-				FCPPT_TEXT("console"))
-			/ FCPPT_TEXT("bg"));
-	sge::image::color::rgba8 console_fg =
-		sgevollib::json::parse_color<sge::image::color::rgba8>(
-			sge::parse::json::find_and_convert_member<sge::parse::json::value>(
-				config_file,
-			sge::parse::json::path(
-				FCPPT_TEXT("console"))
-			/ FCPPT_TEXT("fg")));
-	sge::console::sprite_object::dim console_dim =
-		sge::parse::json::find_and_convert_member<
-			sge::console::sprite_object::dim
-		>(
-			config_file,
-			sge::parse::json::path(
-				FCPPT_TEXT("console"))
-			/ FCPPT_TEXT("dim"));
 
 	sge::window::dim window_dim =
 		sge::parse::json::find_and_convert_member<
@@ -365,7 +307,7 @@ try
 				sge::window::parameters(
 					// Fenstertitel offenbar
 					sge::window::title(
-						FCPPT_TEXT("sgevollib: cloud volume rendering demo")
+						FCPPT_TEXT("obj viewer")
 					),
 					dimensions)))
 		(sge::systems::renderer(
@@ -394,100 +336,22 @@ try
 	sge::renderer::device& rend(
 		sys.renderer());
 
-	sge::font::metrics_ptr const metrics(
-		sys.font_system().create_font(
-				sge::config::media_path()
-				/ FCPPT_TEXT("fonts")
-				/ FCPPT_TEXT("default.ttf"),
-				static_cast<sge::font::size_type>(96)
-		)
-	);
-
 	sge::font::text::drawer_3d drawer(
 			rend,
 			sge::image::colors::white()
 	);
-	// typedef fcppt::scoped_ptr<texture3d> texture_scoped_ptr;
 
-	sgevollib::texture3d mytex(
-		texture_size);
-
-	sgevollib::noise_volume noise(
-		noise_size);
-
-	boost::function<void()> tex_action;
-
-	if (load_texture)
-		tex_action =
-			std::tr1::bind(
-				&sgevollib::texture3d::load,
-				&mytex,
-				fcppt::filesystem::path(texture_path));
-	else
-		tex_action =
-			spherical_texture
-				?
-				std::tr1::bind(
-					&sgevollib::texture3d::fill_spherical,
-					&mytex)
-				:
-				std::tr1::bind(
-					&sgevollib::texture3d::fill,
-					&mytex);
-
-	fcppt::thread::object load_thread(
-		boost::function<void()>(
-			std::tr1::bind(
-				try_catch_action,
-				tex_action)));
-
-	std::cout << "load thread started" << std::endl;
-
-	// Renderstates!
 	rend.state(
 		sge::renderer::state::list
-			// Bildschirm bei jedem Renderdurchgang neu initialisieren?
 			(sge::renderer::state::bool_::clear_back_buffer = true)
-			// Z-Buffer auch löschen? Braucht man hier glaub ich nichtmal
 			(sge::renderer::state::bool_::clear_depth_buffer = true)
-			// Alphablending plus die zwei Kombinationsfunktionen
 			(sge::renderer::state::bool_::enable_alpha_blending = true)
 			(sge::renderer::state::source_blend_func::src_alpha)
 			(sge::renderer::state::dest_blend_func::inv_src_alpha)
-			// WIREFRAME
-			//(sge::renderer::state::draw_mode::line)
-			// Tiefenfunktion
 			(sge::renderer::state::depth_func::off)
-			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
 			(sge::renderer::state::float_::depth_buffer_clear_val = 1.f)
 			(sge::renderer::state::color::back_buffer_clear_color =
 				sge::image::color::any::object(background_color)));
-			/*
-			sge::image::color::rgba8(
-				(sge::image::color::init::red %= 0.5)
-				(sge::image::color::init::green %= 0.5)
-				(sge::image::color::init::blue %= 1.0)
-				(sge::image::color::init::alpha %= 0.5)
-				)));
-			*/
-
-	sge::camera::spherical::object spherical_cam(
-		sge::camera::spherical::parameters(
-			// movementspeed
-			sge::camera::spherical::movement_speed(
-				cam_movement_speed),
-			// min_radius
-			cam_min_radius,
-			// Maus und Keyboard
-			sys.keyboard_collector())
-			.radius(
-				cam_radius)
-			.damping(
-				cam_damping)
-			.acceleration_factor(
-				cam_acc_factor)
-			.active(false)
-			);
 
 	sge::camera::first_person::object fps_cam(
 		sge::camera::first_person::parameters(
@@ -506,8 +370,7 @@ try
 				0.f,0.f,-3.0))));
 
 	sge::camera::base
-		*cam = &fps_cam,
-		*alternative_cam = &spherical_cam;
+		*cam = &fps_cam;
 
 	cam->active(true);
 
@@ -528,33 +391,38 @@ try
 				sge::renderer::projection::far(
 					1000.f))));
 
-	fcppt::signal::scoped_connection const viewport_connection_alt(
-		sys.viewport_manager().manage_callback(
-			std::tr1::bind(
-				sge::camera::projection::update_perspective_from_viewport,
-				fcppt::ref(
-					rend),
-				fcppt::ref(
-					*alternative_cam),
-				sge::renderer::projection::fov(
-					fcppt::math::deg_to_rad(
-						60.f)),
-				sge::renderer::projection::near(
-					0.1f),
-				// Far plane
-				sge::renderer::projection::far(
-					1000.f))));
+	sge::renderer::texture::planar_ptr model_tex(
+		sge::renderer::texture::create_planar_from_path(
+			sgevollib::media_path()
+				/ FCPPT_TEXT("textures")
+				/ texture_path,
+				rend,
+				sys.image_system(),
+				sge::renderer::texture::mipmap::all_levels(
+					sge::renderer::texture::mipmap::auto_generate::yes),
+				sge::renderer::resource_flags::none));
 
-	bool aborted = false;
+	sge::model::obj::loader_ptr model_loader(
+		sge::model::obj::create());
+	sge::model::obj::instance_ptr model_instance(
+		model_loader->load(
+			sgevollib::media_path()
+				/ FCPPT_TEXT("models")
+				/ FCPPT_TEXT("model.obj")));
 
-	fcppt::signal::scoped_connection cb(
-		sys.keyboard_collector().key_callback(
-			sge::input::keyboard::action(
-				sge::input::keyboard::key_code::escape,
-				boost::phoenix::ref(aborted) = true
-			)
-		)
-	);
+	sgevollib::model::object model(
+		rend,
+		model_instance,
+		sgevollib::media_path()
+			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("vertex")
+			/ FCPPT_TEXT("model.glsl"),
+		sgevollib::media_path()
+			/ FCPPT_TEXT("shaders")
+			/ FCPPT_TEXT("fragment")
+			/ FCPPT_TEXT("model.glsl"),
+		model_tex,
+		cam);
 
 	sge::timer::basic<sge::timer::clocks::standard> accesstimer(
 		sge::timer::parameters<sge::timer::clocks::standard>(
@@ -562,86 +430,9 @@ try
 				100)));
 	std::cout << "timer initialized" << std::endl;
 
-	float progress = 0.f;
-	while( !aborted )
-	{
-		if(sge::timer::reset_when_expired(accesstimer))
-			if((progress = mytex.progress()) >= 99.f)
-				break;
-
-		sys.window_system().poll();
-
-		sge::renderer::scoped_block const block_(rend);
-
-		sge::font::text::draw(
-			*metrics,
-			drawer,
-			fcppt::insert_to_string<sge::font::text::string>(
-				static_cast<int>(progress)
-			) +
-			SGE_FONT_TEXT_LIT("%"),
-			fcppt::math::box::structure_cast<sge::font::rect>(
-				rend.onscreen_target().viewport().get()),
-			sge::font::text::align_h::center,
-			sge::font::text::align_v::center,
-			sge::font::text::flags::none
-		);
-
-	}
-	if (aborted)
-		return EXIT_FAILURE;
-
-	load_thread.join();
-
-	if (save_texture)
-		mytex.save(
-			fcppt::filesystem::path(
-			texture_path));
-
-	sge::renderer::texture::planar_ptr phase_tex(
-		sge::renderer::texture::create_planar_from_path(
-			sgevollib::media_path()
-				/ FCPPT_TEXT("textures")
-				/ FCPPT_TEXT("phase.png"),
-				rend,
-				sys.image_system(),
-				sge::renderer::texture::mipmap::off(),
-					sge::renderer::resource_flags::none
-				));
-
-	sgevollib::cube::object cube(
-		rend,
-		sgevollib::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("vertex")
-			/ FCPPT_TEXT("vertex.glsl"),
-		sgevollib::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("fragment")
-			/ (fcppt::format(FCPPT_TEXT("%1%.glsl")) % shader_file).str(),
-		cam,
-		opacity_factor,
-		mytex.const_view(),
-		noise.const_view(),
-		phase_tex);
-
-	sgevollib::stars::object stars(
-		star_count,
-		star_size,
-		rend,
-		sgevollib::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("vertex")
-			/ FCPPT_TEXT("stars.glsl"),
-		sgevollib::media_path()
-			/ FCPPT_TEXT("shaders")
-			/ FCPPT_TEXT("fragment")
-			/ FCPPT_TEXT("stars.glsl"),
-		cam);
-
 	running = true;
 
-	cb.take(
+	fcppt::signal::scoped_connection cb(
 		sys.keyboard_collector().key_callback(
 			sge::input::keyboard::action(
 				sge::input::keyboard::key_code::escape,
@@ -670,136 +461,6 @@ try
 
 	float offset = 0.f;
 
-	// console begin
-	sge::console::object console(
-		SGE_FONT_TEXT_LIT('/')
-	);
-
-	sge::renderer::texture::planar_ptr console_tex(
-		sge::renderer::texture::create_planar_from_path(
-			sgevollib::media_path()
-				/ FCPPT_TEXT("textures")
-				/ console_bg,
-				rend,
-				sys.image_system(),
-				sge::renderer::texture::mipmap::off(),
-					sge::renderer::resource_flags::none
-				));
-
-	fcppt::signal::scoped_connection const quit_conn(
-		console.insert(
-			sge::console::callback::from_functor<void()>(
-				std::tr1::bind(
-					&::quit,
-					fcppt::ref(
-						running)),
-				sge::console::callback::name(
-					SGE_FONT_TEXT_LIT("quit")),
-				sge::console::callback::short_description(
-					SGE_FONT_TEXT_LIT("quit demo")))));
-
-	fcppt::signal::scoped_connection const opacity_conn(
-		console.insert(
-			sge::console::callback::from_functor<void(sge::renderer::scalar)>(
-				std::tr1::bind(
-					static_cast<void(sgevollib::cube::object::*)(sge::renderer::scalar)>(&sgevollib::cube::object::opacity),
-					&cube,
-					std::tr1::placeholders::_1),
-				sge::console::callback::name(
-					SGE_FONT_TEXT_LIT("opacity")),
-				sge::console::callback::short_description(
-					SGE_FONT_TEXT_LIT("cloud opacity")))));
-
-	fcppt::signal::scoped_connection const switch_cam_conn(
-		console.insert(
-			sge::console::callback::from_functor<void()>(
-				std::tr1::bind(
-					&::switch_cam,
-					fcppt::ref(
-						cam),
-					fcppt::ref(
-						alternative_cam)),
-				sge::console::callback::name(
-					SGE_FONT_TEXT_LIT("switch_cam")),
-				sge::console::callback::short_description(
-					SGE_FONT_TEXT_LIT("switch between the two cameras (polar style and first-person style)")))));
-
-	sge::font::metrics_ptr const console_metrics(
-		sys.font_system().create_font(
-				sge::config::media_path()
-				/ FCPPT_TEXT("fonts")
-				/ FCPPT_TEXT("default.ttf"),
-				static_cast<sge::font::size_type>(16)
-		)
-	);
-
-	sge::console::gfx console_gfx(
-		console,
-		sys.renderer(),
-		sge::image::color::any::object(console_fg),
-		*console_metrics,
-		sys.keyboard_collector(),
-		sge::console::sprite_object(
-			sge::console::sprite_parameters()
-			.pos(
-				sge::console::sprite_object::vector::null()
-			)
-			.texture(
-				fcppt::make_shared_ptr<sge::texture::part_raw>(
-					console_tex)
-			)
-			.size(
-				console_dim
-			)
-		),
-		static_cast<
-			sge::console::output_line_limit
-		>(
-			100
-		)
-	);
-
-	fcppt::signal::scoped_connection console_cb(
-		sys.keyboard_collector().key_callback(
-			sge::input::keyboard::action(
-				sge::input::keyboard::key_code::f1,
-				std::tr1::bind(
-					&toggle_console,
-					fcppt::ref(
-						console_gfx),
-					fcppt::ref(
-						cam)))));
-
-	fcppt::signal::scoped_connection cam_cb(
-		sys.keyboard_collector().key_callback(
-			sge::input::keyboard::action(
-				sge::input::keyboard::key_code::f5,
-				std::tr1::bind(
-					&::switch_cam,
-					fcppt::ref(
-						cam),
-					fcppt::ref(
-						alternative_cam)))));
-
-	console_gfx.active(false);
-
-	fcppt::signal::scoped_connection decrement_opacity_conn(
-		sys.keyboard_collector().key_callback(
-			sge::input::keyboard::action(
-				sge::input::keyboard::key_code::lbracket,
-				std::tr1::bind(
-					&::decrement_opacity,
-					fcppt::ref(cube)))));
-
-	fcppt::signal::scoped_connection increment_opacity_conn(
-		sys.keyboard_collector().key_callback(
-			sge::input::keyboard::action(
-				sge::input::keyboard::key_code::rbracket,
-				std::tr1::bind(
-					&::increment_opacity,
-					fcppt::ref(cube)))));
-
-	// console end
 	while(running)
 	{
 		// Sonst werden keine Input-Events geschickt
@@ -817,9 +478,7 @@ try
 		// Beginne Renderdurchgang
 		sge::renderer::scoped_block const block_(rend);
 
-		//stars.render();
-
-		cube.render(offset);
+		model.render(offset);
 
 		sge::font::text::draw(
 			*fps_metrics,
@@ -835,19 +494,6 @@ try
 		);
 
 		fps_counter.update();
-
-		if (console_gfx.active())
-		{
-			sge::renderer::texture::set_address_mode2(
-				rend,
-				sge::renderer::texture::stage(0u),
-				sge::renderer::texture::address_mode2(
-					sge::renderer::texture::address_mode_s(
-						sge::renderer::texture::address_mode::clamp),
-					sge::renderer::texture::address_mode_t(
-						sge::renderer::texture::address_mode::repeat)));
-			console_gfx.render();
-		}
 	}
 }
 catch(sge::exception const &e)

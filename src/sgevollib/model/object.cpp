@@ -55,7 +55,6 @@ sgevollib::model::object::object(
 	fcppt::filesystem::path const &_vertex_shader_file,
 	fcppt::filesystem::path const &_fragment_shader_file,
 	sge::renderer::texture::planar_ptr _tex,
-	sge::renderer::scalar _radius,
 	sge::camera::base* &_cam)
 :
 renderer_(
@@ -74,8 +73,6 @@ vb_(
 		*model_)),
 tex_(
 	_tex),
-radius_(
-	_radius),
 cam_(
 	_cam),
 shader_(
@@ -84,10 +81,6 @@ shader_(
 		*vd_,
 		sge::shader::vf_to_string<sgevollib::model::vf::format>(),
 		fcppt::assign::make_container<sge::shader::variable_sequence>
-			(sge::shader::variable(
-				"radius",
-				sge::shader::variable_type::constant,
-				radius_))
 			(sge::shader::variable(
 				"mvp",
 				sge::shader::variable_type::uniform,
