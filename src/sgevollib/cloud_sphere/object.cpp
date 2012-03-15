@@ -32,7 +32,6 @@
 #include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/texture/planar_ptr.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
-#include <sge/renderer/vf/dynamic/part_index.hpp>
 #include <sge/shader/activation_method.hpp>
 #include <sge/shader/activation_method_field.hpp>
 #include <sge/shader/matrix.hpp>
@@ -220,7 +219,7 @@ sgevollib::cloud_sphere::object::render(float offset)
 
 	// Rendern (copypaste)
 	renderer_.render_nonindexed(
-		sge::renderer::first_vertex(0),
+		sge::renderer::first_vertex(0u),
 		sge::renderer::vertex_count(vb_->size()),
 		sge::renderer::nonindexed_primitive_type::triangle);
 
@@ -244,9 +243,11 @@ sgevollib::cloud_sphere::object::render(float offset)
 			));
 	}
 	*/
+	/*
 	renderer_.state(
 		sge::renderer::state::list(
 			sge::renderer::state::cull_mode::counter_clockwise));
+			*/
 
 	shader_.update_uniform(
 		"mvp",

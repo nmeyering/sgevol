@@ -2,11 +2,15 @@
 #define SGEVOLLIB_CUBE_VF_HPP_INCLUDED
 
 #include <sge/renderer/scalar.hpp>
-#include <sge/renderer/vf/vf.hpp>
+#include <sge/renderer/vf/make_unspecified_tag.hpp>
+#include <sge/renderer/vf/unspecified.hpp>
+#include <sge/renderer/vf/vector.hpp>
+#include <sge/renderer/vf/part.hpp>
+#include <sge/renderer/vf/format.hpp>
+#include <sge/renderer/vf/view.hpp>
 #include <fcppt/config/external_begin.hpp>
 #include <boost/mpl/vector/vector10.hpp>
 #include <fcppt/config/external_end.hpp>
-
 
 namespace sgevollib
 {

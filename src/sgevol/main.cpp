@@ -160,6 +160,7 @@
 #include <iostream>
 #include <fcppt/config/external_end.hpp>
 
+#include <sge/renderer/state/cull_mode.hpp>
 
 namespace
 {
@@ -406,7 +407,7 @@ try
 				sge::renderer::parameters(
 					sge::renderer::visual_depth::depth32,
 					sge::renderer::depth_stencil_buffer::d24,
-					sge::renderer::vsync::on,
+					sge::renderer::vsync::off,
 					sge::renderer::no_multi_sampling),
 				sge::viewport::fill_on_resize()))
 		(sge::systems::image2d(
@@ -526,10 +527,10 @@ try
 	sge::camera::first_person::object fps_cam(
 		sge::camera::first_person::parameters(
 			sge::camera::first_person::movement_speed(
-				0.04f
+				0.01f
 			),
 			sge::camera::first_person::rotation_speed(
-				200.0f
+				400.0f
 			),
 			sys.keyboard_collector(),
 			sys.mouse_collector())
@@ -537,7 +538,7 @@ try
 		.gizmo(
 			sge::camera::identity_gizmo().position(
 				sge::renderer::vector3(
-				0.f,0.f,-1.5))));
+				-.5f,0.f,-1.2f))));
 
 	sge::camera::base
 		*cam = &fps_cam,
@@ -674,7 +675,8 @@ try
 				/ cloud_texture_path,
 				rend,
 				sys.image_system(),
-				sge::renderer::texture::mipmap::off(),
+				sge::renderer::texture::mipmap::all_levels(
+					sge::renderer::texture::mipmap::auto_generate::yes),
 				sge::renderer::resource_flags::none));
 
 	sgevollib::cloud_sphere::object sphere(

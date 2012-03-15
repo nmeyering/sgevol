@@ -25,6 +25,8 @@
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/vf/vertex.hpp>
+#include <sge/renderer/vf/iterator.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/renderer/vf/dynamic/part_index.hpp>
 #include <sge/shader/activation_method.hpp>
@@ -243,7 +245,7 @@ sgevollib::cube::object::render(float offset)
 
 	// Rendern (copypaste)
 	renderer_.render_nonindexed(
-		sge::renderer::first_vertex(0),
+		sge::renderer::first_vertex(0u),
 		sge::renderer::vertex_count(vb_->size()),
 		sge::renderer::nonindexed_primitive_type::triangle);
 

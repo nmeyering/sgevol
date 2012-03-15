@@ -19,6 +19,8 @@
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/state/scoped.hpp>
 #include <sge/renderer/state/trampoline.hpp>
+#include <sge/renderer/vf/vertex.hpp>
+#include <sge/renderer/vf/iterator.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/renderer/vf/dynamic/part_index.hpp>
 #include <sge/shader/activate_everything.hpp>
@@ -177,7 +179,7 @@ sgevollib::stars::object::render()
 		*vb_);
 
 	renderer_.render_nonindexed(
-		sge::renderer::first_vertex(0),
+		sge::renderer::first_vertex(0u),
 		sge::renderer::vertex_count(vb_->size()),
 		sge::renderer::nonindexed_primitive_type::point);
 

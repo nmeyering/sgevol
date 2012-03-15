@@ -1,10 +1,13 @@
-#include <fcppt/math/vector/vector.hpp>
+#include <fcppt/math/vector/static.hpp>
+#include <fcppt/math/vector/arithmetic.hpp>
 #include <sgevollib/simplex_noise.hpp>
 #include <sge/image2d/l8.hpp>
 #include <sge/image/store.hpp>
 #include <sge/image2d/dim.hpp>
 #include <sge/image2d/save_from_view.hpp>
-#include <sge/image2d/view/view.hpp>
+#include <sge/image2d/view/object.hpp>
+#include <sge/image2d/view/const_object.hpp>
+#include <sge/image2d/view/to_const.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
 #include <sge/systems/image2d.hpp>

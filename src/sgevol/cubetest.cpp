@@ -492,10 +492,10 @@ try
 	sge::camera::first_person::object fps_cam(
 		sge::camera::first_person::parameters(
 			sge::camera::first_person::movement_speed(
-				0.04f
+				0.01f
 			),
 			sge::camera::first_person::rotation_speed(
-				200.0f
+				400.0f
 			),
 			sys.keyboard_collector(),
 			sys.mouse_collector())
@@ -521,7 +521,7 @@ try
 					*cam),
 				sge::renderer::projection::fov(
 					fcppt::math::deg_to_rad(
-						60.f)),
+						20.f)),
 				sge::renderer::projection::near(
 					0.1f),
 				// Far plane
@@ -825,8 +825,7 @@ try
 			*fps_metrics,
 			drawer,
 			sge::font::text::from_fcppt_string(
-				fps_counter.frames_str())
-			+ SGE_FONT_TEXT_LIT(""),
+				fps_counter.frames_str()),
 			fcppt::math::box::structure_cast<sge::font::rect>(
 				rend.onscreen_target().viewport().get()),
 		sge::font::text::align_h::left,

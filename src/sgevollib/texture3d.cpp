@@ -4,9 +4,13 @@
 #include <sgevollib/vf.hpp>
 #include <sge/image/const_raw_pointer.hpp>
 #include <sge/image/raw_pointer.hpp>
-#include <sge/image/color/color.hpp>
+#include <sge/image/color/format_stride.hpp>
 #include <sge/image3d/dim.hpp>
-#include <sge/image3d/view/view.hpp>
+#include <sge/image3d/view/const_object.hpp>
+#include <sge/image3d/view/object.hpp>
+#include <sge/image3d/view/format.hpp>
+#include <sge/image3d/view/size.hpp>
+#include <sge/image3d/view/data.hpp>
 #include <mizuiro/image/view.hpp>
 #include <fcppt/format.hpp>
 #include <fcppt/make_shared_ptr.hpp>
@@ -17,10 +21,10 @@
 #include <fcppt/io/cifstream.hpp>
 #include <fcppt/io/cofstream.hpp>
 #include <fcppt/math/clamp.hpp>
-#include <fcppt/math/math.hpp>
-#include <fcppt/math/dim/dim.hpp>
+#include <fcppt/math/pi.hpp>
+#include <fcppt/math/twopi.hpp>
 #include <fcppt/math/vector/arithmetic.hpp>
-#include <fcppt/math/vector/vector.hpp>
+#include <fcppt/math/vector/length.hpp>
 #include <fcppt/signal/scoped_connection.hpp>
 #include <fcppt/config/external_begin.hpp>
 #include <boost/bind.hpp>
@@ -81,12 +85,12 @@ sphere_falloff(
 		fcppt::math::vector::length(
 			_p -
 			_center
-		) / _dim;
+		) * 2.f / _dim;
 
 	return
 		fcppt::math::clamp(
-			(radius - 0.5f) /
-			(_sharpness - 1.0f),
+			(radius - 0.99f) /
+			(_sharpness - 1.f),
 			0.0f,
 			1.0f);
 }
@@ -116,8 +120,8 @@ to_spherical(
 	float const twopi = fcppt::math::twopi<float>();
 
 	float const r = length(p);
-	float const phi = atan2(p.y(),p.x());
-	float const theta = acos(p.z()/r);
+	float const phi = atan2(p.y(), p.x());
+	float const theta = acos(p.z() /r);
 
 	return vec3(
 			r,
@@ -357,9 +361,9 @@ texture3d::fill_spherical()
 				tmp = (to_cartesian(tmp) + vec3(1.f,1.f,1.f)) * .5f;
 				tmp *= dim;
 
-				alpha = cloudy_noise(tmp, scale, noise, 0.8f);
-				alpha *= fcppt::math::clamp(.95f - (static_cast<float>(x) / dim), 0.f, 1.f);
-				//alpha *= sphere_falloff(tmp, center, dim, 0.975f);
+				alpha = cloudy_noise(tmp, scale, noise, 0.95f);
+				// alpha *= fcppt::math::clamp(.95f - (static_cast<float>(x) / dim), 0.f, 1.f);
+				alpha *= sphere_falloff(tmp, center, dim, 0.95f);
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(
@@ -373,14 +377,14 @@ texture3d::fill()
 {
 	float alpha = 0.f;
 	typedef v::dim::value_type dimtype;
+	float const dim = static_cast<float>(dimension_);
 	vec3 center(
-			static_cast<float>(dimension_) * .5f,
-			static_cast<float>(dimension_) * .5f,
-			static_cast<float>(dimension_) * .5f);
+			dim * .5f,
+			dim * .5f,
+			dim * .5f);
 	sgevollib::simplex_noise<float,3> noise(1024, 256);
 	vec3 tmp = vec3::null();
-	float const dim = static_cast<float>(dimension_);
-	float const scale = 32.f / dim;
+	float const scale = 256.f / dim;
 	float const margin = 0.05f * dim;
 	for (dimtype z = 0; z < dimension_; ++z)
 	{
@@ -389,16 +393,16 @@ texture3d::fill()
 			for (dimtype x = 0; x < dimension_; ++x)
 			{
 				tmp[0] =
-					static_cast<float>(x);
+					static_cast<float>(x) + 0.5f;
 				tmp[1] =
-					static_cast<float>(y);
+					static_cast<float>(y) + 0.5f;
 				tmp[2] =
-					static_cast<float>(z);
+					static_cast<float>(z) + 0.5f;
 
 				//alpha = checkerboard(tmp, 4.f/dim);
-				alpha = cloudy_noise(tmp, scale, noise, 0.95f);
-				//alpha = 1.f;
-				alpha *= sphere_falloff(tmp, center, dim, 0.80f);
+
+				alpha = cloudy_noise(tmp, scale, noise, 0.80f);
+				alpha *= sphere_falloff(tmp, center, dim, 0.97f);
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(

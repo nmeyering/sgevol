@@ -73,9 +73,9 @@ sgevollib::noise_volume::calculate()
 
 				alpha =
 					fcppt::math::clamp(
-						noise.sample( tmp )
-						,0.f
-						,1.f);
+						noise.sample(tmp),
+						0.f,
+						1.f);
 
 				view_[ v::dim(x,y,z) ] =
 					color_type(

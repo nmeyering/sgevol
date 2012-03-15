@@ -100,10 +100,6 @@ SET(
 	src/sgevollib/model/vf.hpp
 	src/sgevollib/noise_volume.cpp
 	src/sgevollib/noise_volume.hpp
-	src/sgevollib/perlin2d.cpp
-	src/sgevollib/perlin2d.hpp
-	src/sgevollib/perlin3d.cpp
-	src/sgevollib/perlin3d.hpp
 	src/sgevollib/shadow_volume.cpp
 	src/sgevollib/shadow_volume.hpp
 	src/sgevollib/simplex_noise.hpp

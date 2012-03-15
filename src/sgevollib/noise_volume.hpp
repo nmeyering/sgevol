@@ -8,7 +8,7 @@
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/image3d/view/object.hpp>
 #include <fcppt/string.hpp>
-#include <fcppt/math/vector/vector.hpp>
+#include <fcppt/math/vector/static.hpp>
 
 
 namespace sgevollib
@@ -21,7 +21,7 @@ public:
 	typedef sge::image::color::l8 color_type;
 	typedef mizuiro::color::channel::luminance channel_type;
 	typedef store::view_type v;
-	typedef fcppt::math::vector::static_< float, 3 >::type vec3;
+	typedef fcppt::math::vector::static_<float, 3>::type vec3;
 
 	explicit
 	noise_volume(
