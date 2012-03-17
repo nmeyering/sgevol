@@ -1,17 +1,20 @@
 #ifndef SGEVOLLIB_CUBE_OBJECT_HPP_INCLUDED
 #define SGEVOLLIB_CUBE_OBJECT_HPP_INCLUDED
 
-#include <sge/renderer/glsl/uniform/int_type.hpp>
 #include <sge/camera/base.hpp>
-#include <sge/image3d/view/const_object.hpp>
 #include <sge/image2d/view/const_object.hpp>
+#include <sge/image3d/view/const_object.hpp>
 #include <sge/model/obj/instance_ptr.hpp>
 #include <sge/model/obj/loader_ptr.hpp>
 #include <sge/model/obj/vb_converter/convert.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/vertex_buffer_ptr.hpp>
 #include <sge/renderer/vertex_declaration.hpp>
+#include <sge/renderer/glsl/uniform/int_type.hpp>
 #include <sge/shader/object.hpp>
+#include <fcppt/config/external_begin.hpp>
+#include <boost/filesystem/path.hpp>
+#include <fcppt/config/external_end.hpp>
 
 
 namespace sgevollib
@@ -27,8 +30,8 @@ public:
 	object(
 		sge::renderer::device &,
 		sge::model::obj::instance_ptr,
-		fcppt::filesystem::path const &_vertex_shader_file,
-		fcppt::filesystem::path const &_fragment_shader_file,
+		boost::filesystem::path const &_vertex_shader_file,
+		boost::filesystem::path const &_fragment_shader_file,
 		sge::camera::base* &,
 		sge::renderer::scalar,
 		sge::renderer::scalar,
@@ -75,11 +78,11 @@ private:
 	sge::renderer::vertex_buffer_ptr vb_;
 	sge::camera::base* &cam_;
 	sge::renderer::scalar opacity_;
+	sge::renderer::glsl::uniform::int_type skip_;
 	sge::image3d::view::const_object const &tex_;
 	sge::image3d::view::const_object const &noise_;
 	sge::renderer::texture::planar_ptr &clouds_;
 	sge::shader::object shader_;
-	sge::renderer::glsl::uniform::int_type skip_;
 };
 
 }

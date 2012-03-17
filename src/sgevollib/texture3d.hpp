@@ -9,10 +9,11 @@
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/image3d/view/object.hpp>
 #include <mizuiro/color/channel/luminance.hpp>
+#include <fcppt/noncopyable.hpp>
 #include <fcppt/string.hpp>
 #include <fcppt/math/vector/basic_impl.hpp>
 #include <fcppt/math/vector/static.hpp>
-#include <fcppt/noncopyable.hpp>
+
 
 namespace sgevollib
 {
@@ -34,7 +35,7 @@ public:
 	explicit
 	texture3d(
 		std::size_t const,
-		fcppt::filesystem::path const &);
+		boost::filesystem::path const &);
 
 	sge::image3d::view::const_object const
 	const_view() const;
@@ -63,11 +64,11 @@ public:
 
 	void
 	save(
-		fcppt::filesystem::path const &);
+		boost::filesystem::path const &);
 
 	void
 	load(
-		fcppt::filesystem::path const &);
+		boost::filesystem::path const &);
 
 private:
 	v::dim::value_type dimension_;

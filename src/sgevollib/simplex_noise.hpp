@@ -2,12 +2,12 @@
 #define SGEVOLLIB_SIMPLEX_NOISE_HPP_INCLUDED
 
 #include <fcppt/container/array.hpp>
-#include <fcppt/math/matrix/static.hpp>
 #include <fcppt/math/matrix/arithmetic.hpp>
+#include <fcppt/math/matrix/static.hpp>
 #include <fcppt/math/matrix/vector.hpp>
-#include <fcppt/math/vector/static.hpp>
 #include <fcppt/math/vector/arithmetic.hpp>
 #include <fcppt/math/vector/dot.hpp>
+#include <fcppt/math/vector/static.hpp>
 #include <fcppt/math/vector/unit.hpp>
 #include <fcppt/config/external_begin.hpp>
 #include <boost/range/algorithm/random_shuffle.hpp>

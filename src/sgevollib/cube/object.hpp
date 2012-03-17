@@ -21,8 +21,8 @@ public:
 	explicit
 	object(
 		sge::renderer::device &,
-		fcppt::filesystem::path const &_vertex_shader_file,
-		fcppt::filesystem::path const &_fragment_shader_file,
+		boost::filesystem::path const &_vertex_shader_file,
+		boost::filesystem::path const &_fragment_shader_file,
 		sge::camera::base* &,
 		sge::renderer::scalar opacity,
 		sge::image3d::view::const_object const &_tex,

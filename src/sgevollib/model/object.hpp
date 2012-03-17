@@ -28,8 +28,8 @@ public:
 	object(
 		sge::renderer::device &,
 		sge::model::obj::instance_ptr,
-		fcppt::filesystem::path const &,
-		fcppt::filesystem::path const &,
+		boost::filesystem::path const &,
+		boost::filesystem::path const &,
 		sge::renderer::texture::planar_ptr,
 		float _radius,
 		sge::camera::base* &);

@@ -1,26 +1,30 @@
 #include <sgevollib/simplex_noise.hpp>
-#include <sge/image2d/l8.hpp>
+#include <sge/image/capabilities_field.hpp>
 #include <sge/image/store.hpp>
 #include <sge/image2d/dim.hpp>
+#include <sge/image2d/l8.hpp>
 #include <sge/image2d/save_from_view.hpp>
-#include <sge/image2d/view/object.hpp>
 #include <sge/image2d/view/const_object.hpp>
+#include <sge/image2d/view/object.hpp>
 #include <sge/image2d/view/to_const.hpp>
-#include <sge/systems/instance.hpp>
-#include <sge/systems/list.hpp>
-#include <sge/systems/image2d.hpp>
-#include <mizuiro/color/channel/luminance.hpp>
-#include <sge/image/capabilities_field.hpp>
 #include <sge/media/extension.hpp>
 #include <sge/media/extension_set.hpp>
+#include <sge/media/optional_extension_set.hpp>
+#include <sge/systems/image2d.hpp>
+#include <sge/systems/instance.hpp>
+#include <sge/systems/list.hpp>
+#include <mizuiro/color/channel/luminance.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/math/clamp.hpp>
 #include <fcppt/math/twopi.hpp>
-#include <sge/media/optional_extension_set.hpp>
+#include <fcppt/config/external_begin.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem/path.hpp>
 #include <cmath>
 #include <iostream>
 #include <ostream>
+#include <fcppt/config/external_end.hpp>
+
 
 namespace
 {
@@ -108,7 +112,7 @@ main(
 		sge::image2d::view::to_const(
 			sge::image2d::view::object(
 				store.wrapped_view())),
-		fcppt::filesystem::path(
+		boost::filesystem::path(
 			argv[3]));
 
 	return EXIT_SUCCESS;

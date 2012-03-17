@@ -9,7 +9,9 @@
 #include <sge/renderer/vertex_declaration.hpp>
 #include <sge/renderer/vertex_declaration_ptr.hpp>
 #include <sge/shader/object.hpp>
-#include <fcppt/filesystem/path.hpp>
+#include <fcppt/config/external_begin.hpp>
+#include <boost/filesystem/path.hpp>
+#include <fcppt/config/external_end.hpp>
 
 
 namespace sgevollib
@@ -26,8 +28,8 @@ public:
 		sge::renderer::size_type,
 		sge::renderer::scalar,
 		sge::renderer::device &,
-		fcppt::filesystem::path const &_fragment_shader_file,
-		fcppt::filesystem::path const &_vertex_shader_file,
+		boost::filesystem::path const &_fragment_shader_file,
+		boost::filesystem::path const &_vertex_shader_file,
 		sge::camera::base* &);
 
 	void render();

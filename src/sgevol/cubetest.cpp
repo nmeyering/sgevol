@@ -139,7 +139,6 @@
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/chrono/milliseconds.hpp>
 #include <fcppt/chrono/seconds.hpp>
-#include <fcppt/filesystem/path.hpp>
 #include <fcppt/io/cerr.hpp>
 #include <fcppt/math/deg_to_rad.hpp>
 #include <fcppt/math/pi.hpp>
@@ -149,6 +148,7 @@
 #include <fcppt/thread/object.hpp>
 #include <fcppt/config/external_begin.hpp>
 #include <boost/function.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
 #include <algorithm>
@@ -422,7 +422,7 @@ try
 			std::tr1::bind(
 				&sgevollib::texture3d::load,
 				&mytex,
-				fcppt::filesystem::path(texture_path));
+				boost::filesystem::path(texture_path));
 	else
 		tex_action =
 			spherical_texture
@@ -595,7 +595,7 @@ try
 
 	if (save_texture)
 		mytex.save(
-			fcppt::filesystem::path(
+			boost::filesystem::path(
 			texture_path));
 
 	sge::renderer::texture::planar_ptr phase_tex(

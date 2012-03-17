@@ -83,6 +83,7 @@
 #include <sge/renderer/projection/near.hpp>
 #include <sge/renderer/state/bool.hpp>
 #include <sge/renderer/state/color.hpp>
+#include <sge/renderer/state/cull_mode.hpp>
 #include <sge/renderer/state/depth_func.hpp>
 #include <sge/renderer/state/dest_blend_func.hpp>
 #include <sge/renderer/state/draw_mode.hpp>
@@ -142,7 +143,6 @@
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/chrono/milliseconds.hpp>
 #include <fcppt/chrono/seconds.hpp>
-#include <fcppt/filesystem/path.hpp>
 #include <fcppt/io/cerr.hpp>
 #include <fcppt/math/deg_to_rad.hpp>
 #include <fcppt/math/pi.hpp>
@@ -152,6 +152,7 @@
 #include <fcppt/thread/object.hpp>
 #include <fcppt/config/external_begin.hpp>
 #include <boost/function.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
 #include <algorithm>
@@ -160,7 +161,6 @@
 #include <iostream>
 #include <fcppt/config/external_end.hpp>
 
-#include <sge/renderer/state/cull_mode.hpp>
 
 namespace
 {
@@ -457,7 +457,7 @@ try
 			std::tr1::bind(
 				&sgevollib::texture3d::load,
 				&mytex,
-				fcppt::filesystem::path(texture_path));
+				boost::filesystem::path(texture_path));
 	else
 		tex_action =
 			spherical_texture
@@ -631,7 +631,7 @@ try
 
 	if (save_texture)
 		mytex.save(
-			fcppt::filesystem::path(
+			boost::filesystem::path(
 			texture_path));
 
 	sge::renderer::texture::planar_ptr globe_tex(

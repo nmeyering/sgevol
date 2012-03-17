@@ -25,8 +25,8 @@
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
-#include <sge/renderer/vf/vertex.hpp>
 #include <sge/renderer/vf/iterator.hpp>
+#include <sge/renderer/vf/vertex.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/renderer/vf/dynamic/part_index.hpp>
 #include <sge/shader/activation_method.hpp>
@@ -41,18 +41,18 @@
 #include <fcppt/format.hpp>
 #include <fcppt/noncopyable.hpp>
 #include <fcppt/assign/make_container.hpp>
-#include <fcppt/filesystem/path.hpp>
 #include <fcppt/math/pi.hpp>
 #include <fcppt/math/twopi.hpp>
 #include <fcppt/config/external_begin.hpp>
+#include <boost/filesystem/path.hpp>
 #include <algorithm>
 #include <fcppt/config/external_end.hpp>
 
 
 sgevollib::cube::object::object(
 	sge::renderer::device &_renderer,
-	fcppt::filesystem::path const &_vertex_shader_file,
-	fcppt::filesystem::path const &_fragment_shader_file,
+	boost::filesystem::path const &_vertex_shader_file,
+	boost::filesystem::path const &_fragment_shader_file,
 	sge::camera::base* &_cam,
 	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,

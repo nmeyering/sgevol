@@ -7,19 +7,15 @@
 #include <sge/image/color/format_stride.hpp>
 #include <sge/image3d/dim.hpp>
 #include <sge/image3d/view/const_object.hpp>
-#include <sge/image3d/view/object.hpp>
-#include <sge/image3d/view/format.hpp>
-#include <sge/image3d/view/size.hpp>
 #include <sge/image3d/view/data.hpp>
+#include <sge/image3d/view/format.hpp>
+#include <sge/image3d/view/object.hpp>
+#include <sge/image3d/view/size.hpp>
 #include <mizuiro/image/view.hpp>
 #include <fcppt/format.hpp>
 #include <fcppt/make_shared_ptr.hpp>
 #include <fcppt/text.hpp>
 #include <fcppt/container/raw_vector.hpp>
-#include <fcppt/filesystem/file_size.hpp>
-#include <fcppt/filesystem/path.hpp>
-#include <fcppt/io/cifstream.hpp>
-#include <fcppt/io/cofstream.hpp>
 #include <fcppt/math/clamp.hpp>
 #include <fcppt/math/pi.hpp>
 #include <fcppt/math/twopi.hpp>
@@ -28,6 +24,9 @@
 #include <fcppt/signal/scoped_connection.hpp>
 #include <fcppt/config/external_begin.hpp>
 #include <boost/bind.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/mpl/vector/vector10.hpp>
 #include <cmath>
 #include <cstddef>
@@ -170,7 +169,7 @@ texture3d::texture3d(
 
 texture3d::texture3d(
 	v::dim::value_type const _dimension,
-	fcppt::filesystem::path const &_filename)
+	boost::filesystem::path const &_filename)
 :
 	dimension_(
 		_dimension),
@@ -187,13 +186,13 @@ texture3d::texture3d(
 }
 
 void texture3d::load(
-		fcppt::filesystem::path const &_filename)
+		boost::filesystem::path const &_filename)
 {
 	typedef
-	fcppt::io::cifstream::pos_type
+	boost::filesystem::ifstream::pos_type
 	pos_type;
 
-	fcppt::io::cifstream file(
+	boost::filesystem::ifstream file(
 		_filename);
 
 	pos_type size =
@@ -302,9 +301,9 @@ texture3d::progress(
 
 void
 texture3d::save(
-	fcppt::filesystem::path const &_filename)
+	boost::filesystem::path const &_filename)
 {
-	fcppt::io::cofstream file(
+	boost::filesystem::ofstream file(
 		_filename);
 
 	std::streamsize size = static_cast<std::streamsize>(sge::image3d::view::size(

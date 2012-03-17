@@ -19,8 +19,8 @@
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/state/scoped.hpp>
 #include <sge/renderer/state/trampoline.hpp>
-#include <sge/renderer/vf/vertex.hpp>
 #include <sge/renderer/vf/iterator.hpp>
+#include <sge/renderer/vf/vertex.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/renderer/vf/dynamic/part_index.hpp>
 #include <sge/shader/activate_everything.hpp>
@@ -34,13 +34,13 @@
 #include <sge/shader/variable_type.hpp>
 #include <sge/shader/vf_to_string.hpp>
 #include <fcppt/assign/make_container.hpp>
-#include <fcppt/filesystem/path.hpp>
 #include <fcppt/math/twopi.hpp>
 #include <fcppt/math/matrix/arithmetic.hpp>
 #include <fcppt/math/vector/hypersphere_to_cartesian.hpp>
 #include <fcppt/random/make_inclusive_range.hpp>
 #include <fcppt/random/uniform.hpp>
 #include <fcppt/config/external_begin.hpp>
+#include <boost/filesystem/path.hpp>
 #include <cmath>
 #include <fcppt/config/external_end.hpp>
 
@@ -49,8 +49,8 @@ sgevollib::stars::object::object(
 	sge::renderer::size_type _count,
 	sge::renderer::scalar _max_size,
 	sge::renderer::device &_renderer,
-	fcppt::filesystem::path const &_vertex_shader_file,
-	fcppt::filesystem::path const &_fragment_shader_file,
+	boost::filesystem::path const &_vertex_shader_file,
+	boost::filesystem::path const &_fragment_shader_file,
 	sge::camera::base* &_camera)
 :
 count_(

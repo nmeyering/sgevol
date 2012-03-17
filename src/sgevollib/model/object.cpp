@@ -44,16 +44,19 @@
 #include <fcppt/format.hpp>
 #include <fcppt/noncopyable.hpp>
 #include <fcppt/assign/make_container.hpp>
-#include <fcppt/filesystem/path.hpp>
 #include <fcppt/math/pi.hpp>
 #include <fcppt/math/twopi.hpp>
+#include <fcppt/config/external_begin.hpp>
+#include <boost/filesystem/path.hpp>
 #include <iostream>
+#include <fcppt/config/external_end.hpp>
+
 
 sgevollib::model::object::object(
 	sge::renderer::device &_renderer,
 	sge::model::obj::instance_ptr _model,
-	fcppt::filesystem::path const &_vertex_shader_file,
-	fcppt::filesystem::path const &_fragment_shader_file,
+	boost::filesystem::path const &_vertex_shader_file,
+	boost::filesystem::path const &_fragment_shader_file,
 	sge::renderer::texture::planar_ptr _tex,
 	sge::renderer::scalar _radius,
 	sge::camera::base* &_cam)

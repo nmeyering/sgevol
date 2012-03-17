@@ -1,4 +1,3 @@
-#include <sge/renderer/glsl/uniform/int_type.hpp>
 #include <sgevollib/media_path.hpp>
 #include <sgevollib/cloud_sphere/model_format.hpp>
 #include <sgevollib/cloud_sphere/object.hpp>
@@ -21,16 +20,17 @@
 #include <sge/renderer/vector3.hpp>
 #include <sge/renderer/vertex_buffer.hpp>
 #include <sge/renderer/vertex_count.hpp>
+#include <sge/renderer/glsl/uniform/int_type.hpp>
 #include <sge/renderer/state/cull_mode.hpp>
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/texture/address_mode.hpp>
 #include <sge/renderer/texture/address_mode3.hpp>
 #include <sge/renderer/texture/create_volume_from_view.hpp>
+#include <sge/renderer/texture/planar_ptr.hpp>
 #include <sge/renderer/texture/set_address_mode3.hpp>
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
-#include <sge/renderer/texture/planar_ptr.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/shader/activation_method.hpp>
 #include <sge/shader/activation_method_field.hpp>
@@ -45,16 +45,18 @@
 #include <fcppt/format.hpp>
 #include <fcppt/noncopyable.hpp>
 #include <fcppt/assign/make_container.hpp>
-#include <fcppt/filesystem/path.hpp>
 #include <fcppt/math/pi.hpp>
 #include <fcppt/math/twopi.hpp>
+#include <fcppt/config/external_begin.hpp>
+#include <boost/filesystem/path.hpp>
+#include <fcppt/config/external_end.hpp>
 
 
 sgevollib::cloud_sphere::object::object(
 	sge::renderer::device &_renderer,
 	sge::model::obj::instance_ptr _model,
-	fcppt::filesystem::path const &_vertex_shader_file,
-	fcppt::filesystem::path const &_fragment_shader_file,
+	boost::filesystem::path const &_vertex_shader_file,
+	boost::filesystem::path const &_fragment_shader_file,
 	sge::camera::base* &_cam,
 	sge::renderer::scalar _radius,
 	sge::renderer::scalar _opacity,
