@@ -37,8 +37,10 @@
 #include <fcppt/math/twopi.hpp>
 #include <fcppt/math/matrix/arithmetic.hpp>
 #include <fcppt/math/vector/hypersphere_to_cartesian.hpp>
-#include <fcppt/random/make_inclusive_range.hpp>
-#include <fcppt/random/uniform.hpp>
+#include <fcppt/random/variate.hpp>
+#include <fcppt/random/distribution/uniform_real.hpp>
+#include <fcppt/random/generator/minstd_rand.hpp>
+#include <fcppt/random/generator/seed_from_chrono.hpp>
 #include <fcppt/config/external_begin.hpp>
 #include <boost/filesystem/path.hpp>
 #include <cmath>
@@ -114,21 +116,39 @@ shader_(
 	>::type
 	vec3;
 
-	// FIXME: use correct generators
-	fcppt::random::uniform<float> rng(
-		fcppt::random::make_inclusive_range(
-			-1.0f,
-			1.f));
+	typedef fcppt::random::generator::minstd_rand default_generator;
 
-	fcppt::random::uniform<float> angle_rng(
-		fcppt::random::make_inclusive_range(
-			0.f,
-			fcppt::math::twopi<float>()));
+	default_generator def_gen(
+		fcppt::random::generator::seed_from_chrono<
+			default_generator::seed
+		>());
 
-	fcppt::random::uniform<sge::renderer::scalar> radius_rng(
-		fcppt::random::make_inclusive_range(
-			static_cast<sge::renderer::scalar>(1.f),
-			max_size_));
+	typedef fcppt::random::distribution::uniform_real<
+		float
+	> scalar_distribution;
+
+	fcppt::random::variate<default_generator, scalar_distribution>
+		rng(
+			def_gen,
+			scalar_distribution(
+				scalar_distribution::min(
+					-1.f),
+				scalar_distribution::sup(
+					1.f))),
+		angle_rng(
+			def_gen,
+			scalar_distribution(
+				scalar_distribution::min(
+					0.f),
+				scalar_distribution::sup(
+					fcppt::math::twopi<float>()))),
+		radius_rng(
+			def_gen,
+			scalar_distribution(
+				scalar_distribution::min(
+					1.f),
+				scalar_distribution::sup(
+					static_cast<float>(max_size_))));
 
 	for (
 		vf::vertex_view::iterator vb_it = vertices.begin();

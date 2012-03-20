@@ -11,7 +11,7 @@
 #include <mizuiro/color/channel/luminance.hpp>
 #include <fcppt/noncopyable.hpp>
 #include <fcppt/string.hpp>
-#include <fcppt/math/vector/basic_impl.hpp>
+#include <fcppt/math/vector/object_impl.hpp>
 #include <fcppt/math/vector/static.hpp>
 
 
