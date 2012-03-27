@@ -137,7 +137,6 @@
 #include <fcppt/shared_ptr.hpp>
 #include <fcppt/string.hpp>
 #include <fcppt/assign/make_container.hpp>
-#include <boost/chrono/duration.hpp>
 #include <fcppt/io/cerr.hpp>
 #include <fcppt/math/deg_to_rad.hpp>
 #include <fcppt/math/pi.hpp>
@@ -147,6 +146,7 @@
 #include <fcppt/thread/object.hpp>
 #include <fcppt/config/external_begin.hpp>
 #include <boost/function.hpp>
+#include <boost/chrono/duration.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
