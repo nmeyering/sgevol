@@ -1,50 +1,51 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6)
 
-PROJECT(sgevol)
+project(sgevol)
 
-INCLUDE(FcpptCMakeUtils)
+include(FcpptCMakeUtils)
+# TODO
+# switch to new AWL main
 
 # boost begin
-FIND_PACKAGE(
-	Boost 1.47.0 REQUIRED
+find_package(
+	Boost 1.47.0 REQUIRED COMPONENTS
 	chrono
-	filesystem
 )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
 # boost end
 
 # fcppt begin
-FIND_PACKAGE(
+find_package(
 	Fcppt REQUIRED)
-INCLUDE_DIRECTORIES(${Fcppt_INCLUDE_DIRS})
-ADD_DEFINITIONS(${Fcppt_DEFINITIONS})
+include_directories(${Fcppt_INCLUDE_DIRS})
+add_definitions(${Fcppt_DEFINITIONS})
 # fcppt end
 
 # awl begin
-FIND_PACKAGE(Awl REQUIRED)
-INCLUDE_DIRECTORIES(${Awl_INCLUDE_DIRS})
-ADD_DEFINITIONS(${Awl_DEFINITIONS})
+find_package(Awl REQUIRED)
+include_directories(${Awl_INCLUDE_DIRS})
+add_definitions(${Awl_DEFINITIONS})
 #awl end
 
 # mizuiro begin
-FIND_PACKAGE(Mizuiro REQUIRED)
-INCLUDE_DIRECTORIES(${Mizuiro_INCLUDE_DIRS})
-ADD_DEFINITIONS(${Mizuiro_DEFINITIONS})
+find_package(Mizuiro REQUIRED)
+include_directories(${Mizuiro_INCLUDE_DIRS})
+add_definitions(${Mizuiro_DEFINITIONS})
 #mizuiro end
 
 
-SET(
+set(
 	INSTALL_MEDIA_DIR
 	media
 )
 
-INCLUDE(
+include(
 	SGECustomPath
 )
 
-SGE_CONFIG_ADD_CUSTOM_PATH(
+sge_config_add_custom_path(
 	sgevol
 	media
 	${CMAKE_SOURCE_DIR}/media
@@ -52,7 +53,7 @@ SGE_CONFIG_ADD_CUSTOM_PATH(
 )
 
 # sge begin
-FIND_PACKAGE(
+find_package(
 	SGE REQUIRED COMPONENTS
 	camera
 	config
@@ -74,13 +75,13 @@ FIND_PACKAGE(
 	window
 )
 
-INCLUDE_DIRECTORIES(${SGE_INCLUDE_DIRS})
-ADD_DEFINITIONS(${SGE_CFLAGS})
+include_directories(${SGE_INCLUDE_DIRS})
+add_definitions(${SGE_CFLAGS})
 # sge end
 
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
-SET(
+set(
 	SGEVOLLIB_FILES
 	src/sgevollib/cloud_sphere/model_format.hpp
 	src/sgevollib/cloud_sphere/object.cpp
@@ -115,34 +116,19 @@ SET(
 )
 
 # Source groups are a MSVC file
-FCPPT_UTILS_ADD_SOURCE_GROUPS(
+fcppt_utils_add_source_groups(
 	"${SGEVOLLIB_FILES}"
 )
 
-ADD_LIBRARY(
+add_library(
 	sgevollib STATIC ${SGEVOLLIB_FILES})
 
-# TODO
-#SET_SOURCE_FILES_PROPERTIES(
-#	media_path.cpp
-#	PROPERTIES
-#	COMPILE_FLAGS
-#	-DMEDIA_PATH="\\\"${media_path}\\\""
-#)
-#
-#SET_SOURCE_FILES_PROPERTIES(
-#	src/sgevol/media_path.cpp
-#	PROPERTIES
-#	COMPILE_FLAGS
-#	-DMEDIA_PATH="\\\"${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME}/media\\\""
-#)
-
-ADD_EXECUTABLE(
+add_executable(
 	sgevol
 	src/sgevol/main.cpp
 )
 
-TARGET_LINK_LIBRARIES(
+target_link_libraries(
 	sgevol
 	sgevollib
 	${Boost_LIBRARIES}
@@ -153,12 +139,12 @@ TARGET_LINK_LIBRARIES(
 )
 
 
-ADD_EXECUTABLE(
+add_executable(
 	cubetest
 	src/sgevol/cubetest.cpp
 )
 
-TARGET_LINK_LIBRARIES(
+target_link_libraries(
 	cubetest
 	sgevollib
 	${Boost_LIBRARIES}
@@ -168,12 +154,12 @@ TARGET_LINK_LIBRARIES(
 	${SGE_LIBRARIES}
 )
 
-ADD_EXECUTABLE(
+add_executable(
 	planar_noise
 	src/sgevol/planar_noise.cpp
 )
 
-TARGET_LINK_LIBRARIES(
+target_link_libraries(
 	planar_noise
 	sgevollib
 	${Boost_LIBRARIES}
@@ -183,12 +169,12 @@ TARGET_LINK_LIBRARIES(
 	${SGE_LIBRARIES}
 )
 
-ADD_EXECUTABLE(
+add_executable(
 	cloud_data_to_png
 	src/sgevol/cloud_data_to_png.cpp
 )
 
-TARGET_LINK_LIBRARIES(
+target_link_libraries(
 	cloud_data_to_png
 	sgevollib
 	${Boost_LIBRARIES}
@@ -198,12 +184,12 @@ TARGET_LINK_LIBRARIES(
 	${SGE_LIBRARIES}
 )
 
-ADD_EXECUTABLE(
+add_executable(
 	create_phase_function
 	src/sgevol/create_phase_function.cpp
 )
 
-TARGET_LINK_LIBRARIES(
+target_link_libraries(
 	create_phase_function
 	sgevollib
 	${Boost_LIBRARIES}
