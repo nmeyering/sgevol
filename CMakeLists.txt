@@ -6,8 +6,9 @@ INCLUDE(FcpptCMakeUtils)
 
 # boost begin
 FIND_PACKAGE(
-	Boost 1.45.0 REQUIRED COMPONENTS
-	system
+	Boost 1.47.0 REQUIRED
+	chrono
+	filesystem
 )
 
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})

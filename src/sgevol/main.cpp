@@ -141,8 +141,7 @@
 #include <fcppt/shared_ptr.hpp>
 #include <fcppt/string.hpp>
 #include <fcppt/assign/make_container.hpp>
-#include <fcppt/chrono/milliseconds.hpp>
-#include <fcppt/chrono/seconds.hpp>
+#include <boost/chrono/duration.hpp>
 #include <fcppt/io/cerr.hpp>
 #include <fcppt/math/deg_to_rad.hpp>
 #include <fcppt/math/pi.hpp>
@@ -593,7 +592,7 @@ try
 
 	sge::timer::basic<sge::timer::clocks::standard> accesstimer(
 		sge::timer::parameters<sge::timer::clocks::standard>(
-			fcppt::chrono::milliseconds(
+			boost::chrono::milliseconds(
 				100)));
 	std::cout << "timer initialized" << std::endl;
 
@@ -722,7 +721,7 @@ try
 
 	sge::timer::basic<sge::timer::clocks::standard> frame_timer(
 		sge::timer::parameters<sge::timer::clocks::standard>(
-			fcppt::chrono::seconds(
+			boost::chrono::seconds(
 				1)));
 
 	sge::timer::frames_counter fps_counter;
@@ -743,7 +742,7 @@ try
 
 	sge::timer::basic<sge::timer::clocks::standard> offset_timer(
 		sge::timer::parameters<sge::timer::clocks::standard>(
-			fcppt::chrono::milliseconds(
+			boost::chrono::milliseconds(
 				40)));
 
 	float offset = 0.f;
