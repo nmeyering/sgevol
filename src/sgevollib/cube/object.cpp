@@ -2,6 +2,7 @@
 #include <sgevollib/cube/object.hpp>
 #include <sgevollib/cube/vf.hpp>
 #include <sge/camera/base.hpp>
+#include <sge/camera/matrix_conversion/world.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
@@ -25,6 +26,7 @@
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/texture/volume.hpp>
 #include <sge/renderer/vf/iterator.hpp>
 #include <sge/renderer/vf/vertex.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
@@ -48,6 +50,17 @@
 #include <algorithm>
 #include <fcppt/config/external_end.hpp>
 
+#include <sge/renderer/matrix4.hpp>
+#include <sge/renderer/scalar.hpp>
+#include <sge/renderer/texture/planar_shared_ptr.hpp>
+#include <sge/renderer/texture/stage.hpp>
+#include <sge/renderer/texture/volume_shared_ptr.hpp>
+#include <sge/shader/sampler.hpp>
+#include <sge/shader/sampler_sequence.hpp>
+#include <sge/shader/variable.hpp>
+#include <sge/shader/variable_type.hpp>
+#include <sge/camera/coordinate_system/object.hpp>
+#include <sge/camera/coordinate_system/position.hpp>
 
 sgevollib::cube::object::object(
 	sge::renderer::device &_renderer,
@@ -57,7 +70,7 @@ sgevollib::cube::object::object(
 	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,
 	sge::image3d::view::const_object const &_noise,
-	sge::renderer::texture::planar_ptr &_phase_tex)
+	sge::renderer::texture::planar_shared_ptr _phase_tex)
 :
 renderer_(
 	_renderer),
@@ -123,9 +136,9 @@ shader_(
 		// sampler (sprich Texturen), die wir im Shader brauchen (ebenfalls in $$$HEADER$$$ drin)
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
-				"tex", sge::renderer::texture::volume_ptr()))
+				"tex", sge::renderer::texture::volume_shared_ptr()))
 			(sge::shader::sampler(
-				"noise", sge::renderer::texture::volume_ptr()))
+				"noise", sge::renderer::texture::volume_shared_ptr()))
 			(sge::shader::sampler(
 				"phasetex", phase_tex_))
 			)
@@ -197,8 +210,7 @@ shader_(
 					res);
 			}
 
-	shader_.update_texture(
-		"tex",
+	sge::renderer::texture::volume_shared_ptr shadertex(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			tex_,
@@ -207,13 +219,20 @@ shader_(
 			sge::renderer::resource_flags::none));
 
 	shader_.update_texture(
-		"noise",
+		"tex",
+		shadertex);
+
+	shadertex = sge::renderer::texture::volume_shared_ptr(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			noise_,
 			sge::renderer::texture::mipmap::all_levels(
 				sge::renderer::texture::mipmap::auto_generate::yes),
 			sge::renderer::resource_flags::none));
+
+	shader_.update_texture(
+		"noise",
+		shadertex);
 }
 
 sgevollib::cube::object::~object()
@@ -250,9 +269,9 @@ sgevollib::cube::object::render(float offset)
 		sge::renderer::nonindexed_primitive_type::triangle);
 
 	if(
-			std::abs( cam_->gizmo().position().x() ) >= 1.0f ||
-			std::abs( cam_->gizmo().position().y() ) >= 1.0f ||
-			std::abs( cam_->gizmo().position().z() ) >= 1.0f
+			std::abs(cam_->coordinate_system().position().get().x()) >= 1.0f ||
+			std::abs(cam_->coordinate_system().position().get().y()) >= 1.0f ||
+			std::abs(cam_->coordinate_system().position().get().z()) >= 1.0f
 		)
 	{
 		renderer_.state(
@@ -276,12 +295,12 @@ sgevollib::cube::object::render(float offset)
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_->mvp(),
+		cam_->projection_matrix().get(),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"camera",
-		cam_->gizmo().position());
+		cam_->coordinate_system().position().get());
 
 	shader_.update_uniform(
 		"opacity",
@@ -294,6 +313,6 @@ sgevollib::cube::object::render(float offset)
 	shader_.update_uniform(
 		"mv",
 		sge::shader::matrix(
-		cam_->world(),
+		sge::camera::matrix_conversion::world(cam_->coordinate_system()),
 		sge::shader::matrix_flags::none));
 }

@@ -8,7 +8,7 @@
 #include <sge/exception.hpp>
 #include <sge/camera/base.hpp>
 #include <sge/camera/duration.hpp>
-#include <sge/camera/identity_gizmo.hpp>
+#include <sge/camera/coordinate_system/identity.hpp>
 #include <sge/camera/first_person/movement_speed.hpp>
 #include <sge/camera/first_person/object.hpp>
 #include <sge/camera/first_person/parameters.hpp>
@@ -160,6 +160,15 @@
 #include <iostream>
 #include <fcppt/config/external_end.hpp>
 
+#include <sge/camera/first_person/is_active.hpp>
+#include <sge/camera/first_person/mouse_speed_multiplier.hpp>
+#include <sge/camera/spherical/acceleration_factor.hpp>
+#include <sge/camera/spherical/action/wasd_mapping.hpp>
+#include <sge/camera/spherical/coordinate_system/look_down_positive_z.hpp>
+#include <sge/camera/spherical/coordinate_system/radius.hpp>
+#include <sge/camera/spherical/damping_factor.hpp>
+#include <sge/camera/spherical/is_active.hpp>
+#include <sge/systems/font.hpp>
 
 namespace
 {
@@ -507,37 +516,44 @@ try
 
 	sge::camera::spherical::object spherical_cam(
 		sge::camera::spherical::parameters(
-			// movementspeed
-			sge::camera::spherical::movement_speed(
-				cam_movement_speed),
-			// min_radius
-			cam_min_radius,
-			// Maus und Keyboard
-			sys.keyboard_collector())
-			.radius(
-				cam_radius)
-			.damping(
-				cam_damping)
+			sys.keyboard_collector(),
+			sge::camera::spherical::is_active(
+				true),
+			sge::camera::spherical::coordinate_system::look_down_positive_z(
+				sge::camera::spherical::coordinate_system::radius(
+					3.0f)),
+			sge::camera::spherical::action::wasd_mapping)
+			.maximum_radius(
+				cam_max_radius)
+			.minimum_radius(
+				cam_min_radius)
+			.damping_factor(
+				sge::camera::spherical::damping_factor(
+					cam_damping))
 			.acceleration_factor(
-				cam_acc_factor)
-			.active(false)
-			);
+				sge::camera::spherical::acceleration_factor(
+					cam_acc_factor)));
 
 	sge::camera::first_person::object fps_cam(
 		sge::camera::first_person::parameters(
-			sge::camera::first_person::movement_speed(
-				0.01f
-			),
-			sge::camera::first_person::rotation_speed(
-				400.0f
-			),
 			sys.keyboard_collector(),
-			sys.mouse_collector())
-		.active(false)
-		.gizmo(
-			sge::camera::identity_gizmo().position(
-				sge::renderer::vector3(
-				-.5f,0.f,-1.2f))));
+			sys.mouse_collector(),
+			sge::camera::spherical::is_active(
+				true),
+			sge::camera::first_person::movement_speed(
+				cam_movement_speed),
+			sge::camera::coordinate_system(
+				coordinate_system::right(
+					sge::renderer::vector3(1.f,0.f,0.f)),
+				coordinate_system::up(
+					sge::renderer::vector3(0.f,1.f,0.f)),
+				coordinate_system::forward(
+					sge::renderer::vector3(0.f,0.f,1.f)),
+				coordinate_system::position(
+					sge::renderer::vector3(0.f,0.f,-1.f))))
+			.mouse_speed_multiplier(
+				sge::camera::first_person::mouse_speed_multiplier(
+					400.f)));
 
 	sge::camera::base
 		*cam = &fps_cam,

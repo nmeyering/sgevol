@@ -7,17 +7,6 @@
 #include <sgevollib/stars/object.hpp>
 #include <sge/exception.hpp>
 #include <sge/camera/base.hpp>
-#include <sge/camera/duration.hpp>
-#include <sge/camera/identity_gizmo.hpp>
-#include <sge/camera/first_person/movement_speed.hpp>
-#include <sge/camera/first_person/object.hpp>
-#include <sge/camera/first_person/parameters.hpp>
-#include <sge/camera/first_person/rotation_speed.hpp>
-#include <sge/camera/projection/object.hpp>
-#include <sge/camera/projection/update_perspective_from_viewport.hpp>
-#include <sge/camera/spherical/movement_speed.hpp>
-#include <sge/camera/spherical/object.hpp>
-#include <sge/camera/spherical/parameters.hpp>
 #include <sge/config/media_path.hpp>
 #include <sge/console/arg_list.hpp>
 #include <sge/console/gfx.hpp>

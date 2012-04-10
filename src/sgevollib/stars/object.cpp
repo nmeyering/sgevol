@@ -1,6 +1,7 @@
 #include <sgevollib/vf.hpp>
 #include <sgevollib/stars/object.hpp>
 #include <sge/camera/base.hpp>
+#include <sge/camera/matrix_conversion/rotation.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
 #include <sge/renderer/lock_mode.hpp>
@@ -46,6 +47,9 @@
 #include <cmath>
 #include <fcppt/config/external_end.hpp>
 
+#include <sge/renderer/scalar.hpp>
+#include <sge/camera/coordinate_system/object.hpp>
+#include <sge/camera/matrix_conversion/rotation.hpp>
 
 sgevollib::stars::object::object(
 	sge::renderer::size_type _count,
@@ -211,6 +215,7 @@ sgevollib::stars::object::render()
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		camera_->projection() * camera_->rotation(),
-		sge::shader::matrix_flags::projection));
+			camera_->projection_matrix().get() *
+				sge::camera::matrix_conversion::rotation(camera_->coordinate_system()),
+			sge::shader::matrix_flags::projection));
 }

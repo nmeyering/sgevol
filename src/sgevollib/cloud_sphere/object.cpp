@@ -3,9 +3,13 @@
 #include <sgevollib/cloud_sphere/object.hpp>
 #include <sgevollib/cloud_sphere/vf.hpp>
 #include <sge/camera/base.hpp>
+#include <sge/camera/coordinate_system/object.hpp>
+#include <sge/camera/coordinate_system/position.hpp>
+#include <sge/camera/coordinate_system/right.hpp>
+#include <sge/camera/coordinate_system/up.hpp>
+#include <sge/camera/coordinate_system/forward.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/model/obj/create.hpp>
-#include <sge/model/obj/loader.hpp>
 #include <sge/model/obj/vb_converter/convert.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
@@ -26,11 +30,14 @@
 #include <sge/renderer/texture/address_mode.hpp>
 #include <sge/renderer/texture/address_mode3.hpp>
 #include <sge/renderer/texture/create_volume_from_view.hpp>
-#include <sge/renderer/texture/planar_ptr.hpp>
+#include <sge/renderer/texture/planar_shared_ptr.hpp>
 #include <sge/renderer/texture/set_address_mode3.hpp>
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
+#include <sge/renderer/texture/volume_shared_ptr.hpp>
+#include <sge/renderer/texture/volume.hpp>
+#include <sge/renderer/vertex_declaration.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/shader/activation_method.hpp>
 #include <sge/shader/activation_method_field.hpp>
@@ -51,10 +58,20 @@
 #include <boost/filesystem/path.hpp>
 #include <fcppt/config/external_end.hpp>
 
+#include <sge/camera/matrix_conversion/world.hpp>
+#include <sge/model/obj/instance.hpp>
+#include <sge/renderer/matrix4.hpp>
+#include <sge/renderer/resource_flags_field.hpp>
+#include <sge/renderer/scalar.hpp>
+#include <sge/renderer/texture/stage.hpp>
+#include <sge/shader/sampler.hpp>
+#include <sge/shader/sampler_sequence.hpp>
+#include <sge/shader/variable.hpp>
+#include <sge/shader/variable_type.hpp>
 
 sgevollib::cloud_sphere::object::object(
 	sge::renderer::device &_renderer,
-	sge::model::obj::instance_ptr _model,
+	sge::model::obj::instance &_model,
 	boost::filesystem::path const &_vertex_shader_file,
 	boost::filesystem::path const &_fragment_shader_file,
 	sge::camera::base* &_cam,
@@ -63,7 +80,7 @@ sgevollib::cloud_sphere::object::object(
 	sge::renderer::glsl::uniform::int_type _skip,
 	sge::image3d::view::const_object const &_tex,
 	sge::image3d::view::const_object const &_noise,
-	sge::renderer::texture::planar_ptr &_clouds)
+	sge::renderer::texture::planar_shared_ptr &_clouds)
 :
 renderer_(
 	_renderer),
@@ -78,7 +95,7 @@ vb_(
 		*vd_,
 		sge::renderer::resource_flags_field(
 			sge::renderer::resource_flags::readable),
-		*model_)),
+		model_)),
 cam_(
 	_cam),
 opacity_(
@@ -141,9 +158,9 @@ shader_(
 		// sampler (sprich Texturen), die wir im Shader brauchen (ebenfalls in $$$HEADER$$$ drin)
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
-				"tex", sge::renderer::texture::volume_ptr()))
+				"tex", sge::renderer::texture::volume_shared_ptr()))
 			(sge::shader::sampler(
-				"noise", sge::renderer::texture::volume_ptr()))
+				"noise", sge::renderer::texture::volume_shared_ptr()))
 			(sge::shader::sampler(
 				"clouds", clouds_))
 		)
@@ -162,34 +179,28 @@ shader_(
 				.fragment_shader(
 					_fragment_shader_file))
 {
-	sge::renderer::texture::volume_ptr
-	shadertex =
+
+	sge::renderer::texture::volume_shared_ptr shadertex(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			tex_,
-			//sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
 			sge::renderer::texture::mipmap::off(),
-			// Hier könnte man eine Textur erstellen, die "readable" ist, wenn
-			// man die unbedingt wieder auslesen will
-			sge::renderer::resource_flags::none);
+			sge::renderer::resource_flags::none));
 
 	shader_.update_texture(
 		"tex",
 		shadertex);
 
-	shader_.update_texture("noise",
-	shadertex =
+	shadertex = sge::renderer::texture::volume_shared_ptr(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			noise_,
-			//sge::renderer::texture::mipmap::all_levels(sge::renderer::texture::mipmap::auto_generate::yes),
 			sge::renderer::texture::mipmap::off(),
 			sge::renderer::resource_flags::none));
 
 	shader_.update_texture(
 		"noise",
 		shadertex);
-
 }
 
 sgevollib::cloud_sphere::object::~object()
@@ -227,9 +238,9 @@ sgevollib::cloud_sphere::object::render(float offset)
 
 	/*
 	if(
-			std::abs( cam.gizmo().position().x() ) >= 1.0f ||
-			std::abs( cam.gizmo().position().y() ) >= 1.0f ||
-			std::abs( cam.gizmo().position().z() ) >= 1.0f
+			std::abs( cam.gizmo().position().get().x() ) >= 1.0f ||
+			std::abs( cam.gizmo().position().get().y() ) >= 1.0f ||
+			std::abs( cam.gizmo().position().get().z() ) >= 1.0f
 		)
 	{
 		rend.state(
@@ -254,12 +265,12 @@ sgevollib::cloud_sphere::object::render(float offset)
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_->mvp(),
+		cam_->projection_matrix().get(),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"camera",
-		cam_->gizmo().position());
+		cam_->coordinate_system().position().get());
 
 	shader_.update_uniform(
 		"opacity",
@@ -276,6 +287,6 @@ sgevollib::cloud_sphere::object::render(float offset)
 	shader_.update_uniform(
 		"mv",
 		sge::shader::matrix(
-		cam_->world(),
+		sge::camera::matrix_conversion::world(cam_->coordinate_system()),
 		sge::shader::matrix_flags::none));
 }

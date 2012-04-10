@@ -4,7 +4,7 @@
 #include <sge/camera/base.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/renderer/device.hpp>
-#include <sge/renderer/vertex_buffer_ptr.hpp>
+#include <sge/renderer/vertex_buffer_shared_ptr.hpp>
 #include <sge/renderer/vertex_declaration.hpp>
 #include <sge/shader/object.hpp>
 
@@ -27,7 +27,7 @@ public:
 		sge::renderer::scalar opacity,
 		sge::image3d::view::const_object const &_tex,
 		sge::image3d::view::const_object const &_noise,
-		sge::renderer::texture::planar_ptr &);
+		sge::renderer::texture::planar_shared_ptr);
 
 	void render(float);
 
@@ -48,13 +48,13 @@ public:
 	~object();
 private:
 	sge::renderer::device &renderer_;
-	sge::renderer::vertex_declaration_ptr vd_;
-	sge::renderer::vertex_buffer_ptr vb_;
+	sge::renderer::vertex_declaration_unique_ptr vd_;
+	sge::renderer::vertex_buffer_shared_ptr vb_;
 	sge::camera::base* &cam_;
 	sge::renderer::scalar opacity_;
 	sge::image3d::view::const_object const &tex_;
 	sge::image3d::view::const_object const &noise_;
-	sge::renderer::texture::planar_ptr &phase_tex_;
+	sge::renderer::texture::planar_shared_ptr phase_tex_;
 	sge::shader::object shader_;
 };
 

@@ -22,7 +22,7 @@
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/texture/address_mode.hpp>
 #include <sge/renderer/texture/address_mode2.hpp>
-#include <sge/renderer/texture/planar_ptr.hpp>
+#include <sge/renderer/texture/planar_shared_ptr.hpp>
 #include <sge/renderer/texture/set_address_mode2.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
@@ -51,13 +51,19 @@
 #include <iostream>
 #include <fcppt/config/external_end.hpp>
 
+#include <sge/camera/matrix_conversion/world.hpp>
+#include <sge/camera/coordinate_system/object.hpp>
+#include <sge/model/obj/instance.hpp>
+#include <sge/renderer/resource_flags_field.hpp>
+#include <sge/renderer/scalar.hpp>
+#include <sge/renderer/texture/stage.hpp>
 
 sgevollib::model::object::object(
 	sge::renderer::device &_renderer,
-	sge::model::obj::instance_ptr _model,
+	sge::model::obj::instance &_model,
 	boost::filesystem::path const &_vertex_shader_file,
 	boost::filesystem::path const &_fragment_shader_file,
-	sge::renderer::texture::planar_ptr _tex,
+	sge::renderer::texture::planar_shared_ptr _tex,
 	sge::renderer::scalar _radius,
 	sge::camera::base* &_cam)
 :
@@ -74,7 +80,7 @@ vb_(
 		*vd_,
 		sge::renderer::resource_flags_field(
 			sge::renderer::resource_flags::readable),
-		*model_)),
+		model_)),
 tex_(
 	_tex),
 radius_(
@@ -158,13 +164,13 @@ sgevollib::model::object::render(float offset)
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_->mvp(),
+		cam_->projection_matrix().get(),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"mv",
 		sge::shader::matrix(
-		cam_->world(),
+		sge::camera::matrix_conversion::world(cam_->coordinate_system()),
 		sge::shader::matrix_flags::none));
 
 	shader_.update_uniform(
