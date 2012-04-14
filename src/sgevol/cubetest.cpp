@@ -168,6 +168,9 @@
 #include <exception>
 #include <iostream>
 #include <fcppt/config/external_end.hpp>
+#include <sge/camera/spherical/coordinate_system/azimuth.hpp>
+#include <sge/camera/spherical/coordinate_system/inclination.hpp>
+#include <sge/camera/spherical/coordinate_system/object.hpp>
 
 
 namespace
@@ -338,8 +341,8 @@ try
 			sge::parse::json::path(
 				FCPPT_TEXT("cam")) /
 				FCPPT_TEXT("max-radius"));
-	sge::renderer::scalar cam_damping =
-		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+	sge::renderer::vector3 cam_damping =
+		sge::parse::json::find_and_convert_member<sge::renderer::vector3>(
 				config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("cam")) /
@@ -481,8 +484,13 @@ try
 					cam_min_radius))
 			.damping_factor(
 				sge::camera::spherical::damping_factor(
-					sge::camera::spherical::coordinate_system::homogenous(
-						cam_damping)))
+					sge::camera::spherical::coordinate_system::object(
+						sge::camera::spherical::coordinate_system::azimuth(
+							cam_damping.x()),
+						sge::camera::spherical::coordinate_system::inclination(
+							cam_damping.y()),
+						sge::camera::spherical::coordinate_system::radius(
+							cam_damping.z()))))
 			.acceleration_factor(
 				sge::camera::spherical::acceleration_factor(
 					sge::camera::spherical::coordinate_system::homogenous(

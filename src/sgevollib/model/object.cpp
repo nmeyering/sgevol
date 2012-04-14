@@ -5,6 +5,7 @@
 #include <sge/camera/base.hpp>
 #include <sge/camera/coordinate_system/object.hpp>
 #include <sge/camera/matrix_conversion/world.hpp>
+#include <sge/camera/matrix_conversion/world_projection.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/model/obj/instance.hpp>
 #include <sge/model/obj/vb_converter/convert.hpp>
@@ -164,8 +165,10 @@ sgevollib::model::object::render(float offset)
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_.projection_matrix().get(),
-		sge::shader::matrix_flags::projection));
+			sge::camera::matrix_conversion::world_projection(
+				cam_.coordinate_system(),
+				cam_.projection_matrix()),
+			sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"mv",

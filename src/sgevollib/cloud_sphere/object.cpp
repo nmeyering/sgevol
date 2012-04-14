@@ -1,3 +1,4 @@
+#include <fcppt/math/vector/arithmetic.hpp>
 #include <sgevollib/media_path.hpp>
 #include <sgevollib/cloud_sphere/model_format.hpp>
 #include <sgevollib/cloud_sphere/object.hpp>
@@ -8,6 +9,7 @@
 #include <sge/camera/coordinate_system/position.hpp>
 #include <sge/camera/coordinate_system/right.hpp>
 #include <sge/camera/coordinate_system/up.hpp>
+#include <sge/camera/matrix_conversion/world_projection.hpp>
 #include <sge/camera/matrix_conversion/world.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/model/obj/create.hpp>
@@ -221,6 +223,37 @@ sgevollib::cloud_sphere::object::render(float offset)
 		sge::shader::activation_method_field(
 			sge::shader::activation_method::textures));
 
+	shader_.update_uniform(
+		"mvp",
+		sge::shader::matrix(
+			sge::camera::matrix_conversion::world_projection(
+				cam_.coordinate_system(),
+				cam_.projection_matrix()),
+			sge::shader::matrix_flags::projection));
+
+	shader_.update_uniform(
+		"camera",
+		-cam_.coordinate_system().position().get());
+
+	shader_.update_uniform(
+		"opacity",
+		opacity_);
+
+	shader_.update_uniform(
+		"offset",
+		offset);
+
+	shader_.update_uniform(
+		"skip",
+		skip_);
+
+	shader_.update_uniform(
+		"mv",
+		sge::shader::matrix(
+			sge::camera::matrix_conversion::world(
+				cam_.coordinate_system()),
+			sge::shader::matrix_flags::none));
+
 	// Vertexbuffer aktivieren. Muss man machen
 	sge::renderer::scoped_vertex_declaration const decl_context(
 		renderer_,
@@ -260,31 +293,4 @@ sgevollib::cloud_sphere::object::render(float offset)
 		sge::renderer::state::list(
 			sge::renderer::state::cull_mode::clockwise));
 
-	shader_.update_uniform(
-		"mvp",
-		sge::shader::matrix(
-		cam_.projection_matrix().get(),
-		sge::shader::matrix_flags::projection));
-
-	shader_.update_uniform(
-		"camera",
-		cam_.coordinate_system().position().get());
-
-	shader_.update_uniform(
-		"opacity",
-		opacity_);
-
-	shader_.update_uniform(
-		"offset",
-		offset);
-
-	shader_.update_uniform(
-		"skip",
-		skip_);
-
-	shader_.update_uniform(
-		"mv",
-		sge::shader::matrix(
-		sge::camera::matrix_conversion::world(cam_.coordinate_system()),
-		sge::shader::matrix_flags::none));
 }

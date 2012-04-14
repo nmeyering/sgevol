@@ -103,9 +103,7 @@ shader_(
 		fcppt::assign::make_container<sge::shader::variable_sequence>
 			(sge::shader::variable(
 				"mvp",
-				// Typ (uniform oder const_ für Konstanten)
 				sge::shader::variable_type::uniform,
-				// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
 				sge::shader::matrix(
 					sge::renderer::matrix4::identity(),
 					sge::shader::matrix_flags::projection)))
@@ -133,7 +131,6 @@ shader_(
 				"camera",
 				sge::shader::variable_type::uniform,
 				sge::renderer::vector3())),
-		// sampler (sprich Texturen), die wir im Shader brauchen (ebenfalls in $$$HEADER$$$ drin)
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
 				"tex", sge::renderer::texture::volume_shared_ptr()))
@@ -157,25 +154,16 @@ shader_(
 				.fragment_shader(
 					_fragment_shader_file))
 {
-	// Um lesend oder schreibend auf einen Vertexbuffer zugreifen zu können, muss
-	// man ihn locken. Intern wird da vermutlich der Speicherblock, der sich auf
-	// der Graka befindet, in den Hauptspeicher übertragen, damit man den
-	// auslesen kann.
 	sge::renderer::scoped_vertex_lock const vblock(
 		*vb_,
 		sge::renderer::lock_mode::writeonly);
 
-	// Ein Vertexbuffer ist eigentlich nur ein roher Block Speicher. Hier
-	// erstellen wir einen "View" auf diesen Block, d.h. versehen ihn mit einer
-	// Struktur. Ab da können wir auf den Speicher zugreifen, als sei er mit dem
-	// Vertexformat gefüllt.
 	vf::vertex_view const vertices(
 		vblock.value());
 
 	vf::vertex_view::iterator vb_it(
 		vertices.begin());
 
-	// copypaste (macht aus vf::vector einen fcppt::math::vector)
 	typedef
 	vf::position::packed_type
 	position_vector;
@@ -253,7 +241,6 @@ sgevollib::cube::object::render(float offset)
 		sge::shader::activation_method_field(
 			sge::shader::activation_method::textures));
 
-	// Vertexbuffer aktivieren. Muss man machen
 	sge::renderer::scoped_vertex_declaration const decl_context(
 		renderer_,
 		*vd_);
@@ -262,7 +249,6 @@ sgevollib::cube::object::render(float offset)
 		renderer_,
 		*vb_);
 
-	// Rendern (copypaste)
 	renderer_.render_nonindexed(
 		sge::renderer::first_vertex(0u),
 		sge::renderer::vertex_count(vb_->size()),
