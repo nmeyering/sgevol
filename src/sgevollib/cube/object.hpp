@@ -23,7 +23,7 @@ public:
 		sge::renderer::device &,
 		boost::filesystem::path const &_vertex_shader_file,
 		boost::filesystem::path const &_fragment_shader_file,
-		sge::camera::base* &,
+		sge::camera::base &,
 		sge::renderer::scalar opacity,
 		sge::image3d::view::const_object const &_tex,
 		sge::image3d::view::const_object const &_noise,
@@ -50,7 +50,7 @@ private:
 	sge::renderer::device &renderer_;
 	sge::renderer::vertex_declaration_unique_ptr vd_;
 	sge::renderer::vertex_buffer_shared_ptr vb_;
-	sge::camera::base* &cam_;
+	sge::camera::base &cam_;
 	sge::renderer::scalar opacity_;
 	sge::image3d::view::const_object const &tex_;
 	sge::image3d::view::const_object const &noise_;

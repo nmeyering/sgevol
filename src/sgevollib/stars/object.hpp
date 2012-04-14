@@ -30,7 +30,7 @@ public:
 		sge::renderer::device &,
 		boost::filesystem::path const &_fragment_shader_file,
 		boost::filesystem::path const &_vertex_shader_file,
-		sge::camera::base* &);
+		sge::camera::base &);
 
 	void render();
 
@@ -41,7 +41,7 @@ private:
 	sge::renderer::device &renderer_;
 	sge::renderer::vertex_declaration_shared_ptr vd_;
 	sge::renderer::vertex_buffer_shared_ptr vb_;
-	sge::camera::base* &camera_;
+	sge::camera::base &camera_;
 	sge::shader::object shader_;
 };
 

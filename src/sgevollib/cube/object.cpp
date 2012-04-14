@@ -2,14 +2,18 @@
 #include <sgevollib/cube/object.hpp>
 #include <sgevollib/cube/vf.hpp>
 #include <sge/camera/base.hpp>
+#include <sge/camera/coordinate_system/object.hpp>
+#include <sge/camera/coordinate_system/position.hpp>
 #include <sge/camera/matrix_conversion/world.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
 #include <sge/renderer/lock_mode.hpp>
+#include <sge/renderer/matrix4.hpp>
 #include <sge/renderer/nonindexed_primitive_type.hpp>
 #include <sge/renderer/resource_flags.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
+#include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_vertex_buffer.hpp>
 #include <sge/renderer/scoped_vertex_declaration.hpp>
 #include <sge/renderer/scoped_vertex_lock.hpp>
@@ -22,11 +26,14 @@
 #include <sge/renderer/texture/address_mode.hpp>
 #include <sge/renderer/texture/address_mode3.hpp>
 #include <sge/renderer/texture/create_volume_from_view.hpp>
+#include <sge/renderer/texture/planar_shared_ptr.hpp>
 #include <sge/renderer/texture/set_address_mode3.hpp>
+#include <sge/renderer/texture/stage.hpp>
+#include <sge/renderer/texture/volume.hpp>
+#include <sge/renderer/texture/volume_shared_ptr.hpp>
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
-#include <sge/renderer/texture/volume.hpp>
 #include <sge/renderer/vf/iterator.hpp>
 #include <sge/renderer/vf/vertex.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
@@ -37,8 +44,12 @@
 #include <sge/shader/matrix_flags.hpp>
 #include <sge/shader/object.hpp>
 #include <sge/shader/object_parameters.hpp>
+#include <sge/shader/sampler.hpp>
+#include <sge/shader/sampler_sequence.hpp>
 #include <sge/shader/scoped.hpp>
+#include <sge/shader/variable.hpp>
 #include <sge/shader/variable_sequence.hpp>
+#include <sge/shader/variable_type.hpp>
 #include <sge/shader/vf_to_string.hpp>
 #include <fcppt/format.hpp>
 #include <fcppt/noncopyable.hpp>
@@ -50,23 +61,12 @@
 #include <algorithm>
 #include <fcppt/config/external_end.hpp>
 
-#include <sge/renderer/matrix4.hpp>
-#include <sge/renderer/scalar.hpp>
-#include <sge/renderer/texture/planar_shared_ptr.hpp>
-#include <sge/renderer/texture/stage.hpp>
-#include <sge/renderer/texture/volume_shared_ptr.hpp>
-#include <sge/shader/sampler.hpp>
-#include <sge/shader/sampler_sequence.hpp>
-#include <sge/shader/variable.hpp>
-#include <sge/shader/variable_type.hpp>
-#include <sge/camera/coordinate_system/object.hpp>
-#include <sge/camera/coordinate_system/position.hpp>
 
 sgevollib::cube::object::object(
 	sge::renderer::device &_renderer,
 	boost::filesystem::path const &_vertex_shader_file,
 	boost::filesystem::path const &_fragment_shader_file,
-	sge::camera::base* &_cam,
+	sge::camera::base &_cam,
 	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,
 	sge::image3d::view::const_object const &_noise,
@@ -269,9 +269,9 @@ sgevollib::cube::object::render(float offset)
 		sge::renderer::nonindexed_primitive_type::triangle);
 
 	if(
-			std::abs(cam_->coordinate_system().position().get().x()) >= 1.0f ||
-			std::abs(cam_->coordinate_system().position().get().y()) >= 1.0f ||
-			std::abs(cam_->coordinate_system().position().get().z()) >= 1.0f
+			std::abs(cam_.coordinate_system().position().get().x()) >= 1.0f ||
+			std::abs(cam_.coordinate_system().position().get().y()) >= 1.0f ||
+			std::abs(cam_.coordinate_system().position().get().z()) >= 1.0f
 		)
 	{
 		renderer_.state(
@@ -295,12 +295,12 @@ sgevollib::cube::object::render(float offset)
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_->projection_matrix().get(),
+		cam_.projection_matrix().get(),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"camera",
-		cam_->coordinate_system().position().get());
+		cam_.coordinate_system().position().get());
 
 	shader_.update_uniform(
 		"opacity",
@@ -313,6 +313,6 @@ sgevollib::cube::object::render(float offset)
 	shader_.update_uniform(
 		"mv",
 		sge::shader::matrix(
-		sge::camera::matrix_conversion::world(cam_->coordinate_system()),
+		sge::camera::matrix_conversion::world(cam_.coordinate_system()),
 		sge::shader::matrix_flags::none));
 }

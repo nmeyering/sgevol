@@ -3,7 +3,10 @@
 #include <sgevollib/model/vertex_format.hpp>
 #include <sgevollib/model/vf.hpp>
 #include <sge/camera/base.hpp>
+#include <sge/camera/coordinate_system/object.hpp>
+#include <sge/camera/matrix_conversion/world.hpp>
 #include <sge/image3d/view/const_object.hpp>
+#include <sge/model/obj/instance.hpp>
 #include <sge/model/obj/vb_converter/convert.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
@@ -11,7 +14,9 @@
 #include <sge/renderer/matrix4.hpp>
 #include <sge/renderer/nonindexed_primitive_type.hpp>
 #include <sge/renderer/resource_flags.hpp>
+#include <sge/renderer/resource_flags_field.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
+#include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_vertex_buffer.hpp>
 #include <sge/renderer/scoped_vertex_declaration.hpp>
 #include <sge/renderer/scoped_vertex_lock.hpp>
@@ -24,6 +29,7 @@
 #include <sge/renderer/texture/address_mode2.hpp>
 #include <sge/renderer/texture/planar_shared_ptr.hpp>
 #include <sge/renderer/texture/set_address_mode2.hpp>
+#include <sge/renderer/texture/stage.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
 #include <sge/renderer/vf/dynamic/make_format.hpp>
 #include <sge/renderer/vf/dynamic/part_index.hpp>
@@ -51,12 +57,6 @@
 #include <iostream>
 #include <fcppt/config/external_end.hpp>
 
-#include <sge/camera/matrix_conversion/world.hpp>
-#include <sge/camera/coordinate_system/object.hpp>
-#include <sge/model/obj/instance.hpp>
-#include <sge/renderer/resource_flags_field.hpp>
-#include <sge/renderer/scalar.hpp>
-#include <sge/renderer/texture/stage.hpp>
 
 sgevollib::model::object::object(
 	sge::renderer::device &_renderer,
@@ -65,7 +65,7 @@ sgevollib::model::object::object(
 	boost::filesystem::path const &_fragment_shader_file,
 	sge::renderer::texture::planar_shared_ptr _tex,
 	sge::renderer::scalar _radius,
-	sge::camera::base* &_cam)
+	sge::camera::base &_cam)
 :
 renderer_(
 	_renderer),
@@ -158,19 +158,19 @@ sgevollib::model::object::render(float offset)
 
 	renderer_.state(
 		sge::renderer::state::list(
-			sge::renderer::state::cull_mode::counter_clockwise));
+			sge::renderer::state::cull_mode::clockwise));
 
 	// mvp updaten
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_->projection_matrix().get(),
+		cam_.projection_matrix().get(),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"mv",
 		sge::shader::matrix(
-		sge::camera::matrix_conversion::world(cam_->coordinate_system()),
+		sge::camera::matrix_conversion::world(cam_.coordinate_system()),
 		sge::shader::matrix_flags::none));
 
 	shader_.update_uniform(

@@ -22,10 +22,10 @@
 	"star-size" : 8.0,
 	"cam" :
 	{
-		"movement-speed" : 0.05,
-		"acc-factor" : 0.05,
-		"min-radius" : 1.1,
-		"radius" : 3.0,
-		"damping" : 0.95
+		"movement-speed" : 1.0,
+		"acc-factor" : 1.0,
+		"min-radius" : 3.0,
+		"max-radius" : 5.0,
+		"damping" : 0.90
 	}
 }

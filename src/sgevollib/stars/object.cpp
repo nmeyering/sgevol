@@ -1,6 +1,7 @@
 #include <sgevollib/vf.hpp>
 #include <sgevollib/stars/object.hpp>
 #include <sge/camera/base.hpp>
+#include <sge/camera/coordinate_system/object.hpp>
 #include <sge/camera/matrix_conversion/rotation.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
@@ -9,6 +10,7 @@
 #include <sge/renderer/nonindexed_primitive_type.hpp>
 #include <sge/renderer/resource_flags.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
+#include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_vertex_buffer.hpp>
 #include <sge/renderer/scoped_vertex_declaration.hpp>
 #include <sge/renderer/scoped_vertex_lock.hpp>
@@ -47,9 +49,6 @@
 #include <cmath>
 #include <fcppt/config/external_end.hpp>
 
-#include <sge/renderer/scalar.hpp>
-#include <sge/camera/coordinate_system/object.hpp>
-#include <sge/camera/matrix_conversion/rotation.hpp>
 
 sgevollib::stars::object::object(
 	sge::renderer::size_type _count,
@@ -57,7 +56,7 @@ sgevollib::stars::object::object(
 	sge::renderer::device &_renderer,
 	boost::filesystem::path const &_vertex_shader_file,
 	boost::filesystem::path const &_fragment_shader_file,
-	sge::camera::base* &_camera)
+	sge::camera::base &_camera)
 :
 count_(
 	_count),
@@ -215,7 +214,7 @@ sgevollib::stars::object::render()
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-			camera_->projection_matrix().get() *
-				sge::camera::matrix_conversion::rotation(camera_->coordinate_system()),
+			camera_.projection_matrix().get() *
+				sge::camera::matrix_conversion::rotation(camera_.coordinate_system()),
 			sge::shader::matrix_flags::projection));
 }
