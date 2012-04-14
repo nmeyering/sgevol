@@ -27,8 +27,11 @@
 #include <sge/camera/spherical/object.hpp>
 #include <sge/camera/spherical/parameters.hpp>
 #include <sge/camera/spherical/action/wasd_mapping.hpp>
+#include <sge/camera/spherical/coordinate_system/azimuth.hpp>
 #include <sge/camera/spherical/coordinate_system/homogenous.hpp>
+#include <sge/camera/spherical/coordinate_system/inclination.hpp>
 #include <sge/camera/spherical/coordinate_system/look_down_positive_z.hpp>
+#include <sge/camera/spherical/coordinate_system/object.hpp>
 #include <sge/camera/spherical/coordinate_system/radius.hpp>
 #include <sge/config/media_path.hpp>
 #include <sge/console/arg_list.hpp>
@@ -168,9 +171,6 @@
 #include <exception>
 #include <iostream>
 #include <fcppt/config/external_end.hpp>
-#include <sge/camera/spherical/coordinate_system/azimuth.hpp>
-#include <sge/camera/spherical/coordinate_system/inclination.hpp>
-#include <sge/camera/spherical/coordinate_system/object.hpp>
 
 
 namespace

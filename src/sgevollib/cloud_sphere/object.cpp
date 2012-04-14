@@ -1,4 +1,3 @@
-#include <fcppt/math/vector/arithmetic.hpp>
 #include <sgevollib/media_path.hpp>
 #include <sgevollib/cloud_sphere/model_format.hpp>
 #include <sgevollib/cloud_sphere/object.hpp>
@@ -9,8 +8,8 @@
 #include <sge/camera/coordinate_system/position.hpp>
 #include <sge/camera/coordinate_system/right.hpp>
 #include <sge/camera/coordinate_system/up.hpp>
-#include <sge/camera/matrix_conversion/world_projection.hpp>
 #include <sge/camera/matrix_conversion/world.hpp>
+#include <sge/camera/matrix_conversion/world_projection.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/model/obj/create.hpp>
 #include <sge/model/obj/instance.hpp>
@@ -66,6 +65,7 @@
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/math/pi.hpp>
 #include <fcppt/math/twopi.hpp>
+#include <fcppt/math/vector/arithmetic.hpp>
 #include <fcppt/config/external_begin.hpp>
 #include <boost/filesystem/path.hpp>
 #include <fcppt/config/external_end.hpp>
