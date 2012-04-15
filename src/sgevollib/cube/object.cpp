@@ -2,13 +2,18 @@
 #include <sgevollib/cube/object.hpp>
 #include <sgevollib/cube/vf.hpp>
 #include <sge/camera/base.hpp>
+#include <sge/camera/coordinate_system/object.hpp>
+#include <sge/camera/coordinate_system/position.hpp>
+#include <sge/camera/matrix_conversion/world.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
 #include <sge/renderer/lock_mode.hpp>
+#include <sge/renderer/matrix4.hpp>
 #include <sge/renderer/nonindexed_primitive_type.hpp>
 #include <sge/renderer/resource_flags.hpp>
 #include <sge/renderer/resource_flags_none.hpp>
+#include <sge/renderer/scalar.hpp>
 #include <sge/renderer/scoped_vertex_buffer.hpp>
 #include <sge/renderer/scoped_vertex_declaration.hpp>
 #include <sge/renderer/scoped_vertex_lock.hpp>
@@ -21,7 +26,11 @@
 #include <sge/renderer/texture/address_mode.hpp>
 #include <sge/renderer/texture/address_mode3.hpp>
 #include <sge/renderer/texture/create_volume_from_view.hpp>
+#include <sge/renderer/texture/planar_shared_ptr.hpp>
 #include <sge/renderer/texture/set_address_mode3.hpp>
+#include <sge/renderer/texture/stage.hpp>
+#include <sge/renderer/texture/volume.hpp>
+#include <sge/renderer/texture/volume_shared_ptr.hpp>
 #include <sge/renderer/texture/mipmap/all_levels.hpp>
 #include <sge/renderer/texture/mipmap/auto_generate.hpp>
 #include <sge/renderer/texture/mipmap/off.hpp>
@@ -35,8 +44,12 @@
 #include <sge/shader/matrix_flags.hpp>
 #include <sge/shader/object.hpp>
 #include <sge/shader/object_parameters.hpp>
+#include <sge/shader/sampler.hpp>
+#include <sge/shader/sampler_sequence.hpp>
 #include <sge/shader/scoped.hpp>
+#include <sge/shader/variable.hpp>
 #include <sge/shader/variable_sequence.hpp>
+#include <sge/shader/variable_type.hpp>
 #include <sge/shader/vf_to_string.hpp>
 #include <fcppt/format.hpp>
 #include <fcppt/noncopyable.hpp>
@@ -53,11 +66,11 @@ sgevollib::cube::object::object(
 	sge::renderer::device &_renderer,
 	boost::filesystem::path const &_vertex_shader_file,
 	boost::filesystem::path const &_fragment_shader_file,
-	sge::camera::base* &_cam,
+	sge::camera::base &_cam,
 	sge::renderer::scalar _opacity,
 	sge::image3d::view::const_object const &_tex,
 	sge::image3d::view::const_object const &_noise,
-	sge::renderer::texture::planar_ptr &_phase_tex)
+	sge::renderer::texture::planar_shared_ptr _phase_tex)
 :
 renderer_(
 	_renderer),
@@ -90,9 +103,7 @@ shader_(
 		fcppt::assign::make_container<sge::shader::variable_sequence>
 			(sge::shader::variable(
 				"mvp",
-				// Typ (uniform oder const_ für Konstanten)
 				sge::shader::variable_type::uniform,
-				// Wir nehmen wir eine leere Matrix, wir setzen die jedes Frame neu mit der Kamera
 				sge::shader::matrix(
 					sge::renderer::matrix4::identity(),
 					sge::shader::matrix_flags::projection)))
@@ -120,12 +131,11 @@ shader_(
 				"camera",
 				sge::shader::variable_type::uniform,
 				sge::renderer::vector3())),
-		// sampler (sprich Texturen), die wir im Shader brauchen (ebenfalls in $$$HEADER$$$ drin)
 		fcppt::assign::make_container<sge::shader::sampler_sequence>
 			(sge::shader::sampler(
-				"tex", sge::renderer::texture::volume_ptr()))
+				"tex", sge::renderer::texture::volume_shared_ptr()))
 			(sge::shader::sampler(
-				"noise", sge::renderer::texture::volume_ptr()))
+				"noise", sge::renderer::texture::volume_shared_ptr()))
 			(sge::shader::sampler(
 				"phasetex", phase_tex_))
 			)
@@ -144,25 +154,16 @@ shader_(
 				.fragment_shader(
 					_fragment_shader_file))
 {
-	// Um lesend oder schreibend auf einen Vertexbuffer zugreifen zu können, muss
-	// man ihn locken. Intern wird da vermutlich der Speicherblock, der sich auf
-	// der Graka befindet, in den Hauptspeicher übertragen, damit man den
-	// auslesen kann.
 	sge::renderer::scoped_vertex_lock const vblock(
 		*vb_,
 		sge::renderer::lock_mode::writeonly);
 
-	// Ein Vertexbuffer ist eigentlich nur ein roher Block Speicher. Hier
-	// erstellen wir einen "View" auf diesen Block, d.h. versehen ihn mit einer
-	// Struktur. Ab da können wir auf den Speicher zugreifen, als sei er mit dem
-	// Vertexformat gefüllt.
 	vf::vertex_view const vertices(
 		vblock.value());
 
 	vf::vertex_view::iterator vb_it(
 		vertices.begin());
 
-	// copypaste (macht aus vf::vector einen fcppt::math::vector)
 	typedef
 	vf::position::packed_type
 	position_vector;
@@ -197,8 +198,7 @@ shader_(
 					res);
 			}
 
-	shader_.update_texture(
-		"tex",
+	sge::renderer::texture::volume_shared_ptr shadertex(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			tex_,
@@ -207,13 +207,20 @@ shader_(
 			sge::renderer::resource_flags::none));
 
 	shader_.update_texture(
-		"noise",
+		"tex",
+		shadertex);
+
+	shadertex = sge::renderer::texture::volume_shared_ptr(
 		sge::renderer::texture::create_volume_from_view(
 			renderer_,
 			noise_,
 			sge::renderer::texture::mipmap::all_levels(
 				sge::renderer::texture::mipmap::auto_generate::yes),
 			sge::renderer::resource_flags::none));
+
+	shader_.update_texture(
+		"noise",
+		shadertex);
 }
 
 sgevollib::cube::object::~object()
@@ -234,7 +241,6 @@ sgevollib::cube::object::render(float offset)
 		sge::shader::activation_method_field(
 			sge::shader::activation_method::textures));
 
-	// Vertexbuffer aktivieren. Muss man machen
 	sge::renderer::scoped_vertex_declaration const decl_context(
 		renderer_,
 		*vd_);
@@ -243,16 +249,15 @@ sgevollib::cube::object::render(float offset)
 		renderer_,
 		*vb_);
 
-	// Rendern (copypaste)
 	renderer_.render_nonindexed(
 		sge::renderer::first_vertex(0u),
 		sge::renderer::vertex_count(vb_->size()),
 		sge::renderer::nonindexed_primitive_type::triangle);
 
 	if(
-			std::abs( cam_->gizmo().position().x() ) >= 1.0f ||
-			std::abs( cam_->gizmo().position().y() ) >= 1.0f ||
-			std::abs( cam_->gizmo().position().z() ) >= 1.0f
+			std::abs(cam_.coordinate_system().position().get().x()) >= 1.0f ||
+			std::abs(cam_.coordinate_system().position().get().y()) >= 1.0f ||
+			std::abs(cam_.coordinate_system().position().get().z()) >= 1.0f
 		)
 	{
 		renderer_.state(
@@ -276,12 +281,12 @@ sgevollib::cube::object::render(float offset)
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_->mvp(),
+		cam_.projection_matrix().get(),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(
 		"camera",
-		cam_->gizmo().position());
+		cam_.coordinate_system().position().get());
 
 	shader_.update_uniform(
 		"opacity",
@@ -294,6 +299,6 @@ sgevollib::cube::object::render(float offset)
 	shader_.update_uniform(
 		"mv",
 		sge::shader::matrix(
-		cam_->world(),
+		sge::camera::matrix_conversion::world(cam_.coordinate_system()),
 		sge::shader::matrix_flags::none));
 }

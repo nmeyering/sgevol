@@ -8,24 +8,24 @@
 	},
 	"texture-size" : 128,
 	"noise-size" : 16,
-	"shader-file" : "trivial_sphere",
+	"shader-file" : "trivial_polar",
 	"path" : "dump.tex",
 	"load-texture" : false,
 	"save-texture" : false,
-	"spherical-texture" : false,
+	"spherical-texture" : true,
 	"background-color" : [0.0,0.0,0.0,1.0],
 	"globe-texture" : "world_1024.png",
-	"globe-radius" : 0.95,
+	"globe-radius" : 0.96,
 	"cloud-texture" : "clouds.png",
 	"opacity-factor" : 1.0,
-	"star-count" : 5000,
+	"star-count" : 2000,
 	"star-size" : 8.0,
 	"cam" :
 	{
-		"movement-speed" : 0.05,
-		"acc-factor" : 0.05,
-		"min-radius" : 1.1,
-		"radius" : 3.0,
-		"damping" : 0.95
+		"movement-speed" : 1.0,
+		"acc-factor" : 1.0,
+		"min-radius" : 1.10,
+		"max-radius" : 3.0,
+		"damping" : [-1.0, -1.0, -2.0]
 	}
 }

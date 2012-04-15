@@ -2,22 +2,28 @@
 #include <sgevollib/noise_volume.hpp>
 #include <sgevollib/texture3d.hpp>
 #include <sgevollib/cloud_sphere/object.hpp>
+#include <sgevollib/cube/object.hpp>
 #include <sgevollib/json/parse_color.hpp>
 #include <sgevollib/model/object.hpp>
 #include <sgevollib/stars/object.hpp>
 #include <sge/exception.hpp>
 #include <sge/camera/base.hpp>
-#include <sge/camera/duration.hpp>
-#include <sge/camera/identity_gizmo.hpp>
-#include <sge/camera/first_person/movement_speed.hpp>
-#include <sge/camera/first_person/object.hpp>
-#include <sge/camera/first_person/parameters.hpp>
-#include <sge/camera/first_person/rotation_speed.hpp>
-#include <sge/camera/projection/object.hpp>
-#include <sge/camera/projection/update_perspective_from_viewport.hpp>
-#include <sge/camera/spherical/movement_speed.hpp>
+#include <sge/camera/has_activation.hpp>
+#include <sge/camera/perspective_projection_from_viewport.hpp>
+#include <sge/camera/update_duration.hpp>
+#include <sge/camera/spherical/acceleration_factor.hpp>
+#include <sge/camera/spherical/damping_factor.hpp>
+#include <sge/camera/spherical/is_active.hpp>
+#include <sge/camera/spherical/maximum_radius.hpp>
+#include <sge/camera/spherical/minimum_radius.hpp>
 #include <sge/camera/spherical/object.hpp>
 #include <sge/camera/spherical/parameters.hpp>
+#include <sge/camera/spherical/action/wasd_mapping.hpp>
+#include <sge/camera/spherical/coordinate_system/azimuth.hpp>
+#include <sge/camera/spherical/coordinate_system/homogenous.hpp>
+#include <sge/camera/spherical/coordinate_system/inclination.hpp>
+#include <sge/camera/spherical/coordinate_system/look_down_positive_z.hpp>
+#include <sge/camera/spherical/coordinate_system/radius.hpp>
 #include <sge/config/media_path.hpp>
 #include <sge/console/arg_list.hpp>
 #include <sge/console/gfx.hpp>
@@ -28,7 +34,8 @@
 #include <sge/console/callback/from_functor.hpp>
 #include <sge/console/callback/name.hpp>
 #include <sge/console/callback/short_description.hpp>
-#include <sge/font/metrics_ptr.hpp>
+#include <sge/font/metrics.hpp>
+#include <sge/font/metrics_scoped_ptr.hpp>
 #include <sge/font/rect.hpp>
 #include <sge/font/size_type.hpp>
 #include <sge/font/system.hpp>
@@ -54,9 +61,9 @@
 #include <sge/media/extension_set.hpp>
 #include <sge/media/optional_extension_set.hpp>
 #include <sge/model/obj/create.hpp>
-#include <sge/model/obj/instance_ptr.hpp>
+#include <sge/model/obj/instance_unique_ptr.hpp>
 #include <sge/model/obj/loader.hpp>
-#include <sge/model/obj/loader_ptr.hpp>
+#include <sge/model/obj/loader_scoped_ptr.hpp>
 #include <sge/parse/json/find_and_convert_member.hpp>
 #include <sge/parse/json/object.hpp>
 #include <sge/parse/json/parse_file_exn.hpp>
@@ -83,7 +90,6 @@
 #include <sge/renderer/projection/near.hpp>
 #include <sge/renderer/state/bool.hpp>
 #include <sge/renderer/state/color.hpp>
-#include <sge/renderer/state/cull_mode.hpp>
 #include <sge/renderer/state/depth_func.hpp>
 #include <sge/renderer/state/dest_blend_func.hpp>
 #include <sge/renderer/state/draw_mode.hpp>
@@ -96,7 +102,9 @@
 #include <sge/renderer/texture/address_mode_s.hpp>
 #include <sge/renderer/texture/address_mode_t.hpp>
 #include <sge/renderer/texture/create_planar_from_path.hpp>
-#include <sge/renderer/texture/planar_ptr.hpp>
+#include <sge/renderer/texture/planar.hpp>
+#include <sge/renderer/texture/planar_scoped_ptr.hpp>
+#include <sge/renderer/texture/planar_shared_ptr.hpp>
 #include <sge/renderer/texture/set_address_mode2.hpp>
 #include <sge/renderer/texture/stage.hpp>
 #include <sge/renderer/texture/filter/mipmap.hpp>
@@ -109,6 +117,7 @@
 #include <sge/sprite/parameters_impl.hpp>
 #include <sge/systems/cursor_option.hpp>
 #include <sge/systems/cursor_option_field.hpp>
+#include <sge/systems/font.hpp>
 #include <sge/systems/image2d.hpp>
 #include <sge/systems/input.hpp>
 #include <sge/systems/input_helper.hpp>
@@ -117,10 +126,11 @@
 #include <sge/systems/list.hpp>
 #include <sge/systems/renderer.hpp>
 #include <sge/systems/window.hpp>
-#include <sge/texture/part_ptr.hpp>
 #include <sge/texture/part_raw.hpp>
+#include <sge/texture/part_shared_ptr.hpp>
 #include <sge/timer/basic.hpp>
 #include <sge/timer/elapsed.hpp>
+#include <sge/timer/elapsed_and_reset.hpp>
 #include <sge/timer/frames_counter.hpp>
 #include <sge/timer/parameters.hpp>
 #include <sge/timer/reset_when_expired.hpp>
@@ -137,7 +147,6 @@
 #include <fcppt/insert_to_string.hpp>
 #include <fcppt/make_shared_ptr.hpp>
 #include <fcppt/ref.hpp>
-#include <fcppt/scoped_ptr.hpp>
 #include <fcppt/shared_ptr.hpp>
 #include <fcppt/string.hpp>
 #include <fcppt/assign/make_container.hpp>
@@ -167,11 +176,11 @@ namespace
 void
 toggle_console(
 	sge::console::gfx &console,
-	sge::camera::base* &camera)
+	sge::camera::has_activation &camera)
 {
 	bool const act = console.active();
 	console.active(!act);
-	camera->active(act);
+	camera.is_active(act);
 }
 
 void
@@ -187,17 +196,6 @@ try_catch_action(
 		fcppt::io::cerr() << e.string() << std::endl;
 		throw e;
 	}
-}
-
-void
-switch_cam(
-	sge::camera::base * &cur,
-	sge::camera::base * &alt)
-{
-	bool act = cur->active();
-	cur->active(!act);
-	alt->active(act);
-	std::swap(cur, alt);
 }
 
 void
@@ -228,7 +226,7 @@ decrement_skip(
 	sgevollib::cloud_sphere::object &_sphere)
 {
 	_sphere.skip(
-			_sphere.skip() - 1);
+		_sphere.skip() - 1);
 }
 
 void
@@ -236,7 +234,7 @@ increment_skip(
 	sgevollib::cloud_sphere::object &_sphere)
 {
 	_sphere.skip(
-			_sphere.skip() + 1);
+		_sphere.skip() + 1);
 }
 
 }
@@ -353,12 +351,6 @@ try
 			config_file,
 			sge::parse::json::path(
 			FCPPT_TEXT("save-texture")));
-	sge::renderer::scalar cam_movement_speed =
-		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
-				config_file,
-			sge::parse::json::path(
-				FCPPT_TEXT("cam")) /
-				FCPPT_TEXT("movement-speed"));
 	sge::renderer::scalar cam_acc_factor =
 		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
 				config_file,
@@ -371,14 +363,14 @@ try
 			sge::parse::json::path(
 				FCPPT_TEXT("cam")) /
 				FCPPT_TEXT("min-radius"));
-	sge::renderer::scalar cam_radius =
+	sge::renderer::scalar cam_max_radius =
 		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
 				config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("cam")) /
-				FCPPT_TEXT("radius"));
-	sge::renderer::scalar cam_damping =
-		sge::parse::json::find_and_convert_member<sge::renderer::scalar>(
+				FCPPT_TEXT("max-radius"));
+	sge::renderer::vector3 cam_damping =
+		sge::parse::json::find_and_convert_member<sge::renderer::vector3>(
 				config_file,
 			sge::parse::json::path(
 				FCPPT_TEXT("cam")) /
@@ -428,7 +420,7 @@ try
 	sge::renderer::device& rend(
 		sys.renderer());
 
-	sge::font::metrics_ptr const metrics(
+	sge::font::metrics_scoped_ptr const metrics(
 		sys.font_system().create_font(
 				sge::config::media_path()
 				/ FCPPT_TEXT("fonts")
@@ -505,79 +497,46 @@ try
 				)));
 			*/
 
-	sge::camera::spherical::object spherical_cam(
+	sge::camera::spherical::object cam(
 		sge::camera::spherical::parameters(
-			// movementspeed
-			sge::camera::spherical::movement_speed(
-				cam_movement_speed),
-			// min_radius
-			cam_min_radius,
-			// Maus und Keyboard
-			sys.keyboard_collector())
-			.radius(
-				cam_radius)
-			.damping(
-				cam_damping)
-			.acceleration_factor(
-				cam_acc_factor)
-			.active(false)
-			);
-
-	sge::camera::first_person::object fps_cam(
-		sge::camera::first_person::parameters(
-			sge::camera::first_person::movement_speed(
-				0.01f
-			),
-			sge::camera::first_person::rotation_speed(
-				400.0f
-			),
 			sys.keyboard_collector(),
-			sys.mouse_collector())
-		.active(false)
-		.gizmo(
-			sge::camera::identity_gizmo().position(
-				sge::renderer::vector3(
-				-.5f,0.f,-1.2f))));
+			sge::camera::spherical::is_active(
+				true),
+			sge::camera::spherical::coordinate_system::look_down_positive_z(
+				sge::camera::spherical::coordinate_system::radius(
+					3.0f)),
+			sge::camera::spherical::action::wasd_mapping())
+			.maximum_radius(
+				sge::camera::spherical::maximum_radius(
+					cam_max_radius))
+			.minimum_radius(
+				sge::camera::spherical::minimum_radius(
+					cam_min_radius))
+			.damping_factor(
+				sge::camera::spherical::damping_factor(
+					sge::camera::spherical::coordinate_system::object(
+						sge::camera::spherical::coordinate_system::azimuth(
+							cam_damping.x()),
+						sge::camera::spherical::coordinate_system::inclination(
+							cam_damping.y()),
+						sge::camera::spherical::coordinate_system::radius(
+							cam_damping.z()))))
+			.acceleration_factor(
+				sge::camera::spherical::acceleration_factor(
+					sge::camera::spherical::coordinate_system::homogenous(
+						cam_acc_factor))));
 
-	sge::camera::base
-		*cam = &fps_cam,
-		*alternative_cam = &spherical_cam;
-
-	cam->active(true);
-
-	fcppt::signal::scoped_connection const viewport_connection(
-		sys.viewport_manager().manage_callback(
-			std::tr1::bind(
-				sge::camera::projection::update_perspective_from_viewport,
-				fcppt::ref(
-					rend),
-				fcppt::ref(
-					*cam),
-				sge::renderer::projection::fov(
-					fcppt::math::deg_to_rad(
-						60.f)),
-				sge::renderer::projection::near(
-					0.1f),
-				// Far plane
-				sge::renderer::projection::far(
-					1000.f))));
-
-	fcppt::signal::scoped_connection const viewport_connection_alt(
-		sys.viewport_manager().manage_callback(
-			std::tr1::bind(
-				sge::camera::projection::update_perspective_from_viewport,
-				fcppt::ref(
-					rend),
-				fcppt::ref(
-					*alternative_cam),
-				sge::renderer::projection::fov(
-					fcppt::math::deg_to_rad(
-						60.f)),
-				sge::renderer::projection::near(
-					0.1f),
-				// Far plane
-				sge::renderer::projection::far(
-					1000.f))));
+	sge::camera::perspective_projection_from_viewport viewport_connection(
+		cam,
+		rend,
+		sys.viewport_manager(),
+		sge::renderer::projection::near(
+			0.1f),
+		sge::renderer::projection::far(
+			1000.f),
+		sge::renderer::projection::fov(
+			fcppt::math::deg_to_rad(
+				90.f)));
 
 	bool aborted = false;
 
@@ -633,7 +592,7 @@ try
 			boost::filesystem::path(
 			texture_path));
 
-	sge::renderer::texture::planar_ptr globe_tex(
+	sge::renderer::texture::planar_shared_ptr globe_tex(
 		sge::renderer::texture::create_planar_from_path(
 			sgevollib::media_path()
 				/ FCPPT_TEXT("textures")
@@ -644,9 +603,9 @@ try
 					sge::renderer::texture::mipmap::auto_generate::yes),
 				sge::renderer::resource_flags::none));
 
-	sge::model::obj::loader_ptr model_loader(
+	sge::model::obj::loader_scoped_ptr model_loader(
 		sge::model::obj::create());
-	sge::model::obj::instance_ptr globe_model(
+	sge::model::obj::instance_unique_ptr globe_model(
 		model_loader->load(
 			sgevollib::media_path()
 				/ FCPPT_TEXT("models")
@@ -654,7 +613,7 @@ try
 
 	sgevollib::model::object globe(
 		rend,
-		globe_model,
+		*globe_model,
 		sgevollib::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("vertex")
@@ -667,7 +626,7 @@ try
 		globe_radius,
 		cam);
 
-	sge::renderer::texture::planar_ptr cloudtex(
+	sge::renderer::texture::planar_shared_ptr cloudtex(
 		sge::renderer::texture::create_planar_from_path(
 			sgevollib::media_path()
 				/ FCPPT_TEXT("textures")
@@ -680,7 +639,7 @@ try
 
 	sgevollib::cloud_sphere::object sphere(
 		rend,
-		globe_model,
+		*globe_model,
 		sgevollib::media_path()
 			/ FCPPT_TEXT("shaders")
 			/ FCPPT_TEXT("vertex")
@@ -726,14 +685,14 @@ try
 
 	sge::timer::frames_counter fps_counter;
 
-	sge::font::metrics_ptr const fps_metrics(
+	sge::font::metrics_scoped_ptr const fps_metrics(
 		sys.font_system().create_font(
 				sge::config::media_path()
 				/ FCPPT_TEXT("fonts")
 				/ FCPPT_TEXT("default.ttf"),
 				static_cast<sge::font::size_type>(32)));
 
-	sge::font::metrics_ptr const help_metrics(
+	sge::font::metrics_scoped_ptr const help_metrics(
 		sys.font_system().create_font(
 				sge::config::media_path()
 				/ FCPPT_TEXT("fonts")
@@ -752,7 +711,7 @@ try
 		SGE_FONT_TEXT_LIT('/')
 	);
 
-	sge::renderer::texture::planar_ptr console_tex(
+	sge::renderer::texture::planar_scoped_ptr console_tex(
 		sge::renderer::texture::create_planar_from_path(
 			sgevollib::media_path()
 				/ FCPPT_TEXT("textures")
@@ -788,21 +747,7 @@ try
 				sge::console::callback::short_description(
 					SGE_FONT_TEXT_LIT("cloud opacity")))));
 
-	fcppt::signal::scoped_connection const switch_cam_conn(
-		console.insert(
-			sge::console::callback::from_functor<void()>(
-				std::tr1::bind(
-					&::switch_cam,
-					fcppt::ref(
-						cam),
-					fcppt::ref(
-						alternative_cam)),
-				sge::console::callback::name(
-					SGE_FONT_TEXT_LIT("switch_cam")),
-				sge::console::callback::short_description(
-					SGE_FONT_TEXT_LIT("switch between the two cameras (polar style and first-person style)")))));
-
-	sge::font::metrics_ptr const console_metrics(
+	sge::font::metrics_scoped_ptr const console_metrics(
 		sys.font_system().create_font(
 				sge::config::media_path()
 				/ FCPPT_TEXT("fonts")
@@ -818,16 +763,12 @@ try
 		sge::console::sprite_object(
 			sge::console::sprite_parameters()
 			.pos(
-				sge::console::sprite_object::vector::null()
-			)
+				sge::console::sprite_object::vector::null())
 			.texture(
 				fcppt::make_shared_ptr<sge::texture::part_raw>(
-					console_tex)
-			)
+					fcppt::ref(*console_tex)))
 			.size(
-				console_dim
-			)
-		),
+				console_dim)),
 		static_cast<
 			sge::console::output_line_limit
 		>(
@@ -845,17 +786,6 @@ try
 						console_gfx),
 					fcppt::ref(
 						cam)))));
-
-	fcppt::signal::scoped_connection cam_cb(
-		sys.keyboard_collector().key_callback(
-			sge::input::keyboard::action(
-				sge::input::keyboard::key_code::f5,
-				std::tr1::bind(
-					&::switch_cam,
-					fcppt::ref(
-						cam),
-					fcppt::ref(
-						alternative_cam)))));
 
 	console_gfx.active(false);
 	// console end
@@ -896,8 +826,8 @@ try
 		// Sonst werden keine Input-Events geschickt
 		sys.window_system().poll();
 
-		cam->update(
-			sge::timer::elapsed<sge::camera::duration>(
+		cam.update(
+			sge::timer::elapsed_and_reset<sge::camera::update_duration>(
 				frame_timer));
 
 		if (sge::timer::reset_when_expired(offset_timer))
