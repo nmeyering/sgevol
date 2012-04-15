@@ -6,10 +6,6 @@
 #include <sgevollib/json/parse_color.hpp>
 #include <sgevollib/model/object.hpp>
 #include <sgevollib/stars/object.hpp>
-#include <awl/main/exit_code.hpp>
-#include <awl/main/exit_failure.hpp>
-#include <awl/main/exit_success.hpp>
-#include <awl/main/function_context.hpp>
 #include <sge/exception.hpp>
 #include <sge/camera/base.hpp>
 #include <sge/camera/has_activation.hpp>
@@ -27,6 +23,7 @@
 #include <sge/camera/spherical/coordinate_system/homogenous.hpp>
 #include <sge/camera/spherical/coordinate_system/inclination.hpp>
 #include <sge/camera/spherical/coordinate_system/look_down_positive_z.hpp>
+#include <sge/camera/spherical/coordinate_system/object.hpp>
 #include <sge/camera/spherical/coordinate_system/radius.hpp>
 #include <sge/config/media_path.hpp>
 #include <sge/console/arg_list.hpp>
@@ -128,6 +125,7 @@
 #include <sge/systems/input_helper_field.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
+#include <sge/systems/quit_on_escape.hpp>
 #include <sge/systems/renderer.hpp>
 #include <sge/systems/window.hpp>
 #include <sge/texture/part_raw.hpp>
@@ -145,6 +143,10 @@
 #include <sge/window/parameters.hpp>
 #include <sge/window/system.hpp>
 #include <sge/window/title.hpp>
+#include <awl/main/exit_code.hpp>
+#include <awl/main/exit_failure.hpp>
+#include <awl/main/exit_success.hpp>
+#include <awl/main/function_context.hpp>
 #include <fcppt/exception.hpp>
 #include <fcppt/extract_from_string_exn.hpp>
 #include <fcppt/format.hpp>
@@ -200,13 +202,6 @@ try_catch_action(
 		fcppt::io::cerr() << e.string() << std::endl;
 		throw e;
 	}
-}
-
-void
-quit(
-	bool &_value)
-{
-	_value = false;
 }
 
 void
@@ -384,8 +379,6 @@ try
 	if (load_texture)
 		save_texture = false;
 
-	bool running = false;
-
 	sge::window::dim const dimensions(
 		window_dim
 	);
@@ -549,25 +542,19 @@ try
 		sys.keyboard_collector().key_callback(
 			sge::input::keyboard::action(
 				sge::input::keyboard::key_code::escape,
-				boost::phoenix::ref(aborted) = true
-			)
-		)
-	);
+				boost::phoenix::ref(aborted) = true)));
 
 	sge::timer::basic<sge::timer::clocks::standard> accesstimer(
 		sge::timer::parameters<sge::timer::clocks::standard>(
 			boost::chrono::milliseconds(
 				100)));
-	std::cout << "timer initialized" << std::endl;
 
 	float progress = 0.f;
-	while( !aborted )
+	while(aborted)
 	{
 		if(sge::timer::reset_when_expired(accesstimer))
 			if((progress = mytex.progress()) >= 99.f)
 				break;
-
-		sys.window_system().poll();
 
 		sge::renderer::scoped_block const block_(rend);
 
@@ -586,9 +573,9 @@ try
 		);
 
 	}
+
 	if (aborted)
 		return awl::main::exit_failure();
-
 
 	load_thread.join();
 
@@ -675,13 +662,9 @@ try
 			/ FCPPT_TEXT("stars.glsl"),
 		cam);
 
-	running = true;
-
-	cb.take(
-		sys.keyboard_collector().key_callback(
-			sge::input::keyboard::action(
-				sge::input::keyboard::key_code::escape,
-				boost::phoenix::ref(running) = false)));
+	fcppt::signal::scoped_connection const escape_connection(
+		sge::systems::quit_on_escape(
+			sys));
 
 	sge::timer::basic<sge::timer::clocks::standard> frame_timer(
 		sge::timer::parameters<sge::timer::clocks::standard>(
@@ -732,9 +715,9 @@ try
 		console.insert(
 			sge::console::callback::from_functor<void()>(
 				std::tr1::bind(
-					&::quit,
-					fcppt::ref(
-						running)),
+					&sge::window::system::quit,
+					&sys.window_system(),
+					awl::main::exit_success()),
 				sge::console::callback::name(
 					SGE_FONT_TEXT_LIT("quit")),
 				sge::console::callback::short_description(
@@ -826,7 +809,9 @@ try
 				std::tr1::bind(
 					&::increment_skip,
 					fcppt::ref(sphere)))));
-	while(running)
+	while(
+		sys.window_system().poll()
+	)
 	{
 		// Sonst werden keine Input-Events geschickt
 		sys.window_system().poll();

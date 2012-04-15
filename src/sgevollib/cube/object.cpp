@@ -5,6 +5,7 @@
 #include <sge/camera/coordinate_system/object.hpp>
 #include <sge/camera/coordinate_system/position.hpp>
 #include <sge/camera/matrix_conversion/world.hpp>
+#include <sge/camera/matrix_conversion/world_projection.hpp>
 #include <sge/image3d/view/const_object.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/renderer/first_vertex.hpp>
@@ -254,6 +255,7 @@ sgevollib::cube::object::render(float offset)
 		sge::renderer::vertex_count(vb_->size()),
 		sge::renderer::nonindexed_primitive_type::triangle);
 
+	/*
 	if(
 			std::abs(cam_.coordinate_system().position().get().x()) >= 1.0f ||
 			std::abs(cam_.coordinate_system().position().get().y()) >= 1.0f ||
@@ -272,16 +274,17 @@ sgevollib::cube::object::render(float offset)
 				sge::renderer::state::cull_mode::counter_clockwise
 			));
 	}
-	/*
+	*/
 	renderer_.state(
 		sge::renderer::state::list(
-			sge::renderer::state::cull_mode::clockwise));
-	*/
+			sge::renderer::state::cull_mode::counter_clockwise));
 
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(
-		cam_.projection_matrix().get(),
+			sge::camera::matrix_conversion::world_projection(
+				cam_.coordinate_system(),
+				cam_.projection_matrix()),
 		sge::shader::matrix_flags::projection));
 
 	shader_.update_uniform(

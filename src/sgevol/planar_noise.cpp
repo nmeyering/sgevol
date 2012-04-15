@@ -1,8 +1,4 @@
 #include <sgevollib/simplex_noise.hpp>
-#include <awl/main/exit_code.hpp>
-#include <awl/main/exit_failure.hpp>
-#include <awl/main/exit_success.hpp>
-#include <awl/main/function_context.hpp>
 #include <sge/image/capabilities_field.hpp>
 #include <sge/image/store.hpp>
 #include <sge/image2d/dim.hpp>
@@ -17,6 +13,10 @@
 #include <sge/systems/image2d.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
+#include <awl/main/exit_code.hpp>
+#include <awl/main/exit_failure.hpp>
+#include <awl/main/exit_success.hpp>
+#include <awl/main/function_context.hpp>
 #include <mizuiro/color/channel/luminance.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/math/vector/arithmetic.hpp>
