@@ -161,7 +161,6 @@ sgevollib::model::object::render(float offset)
 		sge::renderer::state::list(
 			sge::renderer::state::cull_mode::clockwise));
 
-	// mvp updaten
 	shader_.update_uniform(
 		"mvp",
 		sge::shader::matrix(

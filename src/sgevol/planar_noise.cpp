@@ -47,9 +47,9 @@ noise(
 	double result = 0.0;
 	for (unsigned i = 0; i < _octaves; ++i)
 		result +=
-			std::pow(0.5f, i) * _amplitude *
+			std::pow(0.5, static_cast<double>(i)) * _amplitude *
 			_gen.sample(
-				std::pow(2, i) * _freq * vec2(
+				std::pow(2.0, static_cast<double>(i)) * _freq * vec2(
 					static_cast<double>(_x),
 					static_cast<double>(_y)));
 	return 128.0 + 128.0 * result;

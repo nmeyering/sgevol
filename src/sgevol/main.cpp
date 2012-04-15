@@ -860,10 +860,9 @@ try
 		sge::font::text::draw(
 			*help_metrics,
 			drawer,
-			SGE_FONT_TEXT_LIT(
-				"keys:\n"
-				"[, ]: change density\n"
-				"-, +: change raycasting offset"),
+			SGE_FONT_TEXT_LIT("keys:\n")
+			SGE_FONT_TEXT_LIT("[, ]: change density\n")
+			SGE_FONT_TEXT_LIT("-, +: change raycasting offset"),
 			fcppt::math::box::structure_cast<sge::font::rect>(
 				rend.onscreen_target().viewport().get()),
 		sge::font::text::align_h::left,
