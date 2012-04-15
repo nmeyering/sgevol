@@ -1,4 +1,8 @@
 #include <sgevollib/simplex_noise.hpp>
+#include <awl/main/exit_code.hpp>
+#include <awl/main/exit_failure.hpp>
+#include <awl/main/exit_success.hpp>
+#include <awl/main/function_context.hpp>
 #include <sge/image/capabilities_field.hpp>
 #include <sge/image/store.hpp>
 #include <sge/image2d/dim.hpp>
@@ -52,19 +56,21 @@ noise(
 }
 }
 
-int main(int argc, char **argv)
+awl::main::exit_code const
+sgevol_main(
+	awl::main::function_context const &_main_function_context)
 {
-	if (argc != 3)
+	if (_main_function_context.argc() != 3)
 	{
 		std::cerr
 			<< "Usage: "
-			<< argv[0]
+			<< _main_function_context.argv()[0]
 			<< " OCTAVES OUTPUT_FILE"
 			<< std::endl;
-		return EXIT_FAILURE;
+		return awl::main::exit_failure();
 	}
 
-	unsigned octaves = boost::lexical_cast<unsigned>(argv[1]);
+	unsigned octaves = boost::lexical_cast<unsigned>(_main_function_context.argv()[1]);
 
 	typedef fcppt::math::vector::static_<double,2>::type vec2;
 
@@ -106,7 +112,7 @@ int main(int argc, char **argv)
 			sge::image2d::view::object(
 				store.wrapped_view())),
 		boost::filesystem::path(
-			argv[2]));
+			_main_function_context.argv()[2]));
 
-	return EXIT_SUCCESS;
+	return awl::main::exit_success();
 }

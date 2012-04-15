@@ -1,4 +1,8 @@
 #include <sgevollib/simplex_noise.hpp>
+#include <awl/main/exit_code.hpp>
+#include <awl/main/exit_failure.hpp>
+#include <awl/main/exit_success.hpp>
+#include <awl/main/function_context.hpp>
 #include <sge/image/capabilities_field.hpp>
 #include <sge/image/store.hpp>
 #include <sge/image2d/dim.hpp>
@@ -13,6 +17,7 @@
 #include <sge/systems/image2d.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
+#include <sge/window/system.hpp>
 #include <mizuiro/color/channel/luminance.hpp>
 #include <fcppt/assign/make_container.hpp>
 #include <fcppt/math/clamp.hpp>
@@ -22,6 +27,10 @@
 #include <boost/filesystem/path.hpp>
 #include <cmath>
 #include <iostream>
+#include <awl/main/exit_code.hpp>
+#include <awl/main/exit_failure.hpp>
+#include <awl/main/exit_success.hpp>
+#include <awl/main/function_context.hpp>
 #include <ostream>
 #include <fcppt/config/external_end.hpp>
 
@@ -62,15 +71,14 @@ phase(
 
 }
 
-int
-main(
-	const int argc,
-	char* argv[])
+awl::main::exit_code const
+sgevol_main(
+	awl::main::function_context const &_main_function_context)
 {
-	if (argc != 4)
+	if (_main_function_context.argc() != 4)
 	{
-		std::cerr << "usage: " << argv[0] << "<w> <h> <file>" << std::endl;
-		return EXIT_FAILURE;
+		std::cerr << "usage: " << _main_function_context.argv()[0] << "<w> <h> <file>" << std::endl;
+		return awl::main::exit_failure();
 	}
 
 	sge::systems::instance const sys(
@@ -83,8 +91,8 @@ main(
 							FCPPT_TEXT("png")))))));
 
 
-	unsigned w = boost::lexical_cast<unsigned>(argv[1]);
-	unsigned h = boost::lexical_cast<unsigned>(argv[2]);
+	unsigned w = boost::lexical_cast<unsigned>(_main_function_context.argv()[1]);
+	unsigned h = boost::lexical_cast<unsigned>(_main_function_context.argv()[2]);
 
 	sge::image2d::l8 store(sge::image2d::dim(w,h));
 
@@ -113,7 +121,7 @@ main(
 			sge::image2d::view::object(
 				store.wrapped_view())),
 		boost::filesystem::path(
-			argv[3]));
+			_main_function_context.argv()[3]));
 
-	return EXIT_SUCCESS;
+	return sys.window_system().exit_code();
 }

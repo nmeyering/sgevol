@@ -1,4 +1,8 @@
 #include <sgevollib/simplex_noise.hpp>
+#include <awl/main/exit_code.hpp>
+#include <awl/main/exit_failure.hpp>
+#include <awl/main/exit_success.hpp>
+#include <awl/main/function_context.hpp>
 #include <sge/image/capabilities_field.hpp>
 #include <sge/image/store.hpp>
 #include <sge/image2d/dim.hpp>
@@ -26,15 +30,14 @@
 #include <fcppt/config/external_end.hpp>
 
 
-int
-main(
-	const int argc,
-	char* argv[])
+awl::main::exit_code const
+sgevol_main(
+	awl::main::function_context const &_main_function_context)
 {
-	if (argc < 2)
+	if (_main_function_context.argc() < 2)
 	{
-		std::cerr << "usage: " << argv[0] << " <file>" << std::endl;
-		return EXIT_FAILURE;
+		std::cerr << "usage: " << _main_function_context.argv()[0] << " <file>" << std::endl;
+		return awl::main::exit_failure();
 	}
 
 	sge::systems::instance const sys(
@@ -46,14 +49,14 @@ main(
 						sge::media::extension(
 							FCPPT_TEXT("png")))))));
 
-	std::ifstream file(argv[1]);
+	std::ifstream file(_main_function_context.argv()[1]);
 
 	if (!file.is_open())
-		return EXIT_FAILURE;
+		return awl::main::exit_failure();
 
 	unsigned w, h;
 	if(!(file >> w >> h))
-		return EXIT_FAILURE;
+		return awl::main::exit_failure();
 
 	// consume rest of first line...
 	std::string foo;
@@ -81,7 +84,7 @@ main(
 		}
 
 		std::string filename(
-				argv[2]);
+				_main_function_context.argv()[2]);
 		filename += "_";
 		filename += boost::lexical_cast<std::string>(frame);
 		filename += ".png";
@@ -96,5 +99,5 @@ main(
 	}
 
 	file.close();
-		return EXIT_SUCCESS;
+	return awl::main::exit_success();
 }

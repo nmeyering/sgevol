@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 2.6)
 project(sgevol)
 
 include(FcpptCMakeUtils)
-# TODO
-# switch to new AWL main
+
+include(
+	AwlMainGenerator)
 
 # boost begin
 find_package(
@@ -123,10 +124,10 @@ fcppt_utils_add_source_groups(
 add_library(
 	sgevollib STATIC ${SGEVOLLIB_FILES})
 
-add_executable(
+awl_utils_add_portable_executable(
 	sgevol
-	src/sgevol/main.cpp
-)
+	"sgevol_main"
+	src/sgevol/main.cpp)
 
 target_link_libraries(
 	sgevol
@@ -135,12 +136,14 @@ target_link_libraries(
 	${Fcppt_core_LIBRARIES}
 	${Fcppt_filesystem_LIBRARIES}
 	${Fcppt_thread_LIBRARIES}
+	${Awl_LIBRARIES}
 	${SGE_LIBRARIES}
 )
 
 
-add_executable(
+awl_utils_add_portable_executable(
 	cubetest
+	"sgevol_main"
 	src/sgevol/cubetest.cpp
 )
 
@@ -151,11 +154,13 @@ target_link_libraries(
 	${Fcppt_core_LIBRARIES}
 	${Fcppt_filesystem_LIBRARIES}
 	${Fcppt_thread_LIBRARIES}
+	${Awl_LIBRARIES}
 	${SGE_LIBRARIES}
 )
 
-add_executable(
+awl_utils_add_portable_executable(
 	planar_noise
+	"sgevol_main"
 	src/sgevol/planar_noise.cpp
 )
 
@@ -166,11 +171,13 @@ target_link_libraries(
 	${Fcppt_core_LIBRARIES}
 	${Fcppt_filesystem_LIBRARIES}
 	${Fcppt_thread_LIBRARIES}
+	${Awl_LIBRARIES}
 	${SGE_LIBRARIES}
 )
 
-add_executable(
+awl_utils_add_portable_executable(
 	cloud_data_to_png
+	"sgevol_main"
 	src/sgevol/cloud_data_to_png.cpp
 )
 
@@ -181,11 +188,13 @@ target_link_libraries(
 	${Fcppt_core_LIBRARIES}
 	${Fcppt_filesystem_LIBRARIES}
 	${Fcppt_thread_LIBRARIES}
+	${Awl_LIBRARIES}
 	${SGE_LIBRARIES}
 )
 
-add_executable(
+awl_utils_add_portable_executable(
 	create_phase_function
+	"sgevol_main"
 	src/sgevol/create_phase_function.cpp
 )
 
@@ -196,5 +205,6 @@ target_link_libraries(
 	${Fcppt_core_LIBRARIES}
 	${Fcppt_filesystem_LIBRARIES}
 	${Fcppt_thread_LIBRARIES}
+	${Awl_LIBRARIES}
 	${SGE_LIBRARIES}
 )

@@ -64,7 +64,6 @@ private:
 	matrix;
 
 	std::size_t dim_;
-	std::size_t width_;
 	index_container perm_;
 	std::vector<vector> gradients_;
 
@@ -183,7 +182,7 @@ private:
 			t *= t;
 			return t * t * fcppt::math::vector::dot(
 				gradients_.at(
-					index(intv) % gradients_.size()),
+					index(intv) % (2u * N)),
 				v);
 	}
 };

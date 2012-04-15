@@ -4,6 +4,10 @@
 #include <sgevollib/cube/object.hpp>
 #include <sgevollib/json/parse_color.hpp>
 #include <sgevollib/stars/object.hpp>
+#include <awl/main/exit_code.hpp>
+#include <awl/main/exit_failure.hpp>
+#include <awl/main/exit_success.hpp>
+#include <awl/main/function_context.hpp>
 #include <sge/exception.hpp>
 #include <sge/camera/base.hpp>
 #include <sge/camera/has_activation.hpp>
@@ -226,8 +230,9 @@ increment_opacity(
 
 }
 
-int
-main(int argc, char **argv)
+awl::main::exit_code const
+sgevol_main(
+	awl::main::function_context const &_main_function_context)
 try
 {
 	sge::parse::json::object const &config_file =
@@ -235,8 +240,8 @@ try
 			sge::parse::json::parse_file_exn(
 				sgevollib::media_path()/FCPPT_TEXT("config.json")),
 			sge::parse::json::config::create_command_line_parameters(
-				argc,
-				argv));
+				_main_function_context.argc(),
+				_main_function_context.argv()));
 
 	fcppt::string console_bg =
 		sge::parse::json::find_and_convert_member<fcppt::string>(
@@ -551,7 +556,7 @@ try
 
 	}
 	if (aborted)
-		return EXIT_FAILURE;
+		return awl::main::exit_failure();
 
 	load_thread.join();
 
@@ -777,18 +782,22 @@ try
 			console_gfx.render();
 		}
 	}
+
+	return
+		sys.window_system().exit_code();
 }
 catch(sge::exception const &e)
 {
 	fcppt::io::cerr() << e.string() << FCPPT_TEXT('\n');
-	return EXIT_FAILURE;
+	return awl::main::exit_failure();
 }
 catch(fcppt::exception const &e)
 {
 	fcppt::io::cerr() << e.string() << FCPPT_TEXT("\n");
+	return awl::main::exit_failure();
 }
 catch(std::exception const &e)
 {
 	std::cerr << e.what() << FCPPT_TEXT('\n');
-	return EXIT_FAILURE;
+	return awl::main::exit_failure();
 }
