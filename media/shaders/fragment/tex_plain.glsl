@@ -8,7 +8,9 @@ in vec3 position_interp;
 out vec4 frag_color;
 
 const float ambient = 0.2;
-vec3 sun_direction = normalize(vec3(sin(offset),0.0,cos(offset)));
+//vec3 sun_direction = normalize(vec3(sin(offset),0.0,cos(offset)));
+vec3 sun_direction = normalize(vec3(-1,0,-1));
+
 
 void main()
 {

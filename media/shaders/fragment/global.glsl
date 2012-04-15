@@ -5,12 +5,12 @@ $$$HEADER$$$
 in vec3 position_interp;
 out vec4 frag_color;
 
-const float stepsize = 1e-2;
+const float stepsize = .02;
 const int steps = 300;
-const float absorption_factor = 32.0 * stepsize;
+const float absorption_factor = 16.0 * stepsize;
 
 const vec3 suncolor = 0.5 * vec3(2.0,2.0,1.90);
-const vec3 ambient = vec3(0.25);
+const vec3 ambient = vec3(0.1);
 
 bool
 outside_unit_cube(const vec3);

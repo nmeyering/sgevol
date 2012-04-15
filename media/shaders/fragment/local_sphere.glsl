@@ -12,7 +12,7 @@ const float halfdelta = 0.5 * delta;
 const vec3 center = vec3(0.5,0.5,0.5);
 const vec3 skycolor = 0.2 * vec3(0.8,0.85,1.0);
 const vec3 suncolor = vec3(1.0,1.0,0.95);
-const vec3 ambient = vec3(0.25);
+const vec3 ambient = vec3(0.15);
 
 bool
 outside_unit_cube(const vec3);
@@ -81,7 +81,7 @@ main()
 
 		position = position + direction * stepsize;
 
-		if (outside_sphere(position, center, radius_limit))
+		if (!outside_sphere(position, center, radius_limit))
 			break;
 
 		// ray termination

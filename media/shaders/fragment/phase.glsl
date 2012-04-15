@@ -23,20 +23,28 @@ outside_sphere(
 	const vec3,
 	const float);
 
-/*
 float
 phase(
 	const float theta,
 	const float g)
 {
-	return
-	clamp(
-		(1.0 - g * g) /
-		pow(1 + g * g - 2.0 * g * theta, 1.5),
-		0.0,
-		1.0);
+	#if 1
+	if (g > 0)
+		return
+			pow(
+				pow(g - 1.0, 2) /
+				(1 + g * g - 2.0 * g * theta),
+				1.5);
+	else
+		return
+			pow(
+				pow(g + 1.0, 2) /
+				(1 + g * g - 2.0 * g * theta),
+				1.5);
+	#else
+		return (1 - g * g) / pow(1 + g * g - 2 * g * theta, 1.5);
+	#endif
 }
-*/
 
 vec3 sun = normalize(vec3(sin(offset),0.0,cos(offset)));
 
@@ -46,7 +54,7 @@ void
 main()
 {
 	vec4 dst = vec4(0.0);
-	vec3 direction = normalize( position_interp - camera );
+	vec3 direction = normalize(position_interp - camera);
 
 	vec3 position;
 
@@ -58,24 +66,18 @@ main()
 	position = (position + 1.0) * 0.5;
 	vec3 startpos = position;
 
-	vec2 sample = vec2(0.0);
-
-	for( int i = 0; i < steps; i++ )
+	for(int i = 0; i < steps; i++)
 	{
-		float value = clamp(5.0 * texture(tex, position).r,0.0,1.0);
-
-		sample.x = value;
+		float value = texture(tex, position).r;
 
 		float light =
-			texture(phasetex,vec2(
-					0.5 * dot(sun, -direction) + 0.5,
-					value)).r;
+			phase(
+					dot(sun, -direction),
+					(1 - 3 * value) * 2.0 - 1.0);
 
 		vec3 col = light * suncolor + ambient;
 
-		dst += (1.0 - dst.a) * factor * factor * sample.y * vec4(col, 1.0);
-
-		sample.y = 0.5 * (sample.x + sample.y);
+		dst += (1.0 - dst.a) * factor * value * vec4(col, 1.0);
 
 		if(dst.a > 0.95)
 			break;

@@ -52,22 +52,22 @@ main()
 	vec3 starting_position = position;
 
 	//stochastic jittering
-	//position -= stepsize * simplex_noise(vec3(gl_FragCoord.xy,0.0));
+	// position -= 1.414 * stepsize * direction * simplex_noise(vec3(gl_FragCoord.xy,0.0));
 
 	for(int i = skip; i < steps; i++)
 	{
 		vec3 polar_pos = polar(position * 2.0 - 1.0);
 		polar_pos.x = (polar_pos.x - radius) / cloud_height;
-		value =
-			texture(
-				tex,
-				polar_pos).r;
+		value = texture(tex, polar_pos).r;
 
+		//cloud data
 		float cloudiness = texture(clouds, polar_pos.yz).r;
 		//vec3 col = vec3(cloudiness, 0.0, 1.0 - cloudiness);
 		vec3 col = vec3(1.0);
+
 		float height = polar_pos.x;
 		dst += (1.0 - dst.a) * factor * value * vec4(col, cloudiness);
+		// dst += (1.0 - dst.a) * factor * value * vec4(col, 1.0);
 
 		position = starting_position + i * direction * stepsize;
 
@@ -76,7 +76,7 @@ main()
 			break;
 
 		// ray termination - cube borders
-		if (outside_unit_cube(position))
+		if (outside_sphere(position, center, radius))
 			break;
 
 		if (!outside_sphere(position, center, radius_limit))
