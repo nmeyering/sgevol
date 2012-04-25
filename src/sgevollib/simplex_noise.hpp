@@ -181,8 +181,8 @@ private:
 		else
 			t *= t;
 			return t * t * fcppt::math::vector::dot(
-				gradients_.at(
-					index(intv) % (2u * N)),
+				gradients_[
+					index(intv) % (2u * N)],
 				v);
 	}
 };

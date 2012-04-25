@@ -10,6 +10,8 @@
 #include <sge/camera/base.hpp>
 #include <sge/camera/has_activation.hpp>
 #include <sge/camera/perspective_projection_from_viewport.hpp>
+#include <sge/renderer/active_target.hpp>
+#include <sge/renderer/clear/parameters.hpp>
 #include <sge/camera/update_duration.hpp>
 #include <sge/camera/spherical/acceleration_factor.hpp>
 #include <sge/camera/spherical/damping_factor.hpp>
@@ -469,33 +471,19 @@ try
 
 	std::cout << "load thread started" << std::endl;
 
-	// Renderstates!
 	rend.state(
 		sge::renderer::state::list
-			// Bildschirm bei jedem Renderdurchgang neu initialisieren?
-			(sge::renderer::state::bool_::clear_back_buffer = true)
-			// Z-Buffer auch löschen? Braucht man hier glaub ich nichtmal
-			(sge::renderer::state::bool_::clear_depth_buffer = true)
-			// Alphablending plus die zwei Kombinationsfunktionen
 			(sge::renderer::state::bool_::enable_alpha_blending = true)
 			(sge::renderer::state::source_blend_func::src_alpha)
 			(sge::renderer::state::dest_blend_func::inv_src_alpha)
-			// WIREFRAME
-			//(sge::renderer::state::draw_mode::line)
-			// Tiefenfunktion
-			(sge::renderer::state::depth_func::off)
-			// Mit was soll der Tiefen- und Backbuffer initialisiert werden?
-			(sge::renderer::state::float_::depth_buffer_clear_val = 1.f)
-			(sge::renderer::state::color::back_buffer_clear_color =
-				sge::image::color::any::object(background_color)));
-			/*
-			sge::image::color::rgba8(
-				(sge::image::color::init::red %= 0.5)
-				(sge::image::color::init::green %= 0.5)
-				(sge::image::color::init::blue %= 1.0)
-				(sge::image::color::init::alpha %= 0.5)
-				)));
-			*/
+			(sge::renderer::state::depth_func::off));
+
+	sge::renderer::clear::parameters const clear_params(
+		sge::renderer::clear::parameters()
+		.back_buffer(
+			sge::image::color::any::object(background_color))
+		.depth_buffer(
+			1.f));
 
 	sge::camera::spherical::object cam(
 		sge::camera::spherical::parameters(
@@ -554,6 +542,8 @@ try
 	float progress = 0.f;
 	while(aborted)
 	{
+		rend.onscreen_target().clear(clear_params);
+
 		if(sge::timer::reset_when_expired(accesstimer))
 			if((progress = mytex.progress()) >= 99.f)
 				break;
@@ -573,7 +563,6 @@ try
 			sge::font::text::align_v::center,
 			sge::font::text::flags::none
 		);
-
 	}
 
 	if (aborted)
@@ -815,8 +804,7 @@ try
 		sys.window_system().poll()
 	)
 	{
-		// Sonst werden keine Input-Events geschickt
-		sys.window_system().poll();
+		rend.onscreen_target().clear(clear_params);
 
 		cam.update(
 			sge::timer::elapsed_and_reset<sge::camera::update_duration>(
